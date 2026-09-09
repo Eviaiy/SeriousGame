@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Historique — Serious Game</title>
+    <link rel="stylesheet" href="/css/app.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="tag" data-i18n="app.name">Serious Game</span>
+        <span data-i18n="rec.title">Historique des parties</span>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn btn-sm btn-ghost" id="btn-refresh" data-i18n="btn.refresh">Rafraîchir</button>
+      <a class="btn btn-sm btn-ghost" href="/" data-i18n="nav.home">Accueil</a>
+      <div class="row tight">
+        <button class="btn btn-lang" data-lang-btn="fr">FR</button>
+        <button class="btn btn-lang" data-lang-btn="en">EN</button>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="panel">
+        <div class="panel-head">
+          <h2 data-i18n="rec.title">Historique des parties</h2>
+          <div class="spacer"></div>
+          <span class="badge" id="rec-count"></span>
+        </div>
+        <div class="table-wrap" id="list-host"></div>
+      </section>
+
+      <section id="detail-host" class="stack" style="margin-top: 18px"></section>
+    </main>
+
+    <script src="/js/i18n.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/cards.js"></script>
+    <script src="/js/records.js"></script>
+  </body>
+</html>

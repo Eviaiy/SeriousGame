@@ -1,0 +1,25 @@
+{
+  "name": "serious-game-facturation-electronique",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plateforme de jeu sérieux — Facturation électronique : comité de crise et Choose your transformation",
+  "type": "commonjs",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "smoke": "node scripts/smoke.js",
+    "lint:ui": "node scripts/lint-ui.js",
+    "check": "node scripts/lint-ui.js && node scripts/smoke.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

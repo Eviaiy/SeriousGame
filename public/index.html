@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Serious Game — Facturation électronique</title>
+    <link rel="stylesheet" href="/css/app.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="tag" data-i18n="app.name">Serious Game</span>
+        <span data-i18n="app.title">Facturation électronique</span>
+      </div>
+      <div class="spacer"></div>
+      <a class="btn btn-sm btn-ghost" href="/records.html" data-i18n="nav.records">Historique</a>
+      <div class="row tight">
+        <button class="btn btn-lang" data-lang-btn="fr">FR</button>
+        <button class="btn btn-lang" data-lang-btn="en">EN</button>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="center" style="padding: 26px 0 30px">
+        <div class="eyebrow" data-i18n="app.name">Serious Game</div>
+        <h1 data-i18n="app.title">Facturation électronique</h1>
+        <p class="muted" style="font-family: var(--serif); font-size: 1.1rem" data-i18n="app.tagline">
+          Le vrai match commence après le go-live
+        </p>
+        <p class="small muted" data-i18n="app.acts"></p>
+      </section>
+
+      <div class="grid cols-2">
+        <!-- ------------------------------------------------------ animateur -->
+        <section class="panel gold">
+          <div class="stripe"></div>
+          <div class="eyebrow">Acte 1 · Acte 2</div>
+          <h2 data-i18n="home.adminTitle">Animer une session</h2>
+          <p class="muted small" data-i18n="home.adminDesc"></p>
+
+          <form id="create-form" autocomplete="off">
+            <label class="field">
+              <span data-i18n="home.sessionName">Nom de la session</span>
+              <input
+                type="text"
+                id="session-name"
+                maxlength="80"
+                data-i18n-placeholder="app.title"
+              />
+            </label>
+            <label class="field">
+              <span data-i18n="home.facilitator">Animateur</span>
+              <input type="text" id="facilitator" maxlength="60" />
+            </label>
+            <button class="btn btn-primary btn-block" type="submit" data-i18n="home.createBtn">
+              Créer la session
+            </button>
+          </form>
+
+          <div id="admin-resume" class="hidden">
+            <div class="divider"></div>
+            <div class="label" data-i18n="home.existing">Sessions ouvertes sur ce navigateur</div>
+            <div class="list" id="admin-list"></div>
+          </div>
+        </section>
+
+        <!-- --------------------------------------------------------- équipe -->
+        <section class="panel">
+          <div class="stripe blue"></div>
+          <div class="eyebrow" data-i18n="nav.play">Espace équipe</div>
+          <h2 data-i18n="home.joinTitle">Rejoindre une partie</h2>
+          <p class="muted small" data-i18n="home.joinDesc"></p>
+
+          <form id="join-form" autocomplete="off">
+            <label class="field">
+              <span data-i18n="home.code">Code de session</span>
+              <input
+                type="text"
+                id="join-code"
+                class="code-input"
+                maxlength="6"
+                inputmode="latin"
+                autocapitalize="characters"
+                spellcheck="false"
+                placeholder="ABC123"
+              />
+            </label>
+            <label class="field">
+              <span data-i18n="home.teamName">Nom de votre équipe</span>
+              <input type="text" id="team-name" maxlength="40" placeholder="Comex Alpha" />
+            </label>
+            <button class="btn btn-primary btn-block" type="submit" data-i18n="home.joinBtn">
+              Rejoindre la partie
+            </button>
+          </form>
+
+          <div id="team-resume" class="hidden">
+            <div class="divider"></div>
+            <div class="label" data-i18n="home.resumeTeam">Revenir à ma table</div>
+            <div class="list" id="team-list"></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="grid cols-3" style="margin-top: 18px">
+        <div class="panel tight">
+          <div class="metric">
+            <div class="k">1</div>
+            <div class="small" data-i18n="home.step1"></div>
+          </div>
+        </div>
+        <div class="panel tight">
+          <div class="metric">
+            <div class="k">2</div>
+            <div class="small" data-i18n="home.step2"></div>
+          </div>
+        </div>
+        <div class="panel tight">
+          <div class="metric">
+            <div class="k">3</div>
+            <div class="small" data-i18n="home.step3"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/js/i18n.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/home.js"></script>
+  </body>
+</html>

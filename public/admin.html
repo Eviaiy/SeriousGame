@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Console animateur — Serious Game</title>
+    <link rel="stylesheet" href="/css/app.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="tag" data-i18n="app.name">Serious Game</span>
+        <span id="session-name">—</span>
+      </div>
+      <span class="badge" id="session-status">—</span>
+      <div class="spacer"></div>
+      <span class="row tight small muted">
+        <i class="dot" data-conn-dot></i>
+        <span data-conn-label></span>
+      </span>
+      <a class="btn btn-sm btn-ghost" href="/records.html" data-i18n="nav.records">Historique</a>
+      <a class="btn btn-sm btn-ghost" href="/" data-i18n="nav.home">Accueil</a>
+      <div class="row tight">
+        <button class="btn btn-lang" data-lang-btn="fr">FR</button>
+        <button class="btn btn-lang" data-lang-btn="en">EN</button>
+      </div>
+    </header>
+
+    <main class="shell">
+      <div class="split">
+        <!-- =============================================== colonne gauche -->
+        <div class="stack">
+          <!-- accès joueurs -->
+          <section class="panel gold">
+            <div class="grid cols-2" style="align-items: center">
+              <div>
+                <div class="label" data-i18n="admin.code">Code de session</div>
+                <div class="code-display" id="session-code">------</div>
+                <div class="row tight" style="margin-top: 8px">
+                  <button class="btn btn-sm" id="copy-code" data-i18n="btn.copy">Copier</button>
+                  <button class="btn btn-sm" id="copy-link" data-i18n="admin.joinUrl">
+                    Lien joueurs
+                  </button>
+                </div>
+              </div>
+              <div>
+                <div class="label" data-i18n="admin.joinUrl">Lien joueurs</div>
+                <div class="join-url" id="join-link">—</div>
+                <p class="small muted" style="margin: 8px 0 0" data-i18n="admin.projectHint"></p>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="grid cols-4">
+              <div class="metric">
+                <div class="k" data-i18n="admin.teams">Équipes</div>
+                <div class="v" id="m-teams">0</div>
+              </div>
+              <div class="metric">
+                <div class="k" data-i18n="rec.eventsCol">Événements</div>
+                <div class="v" id="m-events">0</div>
+              </div>
+              <div class="metric">
+                <div class="k" data-i18n="admin.answersLabel">Réponses</div>
+                <div class="v" id="m-answers">—</div>
+              </div>
+              <div class="metric">
+                <div class="k" data-i18n="play.timeLeft">Temps restant</div>
+                <div class="v" id="m-timer">—</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- événement en cours -->
+          <section class="panel" id="current-panel">
+            <div class="panel-head">
+              <h2 data-i18n="admin.current">Événement en cours</h2>
+              <div class="spacer"></div>
+              <span class="badge" id="round-badge"></span>
+            </div>
+            <div id="current-host"></div>
+          </section>
+
+          <!-- déroulé -->
+          <section class="panel">
+            <div class="panel-head">
+              <h2 data-i18n="admin.deck">Déroulé des événements</h2>
+              <div class="spacer"></div>
+              <label class="row tight small muted" style="gap: 6px">
+                <span data-i18n="admin.duration">Durée</span>
+                <input
+                  type="number"
+                  id="launch-duration"
+                  min="5"
+                  max="3600"
+                  step="10"
+                  style="width: 88px"
+                />
+              </label>
+              <button class="btn btn-sm" id="btn-new-event" data-i18n="admin.newEvent">
+                Créer un événement
+              </button>
+            </div>
+            <div class="list" id="deck-host"></div>
+          </section>
+
+          <!-- historique -->
+          <section class="panel">
+            <div class="panel-head">
+              <h2 data-i18n="admin.rounds">Historique des événements</h2>
+            </div>
+            <div id="history-host"></div>
+          </section>
+        </div>
+
+        <!-- =============================================== colonne droite -->
+        <div class="stack">
+          <!-- classement -->
+          <section class="panel">
+            <div class="panel-head">
+              <h2 data-i18n="admin.leaderboard">Classement général</h2>
+            </div>
+            <div class="table-wrap" id="board-host"></div>
+          </section>
+
+          <!-- équipes -->
+          <section class="panel">
+            <div class="panel-head">
+              <h2 data-i18n="admin.teams">Équipes</h2>
+              <div class="spacer"></div>
+              <span class="badge" id="teams-count"></span>
+            </div>
+            <div class="list" id="teams-host"></div>
+            <div class="divider"></div>
+            <form class="inline-form" id="add-team-form">
+              <input
+                type="text"
+                id="add-team-name"
+                maxlength="40"
+                data-i18n-placeholder="admin.addTeam"
+              />
+              <button class="btn btn-sm" type="submit" data-i18n="btn.add">Ajouter</button>
+            </form>
+          </section>
+
+          <!-- réglages -->
+          <section class="panel">
+            <div class="panel-head">
+              <h2 data-i18n="admin.settings">Réglages de la session</h2>
+            </div>
+            <label class="field">
+              <span data-i18n="admin.duration">Durée du vote (secondes)</span>
+              <input type="number" id="set-duration" min="5" max="3600" step="10" />
+            </label>
+            <label class="checkline">
+              <input type="checkbox" id="set-autoreveal" />
+              <span data-i18n="admin.autoReveal"></span>
+            </label>
+            <label class="checkline">
+              <input type="checkbox" id="set-autoclose" />
+              <span data-i18n="admin.autoClose"></span>
+            </label>
+            <label class="checkline">
+              <input type="checkbox" id="set-allowchange" />
+              <span data-i18n="admin.allowChange"></span>
+            </label>
+            <label class="checkline">
+              <input type="checkbox" id="set-latejoin" />
+              <span data-i18n="admin.allowLateJoin"></span>
+            </label>
+            <label class="checkline">
+              <input type="checkbox" id="set-showboard" />
+              <span data-i18n="admin.showBoard"></span>
+            </label>
+            <label class="field" style="margin-top: 10px">
+              <span data-i18n="admin.penalty">Pénalité si aucune réponse</span>
+              <input type="number" id="set-penalty" min="-20" max="0" step="1" />
+            </label>
+            <div class="divider"></div>
+            <div class="row">
+              <button class="btn btn-sm btn-danger" id="btn-end-session" data-i18n="admin.endSession">
+                Terminer et archiver
+              </button>
+              <button class="btn btn-sm hidden" id="btn-reopen" data-i18n="admin.reopen">
+                Reprendre la session
+              </button>
+            </div>
+          </section>
+
+          <!-- rôles -->
+          <section class="panel">
+            <div class="panel-head">
+              <h2 data-i18n="admin.roles">Rôles à distribuer</h2>
+            </div>
+            <div class="grid" id="roles-host" style="gap: 10px"></div>
+          </section>
+
+          <!-- journal -->
+          <section class="panel">
+            <div class="panel-head">
+              <h2 data-i18n="admin.log">Journal de la session</h2>
+            </div>
+            <div class="log" id="log-host"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/i18n.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/cards.js"></script>
+    <script src="/js/admin.js"></script>
+  </body>
+</html>

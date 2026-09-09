@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0d12" />
+    <title>Espace équipe — Serious Game</title>
+    <link rel="stylesheet" href="/css/app.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="tag" data-i18n="app.name">Serious Game</span>
+        <span id="team-name">—</span>
+      </div>
+      <span class="badge" id="session-status">—</span>
+      <div class="spacer"></div>
+      <span class="row tight small muted">
+        <i class="dot" data-conn-dot></i>
+        <span data-conn-label></span>
+      </span>
+      <div class="row tight">
+        <button class="btn btn-lang" data-lang-btn="fr">FR</button>
+        <button class="btn btn-lang" data-lang-btn="en">EN</button>
+      </div>
+    </header>
+
+    <main class="shell narrow">
+      <!-- score de l'équipe -->
+      <section class="panel gold tight">
+        <div class="row">
+          <div>
+            <div class="label" data-i18n="play.yourTeam">Votre équipe</div>
+            <div style="font-family: var(--serif); font-size: 1.4rem; font-weight: 700" id="team-title">
+              —
+            </div>
+          </div>
+          <div class="spacer"></div>
+          <div class="center">
+            <div class="label" data-i18n="score.rank">Rang</div>
+            <div class="v" id="my-rank" style="font-family: var(--serif); font-size: 1.6rem">—</div>
+          </div>
+        </div>
+        <div class="grid cols-4" style="margin-top: 12px">
+          <div class="metric">
+            <div class="k" data-i18n="score.total">Total</div>
+            <div class="v small" id="my-total">0</div>
+          </div>
+          <div class="metric">
+            <div class="k" data-i18n="score.act1">Acte 1</div>
+            <div class="v small" id="my-act1">0</div>
+          </div>
+          <div class="metric">
+            <div class="k" data-i18n="score.act2">Acte 2</div>
+            <div class="v small" id="my-act2">0</div>
+          </div>
+          <div class="metric">
+            <div class="k" data-i18n="score.wins">Victoires</div>
+            <div class="v small" id="my-wins">0</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- scène de jeu -->
+      <section id="stage" class="stack" style="margin-top: 16px"></section>
+
+      <!-- classement -->
+      <section class="panel" style="margin-top: 16px">
+        <div class="panel-head">
+          <h2 data-i18n="admin.leaderboard">Classement</h2>
+        </div>
+        <div class="table-wrap" id="board-host"></div>
+      </section>
+
+      <!-- profils -->
+      <section class="grid cols-2" id="profiles-host" style="margin-top: 16px"></section>
+
+      <!-- rôles -->
+      <section class="panel" style="margin-top: 16px">
+        <details>
+          <summary style="cursor: pointer" class="label" data-i18n="play.roles">
+            Rôles à distribuer
+          </summary>
+          <div style="margin-top: 12px" id="roles-host"></div>
+        </details>
+      </section>
+
+      <div class="row" style="margin-top: 18px">
+        <button class="btn btn-sm" id="btn-rename" data-i18n="play.rename">Renommer</button>
+        <div class="spacer"></div>
+        <button class="btn btn-sm btn-ghost btn-danger" id="btn-leave" data-i18n="play.leave">
+          Quitter
+        </button>
+      </div>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/i18n.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/cards.js"></script>
+    <script src="/js/play.js"></script>
+  </body>
+</html>

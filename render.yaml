@@ -1,0 +1,30 @@
+# Blueprint Render — https://render.com/docs/blueprint-spec
+#
+# L'état du jeu vit en mémoire et se synchronise par WebSocket : le service doit
+# rester sur UNE seule instance (Render ne fait pas de sticky sessions).
+# Le disque persistant garde les sessions et l'historique entre deux déploiements.
+# Il demande un plan payant : sur le plan gratuit, retirer le bloc `disk` et la
+# variable DATA_DIR (les parties archivées seront alors perdues à chaque redémarrage).
+
+services:
+  - type: web
+    name: serious-game-facturation
+    runtime: node
+    plan: starter
+    region: frankfurt
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/health
+    numInstances: 1
+    envVars:
+      # Dossier de données = point de montage du disque persistant
+      - key: DATA_DIR
+        value: /var/data
+      # Phrase d'accès animateur : protège la création de session et l'historique.
+      # À définir dans le dashboard Render (valeur non versionnée).
+      - key: ADMIN_PASSPHRASE
+        sync: false
+    disk:
+      name: serious-game-data
+      mountPath: /var/data
+      sizeGB: 1
