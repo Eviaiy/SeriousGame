@@ -1,4 +1,4 @@
-/* Console animateur : pilotage des événements, chrono, scores, archivage. */
+/* Direction de jeu : toutes les tables, les codes animateur, le dévoilement. */
 (function () {
   'use strict';
 
@@ -6,17 +6,17 @@
     $,
     h,
     clear,
-    api,
     toast,
-    adminStore,
+    superStore,
     t,
     L,
     fmtSigned,
     signClass,
-    fmtClock,
     fmtTimeOnly,
+    fmtClock,
     qs,
     joinUrl,
+    tableUrl,
     copyText,
     modal,
     startTicker,
@@ -30,11 +30,11 @@
 
   const sessionId = qs('s');
   const urlKey = qs('k');
-  let entry = sessionId ? adminStore.find(sessionId) : null;
+  let entry = sessionId ? superStore.find(sessionId) : null;
 
   if (sessionId && urlKey) {
-    entry = { sessionId, adminKey: urlKey, code: (qs('code') || '').toUpperCase(), name: '' };
-    adminStore.save(entry);
+    entry = { sessionId, superKey: urlKey, code: (qs('code') || '').toUpperCase(), name: '' };
+    superStore.save(entry);
     // On retire la clé de l'URL pour éviter de la laisser visible au vidéoprojecteur.
     window.history.replaceState({}, '', `/admin.html?s=${encodeURIComponent(sessionId)}`);
   }
@@ -50,23 +50,20 @@
   /* ------------------------------------------------------------------ état */
 
   let state = null;
-  let pendingDuration = null;
-  const timer = C.createTimer();
+  /** Rendus dépendants du temps, réexécutés à chaque tic. */
+  const tickers = new Set();
 
   const socket = window.SG.connect(onState, onFlash);
   socket.on('connect', joinSession);
 
   async function joinSession() {
     try {
-      const res = await socket.call('admin:join', {
-        sessionId,
-        adminKey: entry.adminKey,
-      });
+      const res = await socket.call('super:join', { sessionId, superKey: entry.superKey });
       onState(res.state);
     } catch (err) {
       toast(err.message, 'error');
       if (err.code === 'forbidden' || err.code === 'session_not_found') {
-        adminStore.remove(sessionId);
+        superStore.remove(sessionId);
         setTimeout(() => {
           window.location.href = '/';
         }, 1600);
@@ -76,9 +73,9 @@
 
   function onState(next) {
     state = next;
-    adminStore.save({
+    superStore.save({
       sessionId,
-      adminKey: entry.adminKey,
+      superKey: entry.superKey,
       code: next.session.code,
       name: next.session.name,
     });
@@ -100,347 +97,342 @@
     $('#join-link').textContent = joinUrl(s.code);
 
     const badge = $('#session-status');
-    badge.textContent = t(`admin.status.${s.status}`);
-    badge.className = `badge ${s.status === 'running' ? 'green' : s.status === 'finished' ? 'red' : 'gold'}`;
+    const key =
+      s.status === 'finished'
+        ? 'admin.status.finished'
+        : s.status === 'running'
+          ? 'admin.status.running'
+          : 'admin.status.lobby';
+    badge.textContent = t(key);
+    badge.className = `badge ${s.status === 'finished' ? '' : 'accent'}`.trim();
 
-    $('#m-teams').textContent = state.teams.length;
-    $('#m-events').textContent = `${state.history.length}/${state.events.length}`;
-
-    const round = state.round;
-    $('#m-answers').textContent = round
-      ? `${round.answeredCount}/${round.teamCount}`
-      : '—';
+    $('#m-tables').textContent = state.teams.length;
+    $('#m-players').textContent = s.playerCount;
+    $('#m-events').textContent = s.eventCount;
+    $('#m-live').textContent = state.teams.filter(
+      (team) => team.round && team.round.status !== 'closed'
+    ).length;
 
     $('#btn-end-session').classList.toggle('hidden', s.status === 'finished');
     $('#btn-reopen').classList.toggle('hidden', s.status !== 'finished');
-
-    const roundBadge = $('#round-badge');
-    if (!round) {
-      roundBadge.textContent = '';
-      roundBadge.className = 'badge hidden';
-    } else {
-      roundBadge.className = `badge ${round.status === 'open' ? 'green' : 'gold'}`;
-      roundBadge.textContent = `#${round.no} · ${
-        round.status === 'open' ? t('play.timeLeft') : round.revealed ? t('flash.round_revealed') : t('play.locked')
-      }`;
-    }
   }
 
-  /* ------------------------------------------------------- événement en cours */
+  /* --------------------------------------------------------- suivi des tables */
 
-  function renderCurrent() {
-    const host = clear($('#current-host'));
-    const round = state.round;
+  function teamTile(team) {
+    const round = team.round;
+    const progress = team.progress;
+    const classes = ['team-tile'];
+    if (round && round.status !== 'closed') classes.push('is-live');
+    else if (progress.done) classes.push('is-done');
 
-    if (!round) {
-      host.appendChild(h('p', { class: 'muted', text: t('admin.noCurrent') }));
+    const pct = progress.total ? Math.round((progress.played / progress.total) * 100) : 0;
+
+    const statusBadge = round
+      ? h('span', {
+          class: `badge ${round.status === 'arbitration' ? 'warn' : 'accent'}`,
+          text:
+            round.status === 'arbitration'
+              ? t('play.tie')
+              : round.status === 'closed'
+                ? t('play.closed')
+                : t('admin.live'),
+        })
+      : h('span', {
+          class: `badge ${progress.done ? 'green' : ''}`.trim(),
+          text: progress.done ? t('admin.tableDone') : t('admin.idle'),
+        });
+
+    /* Le compte à rebours de chaque table doit suivre l'horloge, pas l'état. */
+    const clock = h('span', { class: 'small muted' });
+    if (round && round.status === 'open') {
+      const paint = () => {
+        clock.textContent = round.pausedAt
+          ? t('play.paused')
+          : fmtClock(Math.max(0, round.endsAt - now()));
+      };
+      paint();
+      tickers.add(paint);
+    }
+
+    return h('div', { class: classes.join(' ') }, [
+      h('div', { class: 'tile-head' }, [
+        h('span', { class: 'team-title', text: team.name }),
+        statusBadge,
+      ]),
+      h('div', { class: 'tile-foot' }, [
+        h('span', { class: 'code-pill', text: team.adminCode }),
+        h('button', {
+          class: 'btn btn-ghost btn-xs',
+          type: 'button',
+          text: t('btn.copy'),
+          title: t('admin.tableLink'),
+          onClick: (e) => copyText(tableUrl(team.adminCode), e.target),
+        }),
+        h('div', { class: 'spacer' }),
+        clock,
+      ]),
+      h('div', { class: 'progress-track' }, [
+        h('i', { class: 'progress-fill', style: `width:${pct}%` }),
+      ]),
+      h('div', { class: 'tile-foot' }, [
+        h('span', {
+          text: t('admin.progressOf', { done: progress.played, total: progress.total }),
+        }),
+        h('div', { class: 'spacer' }),
+        h('span', { text: t('team.connected', { n: team.online, total: team.headcount }) }),
+        h('i', { class: `live-dot${team.online ? ' on' : ''}` }),
+      ]),
+      /* Les médaillons donnent la composition d'un coup d'œil, sans les noms. */
+      h(
+        'div',
+        { class: 'row tight', style: 'gap:6px;flex-wrap:wrap' },
+        team.players.length
+          ? team.players.map((p) => {
+              const medal = C.roleMedal(p.role, 'sm');
+              medal.setAttribute('title', `${p.name}${p.role ? ` — ${L(p.role.name)}` : ''}`);
+              if (!p.online) medal.style.opacity = '0.45';
+              return medal;
+            })
+          : [h('span', { class: 'small muted', text: t('admin.waitingPlayers') })]
+      ),
+      h('div', { class: 'row tight', style: 'gap:8px' }, [
+        h('span', {
+          class: `badge ${team.rolesAssigned ? 'green' : 'warn'}`,
+          text: team.rolesAssigned ? t('admin.rolesDone') : t('admin.rolesPending'),
+        }),
+        h('div', { class: 'spacer' }),
+        state.scoresVisible
+          ? h('span', { class: `num ${signClass(team.total)}`, text: fmtSigned(team.total) })
+          : h('span', { class: 'small muted', text: t('score.hidden') }),
+        h('button', {
+          class: 'btn btn-sm',
+          type: 'button',
+          text: t('admin.overview'),
+          onClick: () => openTeamModal(team.id),
+        }),
+      ]),
+    ]);
+  }
+
+  function renderTeams() {
+    $('#tables-count').textContent = t('admin.tablesCount', { n: state.teams.length });
+    const host = clear($('#teams-host'));
+    if (!state.teams.length) {
+      host.appendChild(h('p', { class: 'muted small', text: t('admin.noTables') }));
       return;
     }
-
-    const winningKeys = (round.results || [])
-      .filter((r) => (round.winners || []).includes(r.teamId))
-      .map((r) => r.choice)
-      .filter(Boolean);
-
-    host.appendChild(
-      C.renderCard(round.event, {
-        interactive: false,
-        showPoints: true,
-        revealed: round.revealed,
-        winningKeys,
-      })
-    );
-
-    /* --- chrono + commandes --- */
-    const controls = h('div', { class: 'row', style: 'margin-top:6px' });
-    if (round.status === 'open') {
-      controls.appendChild(
-        h('button', {
-          class: 'btn btn-sm',
-          text: round.pausedAt ? t('admin.resume') : t('admin.pause'),
-          onClick: () => call(round.pausedAt ? 'admin:resumeRound' : 'admin:pauseRound'),
-        })
-      );
-      controls.appendChild(
-        h('button', {
-          class: 'btn btn-sm',
-          text: t('admin.lessTime'),
-          onClick: () => call('admin:addTime', { seconds: -30 }),
-        })
-      );
-      controls.appendChild(
-        h('button', {
-          class: 'btn btn-sm',
-          text: t('admin.addTime'),
-          onClick: () => call('admin:addTime', { seconds: 30 }),
-        })
-      );
-      controls.appendChild(
-        h('button', {
-          class: 'btn btn-sm btn-primary',
-          text: t('admin.close'),
-          onClick: () => call('admin:closeRound'),
-        })
-      );
-    } else {
-      if (!round.revealed) {
-        controls.appendChild(
-          h('button', {
-            class: 'btn btn-sm btn-primary',
-            text: t('admin.reveal'),
-            onClick: () => call('admin:reveal'),
-          })
-        );
-      } else {
-        controls.appendChild(
-          h('button', {
-            class: 'btn btn-sm btn-primary',
-            text: t('admin.next'),
-            onClick: () => call('admin:finishRound'),
-          })
-        );
-      }
-      controls.appendChild(
-        h('button', {
-          class: 'btn btn-sm btn-danger',
-          text: t('admin.cancelRound'),
-          onClick: () => {
-            if (window.confirm(t('admin.cancelRound') + ' ?')) call('admin:cancelRound');
-          },
-        })
-      );
-    }
-
-    host.appendChild(
-      h('div', { class: 'panel tight', style: 'margin-top:14px' }, [
-        h('div', { class: 'timer-wrap' }, [
-          h('div', { style: 'min-width:160px;flex:1 1 200px' }, [timer.node]),
-          h('div', { class: 'stack', style: 'flex:2 1 320px;gap:8px' }, [
-            h('div', { class: 'label', text: t('play.answers') }),
-            C.answerChips(round, { showSeconds: true }),
-          ]),
-        ]),
-        controls,
-      ])
-    );
-    timer.update(round);
-
-    /* --- résultats --- */
-    if (round.status === 'closed') {
-      const banner = C.winnerBanner(round);
-      const block = h('div', { class: 'stack', style: 'margin-top:14px' }, [
-        banner,
-        h('div', { class: 'label', text: t('play.results') }),
-        C.resultsTable(round),
-      ]);
-      host.appendChild(block);
-    }
+    state.teams.forEach((team) => host.appendChild(teamTile(team)));
   }
 
-  /* ---------------------------------------------------------------- déroulé */
+  /* ------------------------------------------------- classement par événement */
+
+  function renderRanks() {
+    const host = clear($('#ranks-host'));
+    if (!state.rankings.length) {
+      host.appendChild(h('p', { class: 'muted small', text: t('admin.noRanks') }));
+      return;
+    }
+    state.rankings.forEach((entryRank, index) => {
+      const details = h('details', index === 0 ? { open: true } : {}, [
+        h('summary', { class: 'label', style: 'cursor:pointer' }, [
+          h('span', { text: `${L(entryRank.ref)} — ${L(entryRank.title)}` }),
+        ]),
+        h('div', { style: 'margin-top:10px' }, [C.eventRankTable(entryRank)]),
+      ]);
+      host.appendChild(details);
+    });
+  }
+
+  /* ------------------------------------------------------------------ déroulé */
 
   function renderDeck() {
     const host = clear($('#deck-host'));
-    const running = Boolean(state.round && state.round.status === 'open');
-
-    for (const event of state.events) {
-      const classes = ['list-item'];
-      if (event.current) classes.push('current');
-      else if (event.played) classes.push('played');
-
-      const badges = h('div', { class: 'row tight' }, [
-        h('span', {
-          class: `badge ${event.act === 2 ? 'blue' : event.color === 'orange' ? 'orange' : 'red'}`,
-          text: `${t('admin.eventAct')} ${event.act}`,
-        }),
-        event.played ? h('span', { class: 'badge green', text: '✓' }) : null,
-        event.current ? h('span', { class: 'badge gold', text: t('admin.current') }) : null,
-      ]);
-
-      const actions = h('div', { class: 'row tight' }, [
-        h('button', {
-          class: 'btn btn-xs btn-ghost',
-          text: '↑',
-          onClick: () => call('admin:moveEvent', { eventId: event.id, direction: -1 }),
-        }),
-        h('button', {
-          class: 'btn btn-xs btn-ghost',
-          text: '↓',
-          onClick: () => call('admin:moveEvent', { eventId: event.id, direction: 1 }),
-        }),
-        h('button', {
-          class: 'btn btn-xs',
-          text: t('admin.edit'),
-          onClick: () => openEventModal(event),
-        }),
-        h('button', {
-          class: 'btn btn-xs btn-danger',
-          text: '×',
-          title: t('admin.deleteEvent'),
-          onClick: () => {
-            if (window.confirm(t('admin.deleteEventConfirm'))) {
-              call('admin:removeEvent', { eventId: event.id });
-            }
-          },
-        }),
-        h('button', {
-          class: `btn btn-xs ${event.played ? '' : 'btn-primary'}`,
-          text: event.played ? t('admin.relaunch') : t('admin.launch'),
-          disabled: running || state.session.status === 'finished',
-          onClick: () => launch(event),
-        }),
-      ]);
-
+    state.events.forEach((event, index) => {
+      const idle = state.teams.filter((team) => !team.round);
       host.appendChild(
-        h('div', { class: classes.join(' ') }, [
+        h('div', { class: 'list-item deck-row' }, [
+          h('span', { class: `badge ${event.color || 'red'}`, text: L(event.ref) }),
           h('div', { class: 'grow' }, [
             h('div', { class: 'title', text: L(event.title) }),
-            h('div', { class: 'small muted', text: `${L(event.ref)} · ${L(event.tag)}` }),
+            h('div', {
+              class: 'small muted',
+              text: `${L(event.tag)} · ${t('admin.progressOf', {
+                done: event.playedBy,
+                total: state.teams.length,
+              })}`,
+            }),
           ]),
-          badges,
-          actions,
+          h('div', { class: 'row-actions' }, [
+            h('button', {
+              class: 'btn btn-sm',
+              type: 'button',
+              text: t('admin.launchOn'),
+              disabled: !idle.length || state.session.status === 'finished',
+              onClick: () => openLaunchModal(event),
+            }),
+            h('button', {
+              class: 'btn btn-sm btn-ghost',
+              type: 'button',
+              text: t('admin.edit'),
+              onClick: () => openEventModal(event),
+            }),
+            h('button', {
+              class: 'btn btn-sm btn-ghost',
+              type: 'button',
+              text: '↑',
+              title: t('admin.moveUp'),
+              disabled: index === 0,
+              onClick: () => call('super:moveEvent', { eventId: event.id, direction: -1 }),
+            }),
+            h('button', {
+              class: 'btn btn-sm btn-ghost',
+              type: 'button',
+              text: '↓',
+              title: t('admin.moveDown'),
+              disabled: index === state.events.length - 1,
+              onClick: () => call('super:moveEvent', { eventId: event.id, direction: 1 }),
+            }),
+            h('button', {
+              class: 'btn btn-sm btn-ghost btn-danger',
+              type: 'button',
+              text: '×',
+              title: t('admin.deleteEvent'),
+              onClick: () => {
+                if (window.confirm(t('admin.deleteEventConfirm'))) {
+                  call('super:removeEvent', { eventId: event.id });
+                }
+              },
+            }),
+          ]),
         ])
       );
-    }
+    });
   }
 
-  function launch(event) {
-    const duration = Number($('#launch-duration').value) || state.session.settings.defaultDuration;
-    if (event.played) {
-      if (!window.confirm(t('admin.replayConfirm'))) return;
-      call('admin:replayEvent', { eventId: event.id, durationSec: duration });
-    } else {
-      call('admin:startRound', { eventId: event.id, durationSec: duration });
-    }
+  /** Lancer un événement sur une ou plusieurs tables au repos. */
+  function openLaunchModal(event) {
+    const body = h('div', { class: 'stack' });
+    const dialog = modal(body);
+    const idle = state.teams.filter((team) => !team.round);
+    const boxes = idle.map((team) => {
+      const input = h('input', { type: 'checkbox', checked: true });
+      return { team, input };
+    });
+    const duration = h('input', {
+      type: 'number',
+      min: '5',
+      max: '3600',
+      step: '30',
+      value: String(state.session.settings.defaultDuration),
+    });
+
+    body.appendChild(
+      h('div', { class: 'panel-head' }, [
+        h('h2', { text: `${t('admin.launch')} — ${L(event.title)}` }),
+        h('div', { class: 'spacer' }),
+        h('button', { class: 'btn btn-sm btn-ghost', text: '×', onClick: dialog.close }),
+      ])
+    );
+    body.appendChild(
+      h('label', { class: 'field' }, [h('span', { text: `${t('team.duration')} (s)` }), duration])
+    );
+    boxes.forEach(({ team, input }) => {
+      body.appendChild(h('label', { class: 'checkline' }, [input, h('span', { text: team.name })]));
+    });
+    body.appendChild(
+      h('div', { class: 'row', style: 'margin-top:8px' }, [
+        h('button', {
+          class: 'btn btn-primary',
+          text: t('admin.launch'),
+          onClick: async () => {
+            const seconds = Number(duration.value) || state.session.settings.defaultDuration;
+            for (const { team, input } of boxes) {
+              if (input.checked) {
+                await call('round:start', {
+                  teamId: team.id,
+                  eventId: event.id,
+                  durationSec: seconds,
+                });
+              }
+            }
+            dialog.close();
+          },
+        }),
+        h('div', { class: 'spacer' }),
+        h('button', { class: 'btn', text: t('btn.cancel'), onClick: dialog.close }),
+      ])
+    );
   }
 
-  /* ------------------------------------------------------------- historique */
+  /* --------------------------------------------------------------- dévoilement */
 
-  function renderHistory() {
-    const host = clear($('#history-host'));
-    if (!state.history.length) {
-      host.appendChild(h('p', { class: 'muted small', text: t('admin.noHistory') }));
+  function renderReveal() {
+    const host = clear($('#reveal-host'));
+    const s = state.session;
+    const pending = state.teams.filter((team) => !team.progress.done).length;
+
+    if (s.revealed) {
+      host.appendChild(
+        h('div', { class: 'row', style: 'gap:10px;align-items:center' }, [
+          h('span', { class: 'badge gold', text: t('admin.revealDone') }),
+          h('span', { class: 'small muted', text: fmtTimeOnly(s.revealedAt) }),
+        ])
+      );
       return;
     }
 
-    for (const item of state.history.slice().reverse()) {
-      const details = h('details', { class: 'list-item', style: 'display:block' });
-      const winners = item.winnerNames.length ? item.winnerNames.join(' · ') : t('play.noWinner');
-      details.appendChild(
-        h('summary', { style: 'cursor:pointer' }, [
-          h('span', { class: 'title', text: `#${item.no} ${L(item.title)}` }),
-          h('span', { class: 'muted small', text: ` — ${t('admin.winnerOf')} : ${winners}` }),
-        ])
-      );
-      details.appendChild(
-        h('div', { style: 'margin-top:10px' }, [
-          C.resultsTable({ results: item.results, winners: item.winners, revealed: true }),
-        ])
-      );
-      host.appendChild(details);
-    }
+    host.appendChild(C.sealedNotice('admin.revealHint'));
+    host.appendChild(
+      h('div', { class: 'row', style: 'margin-top:12px;gap:10px;align-items:center' }, [
+        h('button', {
+          class: 'btn btn-primary',
+          type: 'button',
+          text: t('admin.reveal'),
+          onClick: () => {
+            if (window.confirm(t('admin.revealConfirm'))) call('super:reveal');
+          },
+        }),
+        pending
+          ? h('span', { class: 'small warn', text: t('admin.revealNotReady', { n: pending }) })
+          : h('span', { class: 'small muted', text: t('admin.tableDone') }),
+      ])
+    );
   }
-
-  /* -------------------------------------------------------------- classement */
 
   function renderBoard() {
     const host = clear($('#board-host'));
-    host.appendChild(C.leaderboardTable(state.leaderboard, {}));
-  }
-
-  /* ------------------------------------------------------------------ équipes */
-
-  function renderTeams() {
-    const host = clear($('#teams-host'));
-    $('#teams-count').textContent = t('admin.teamsCount', { n: state.teams.length });
-
-    if (!state.teams.length) {
-      host.appendChild(h('p', { class: 'muted small', text: t('admin.noTeams') }));
-      return;
-    }
-
-    for (const team of state.teams) {
-      const round = state.round;
-      const choice = round ? (round.answers.find((a) => a.teamId === team.id) || {}).choice : null;
-
-      host.appendChild(
-        h('div', { class: 'list-item' }, [
-          h('i', { class: `dot ${team.online ? 'on' : ''}` }),
-          h('div', { class: 'grow' }, [
-            h('div', { class: 'title', text: team.name }),
-            h('div', { class: 'small muted' }, [
-              `${t('score.total')} `,
-              h('b', { class: signClass(team.total), text: fmtSigned(team.total) }),
-              ` · ${t('score.act1')} ${fmtSigned(team.act1)} · ${t('score.act2')} ${fmtSigned(
-                team.act2
-              )} · ★ ${team.wins}`,
-            ]),
-          ]),
-          round && round.status === 'open'
-            ? h('span', {
-                class: `badge ${choice ? 'green' : ''}`,
-                text: choice || '…',
-              })
-            : null,
-          h('button', {
-            class: 'btn btn-xs',
-            text: t('admin.adjust'),
-            onClick: () => openTeamModal(team.id),
-          }),
-        ])
-      );
-    }
+    /* Le classement vit dans la colonne latérale : la version détaillée y
+       débordait et coupait la colonne « total ». Le détail acte par acte est
+       dans le classement par événement et dans l'historique. */
+    host.appendChild(C.leaderboardTable(state.leaderboard, { compact: true }));
   }
 
   /* ------------------------------------------------------------------ réglages */
 
   function renderSettings() {
     const s = state.session.settings;
-    const set = (id, value, prop) => {
-      const node = $(id);
-      if (!node || node === document.activeElement) return;
-      node[prop || 'value'] = value;
-    };
-    set('#set-duration', s.defaultDuration);
-    set('#set-autoreveal', s.autoReveal, 'checked');
-    set('#set-autoclose', s.autoCloseOnAllAnswers, 'checked');
-    set('#set-allowchange', s.allowChangeBeforeDeadline, 'checked');
-    set('#set-latejoin', s.allowLateJoin, 'checked');
-    set('#set-showboard', s.showLeaderboardToTeams, 'checked');
-    set('#set-penalty', s.noAnswerPenalty);
-
-    if (pendingDuration === null) {
-      const launchInput = $('#launch-duration');
-      if (launchInput !== document.activeElement) launchInput.value = s.defaultDuration;
-    }
+    $('#set-duration').value = s.defaultDuration;
+    $('#set-arbitration').value = s.arbitrationSeconds;
+    $('#set-teamsize').value = s.teamSize;
+    $('#set-autoassign').checked = Boolean(s.autoAssignRoles);
+    $('#set-autoclose').checked = Boolean(s.autoCloseOnAllVotes);
+    $('#set-allowchange').checked = Boolean(s.allowChangeVote);
+    $('#set-latejoin').checked = Boolean(s.allowLateJoin);
   }
 
   function pushSettings() {
-    call('admin:updateSettings', {
+    call('super:updateSettings', {
       settings: {
-        defaultDuration: Number($('#set-duration').value),
-        autoReveal: $('#set-autoreveal').checked,
-        autoCloseOnAllAnswers: $('#set-autoclose').checked,
-        allowChangeBeforeDeadline: $('#set-allowchange').checked,
+        defaultDuration: Number($('#set-duration').value) || 300,
+        arbitrationSeconds: Number($('#set-arbitration').value) || 90,
+        teamSize: Number($('#set-teamsize').value) || 6,
+        autoAssignRoles: $('#set-autoassign').checked,
+        autoCloseOnAllVotes: $('#set-autoclose').checked,
+        allowChangeVote: $('#set-allowchange').checked,
         allowLateJoin: $('#set-latejoin').checked,
-        showLeaderboardToTeams: $('#set-showboard').checked,
-        noAnswerPenalty: Number($('#set-penalty').value),
       },
     });
-  }
-
-  /* --------------------------------------------------------------- journal */
-
-  function renderLog() {
-    const host = clear($('#log-host'));
-    for (const line of state.log.slice().reverse()) {
-      host.appendChild(
-        h('div', { class: 'log-line' }, [
-          h('time', { text: fmtTimeOnly(line.ts) }),
-          h('span', { text: t(`log.${line.type}`, line.params || {}) }),
-        ])
-      );
-    }
   }
 
   function renderRoles() {
@@ -448,288 +440,366 @@
     host.appendChild(C.rolesGrid(state.roles));
   }
 
-  /* ---------------------------------------------------------------- render */
+  function renderLog() {
+    const host = clear($('#log-host'));
+    state.log
+      .slice()
+      .reverse()
+      .forEach((line) => {
+        host.appendChild(
+          h('div', { class: 'log-line' }, [
+            h('span', { class: 't', text: fmtTimeOnly(line.ts) }),
+            h('span', { text: t(`log.${line.type}`, line.params || {}) }),
+          ])
+        );
+      });
+  }
 
-  /** Modales ouvertes qui doivent se redessiner à chaque nouvel état. */
-  const subscribers = new Set();
+  /* --------------------------------------------------------------- rendu global */
 
   function render() {
     if (!state) return;
+    tickers.clear();
     renderHeader();
-    renderCurrent();
-    renderDeck();
-    renderHistory();
-    renderBoard();
+    renderReveal();
     renderTeams();
+    renderRanks();
+    renderDeck();
+    renderBoard();
     renderSettings();
-    renderLog();
     renderRoles();
-    subscribers.forEach((fn) => {
-      try {
-        fn();
-      } catch (err) {
-        console.error(err);
-      }
-    });
+    renderLog();
   }
 
   startTicker(() => {
-    if (!state) return;
-    const remaining = timer.update(state.round);
-    $('#m-timer').textContent = state.round ? fmtClock(remaining) : '—';
+    tickers.forEach((fn) => fn());
   });
 
-  window.I18N.onChange(() => {
-    window.I18N.applyStatic();
-    render();
-  });
-
-  /* ---------------------------------------------------- fiche équipe (modale) */
+  /* ------------------------------------------------------- fiche d'une table */
 
   function openTeamModal(teamId) {
-    const team = state.teams.find((x) => x.id === teamId);
-    if (!team) return;
-
     const body = h('div', { class: 'stack' });
-    let stopI18n = null;
-    const dialog = modal(body, {
-      onClose: () => {
-        subscribers.delete(refresh);
-        if (stopI18n) stopI18n();
-      },
-    });
+    /* La fiche suit l'état en direct : on la repeint à chaque diffusion, et on
+       se désabonne quelle que soit la façon dont la modale se ferme. */
+    const onPaint = () => paint();
+    const dialog = modal(body, { onClose: () => socket.off('state', onPaint) });
+    socket.on('state', onPaint);
 
-    function refresh() {
-      const live = state.teams.find((x) => x.id === teamId);
-      if (!live) return dialog.close();
+    function paint() {
+      const team = state.teams.find((x) => x.id === teamId);
+      if (!team) return dialog.close();
       clear(body);
 
       body.appendChild(
         h('div', { class: 'panel-head' }, [
-          h('h2', { text: live.name }),
+          h('h2', { text: team.name }),
           h('div', { class: 'spacer' }),
-          h('button', { class: 'btn btn-sm btn-ghost', text: '×', onClick: dialog.close }),
+          h('button', { class: 'btn btn-sm btn-ghost', text: '×', onClick: () => dialog.close() }),
         ])
       );
 
+      /* ---------------------------------------------------------- accès table */
       body.appendChild(
-        h('div', { class: 'grid cols-4' }, [
-          metric(t('score.act1'), fmtSigned(live.act1)),
-          metric(t('score.act2'), fmtSigned(live.act2)),
-          metric(t('score.adjust'), fmtSigned(live.adjust)),
-          metric(t('score.total'), fmtSigned(live.total)),
-        ])
-      );
-
-      body.appendChild(
-        h('div', { class: 'grid cols-2' }, [
-          C.profileCard('score.profile1', live.act1Profile, 'orange'),
-          C.profileCard('score.profile2', live.act2Profile, 'blue'),
-        ])
-      );
-
-      /* --- renommer --- */
-      const nameInput = h('input', { type: 'text', value: live.name, maxlength: '40' });
-      body.appendChild(
-        h('div', {}, [
-          h('div', { class: 'label', text: t('play.rename') }),
-          h('div', { class: 'inline-form' }, [
-            nameInput,
+        h('div', { class: 'panel tight' }, [
+          h('div', { class: 'label', text: t('admin.tableCode') }),
+          h('div', { class: 'row', style: 'gap:8px;align-items:center;flex-wrap:wrap' }, [
+            h('span', { class: 'code-display', style: 'font-size:1.3rem', text: team.adminCode }),
             h('button', {
               class: 'btn btn-sm',
-              text: t('btn.save'),
-              onClick: async () => {
-                await call('admin:renameTeam', { teamId, name: nameInput.value });
-                refresh();
-              },
+              text: t('btn.copy'),
+              onClick: (e) => copyText(tableUrl(team.adminCode), e.target),
             }),
-          ]),
-        ])
-      );
-
-      /* --- ajustement de points --- */
-      const deltaInput = h('input', { type: 'number', value: '1', style: 'max-width:90px' });
-      const reasonInput = h('input', {
-        type: 'text',
-        placeholder: t('admin.reason'),
-        maxlength: '120',
-      });
-
-      const quick = h(
-        'div',
-        { class: 'row tight' },
-        [-5, -2, -1, 1, 2, 5].map((value) =>
-          h('button', {
-            class: 'btn btn-xs',
-            text: fmtSigned(value),
-            onClick: async () => {
-              await call('admin:adjustScore', {
-                teamId,
-                delta: value,
-                reason: reasonInput.value,
-              });
-              refresh();
-            },
-          })
-        )
-      );
-
-      body.appendChild(
-        h('div', {}, [
-          h('div', { class: 'label', text: t('admin.adjust') }),
-          quick,
-          h('div', { class: 'inline-form', style: 'margin-top:8px' }, [
-            deltaInput,
-            reasonInput,
+            h('a', {
+              class: 'btn btn-sm btn-ghost',
+              href: tableUrl(team.adminCode),
+              target: '_blank',
+              rel: 'noopener',
+              text: t('nav.team'),
+            }),
             h('button', {
-              class: 'btn btn-sm btn-primary',
-              text: t('admin.adjust'),
-              onClick: async () => {
-                await call('admin:adjustScore', {
-                  teamId,
-                  delta: Number(deltaInput.value),
-                  reason: reasonInput.value,
-                });
-                refresh();
-              },
+              class: 'btn btn-sm btn-ghost',
+              text: t('admin.regenCode'),
+              onClick: () => call('super:regenTeamCode', { teamId }),
             }),
           ]),
         ])
       );
 
-      if (live.adjustments && live.adjustments.length) {
+      /* -------------------------------------------------------------- gestion */
+      const nameInput = h('input', { type: 'text', value: team.name, maxlength: '40' });
+      body.appendChild(
+        h('div', { class: 'row', style: 'gap:8px;align-items:flex-end;flex-wrap:wrap' }, [
+          h('label', { class: 'field', style: 'margin:0;flex:1 1 180px' }, [
+            h('span', { text: t('admin.renameTable') }),
+            nameInput,
+          ]),
+          h('button', {
+            class: 'btn btn-sm',
+            text: t('btn.save'),
+            onClick: () => call('team:rename', { teamId, name: nameInput.value.trim() }),
+          }),
+          h('button', {
+            class: 'btn btn-sm btn-ghost',
+            text: team.rolesAssigned ? t('admin.rerollRoles') : t('admin.assignRoles'),
+            onClick: () => call('team:assignRoles', { teamId }),
+          }),
+          h('button', {
+            class: 'btn btn-sm btn-ghost btn-danger',
+            text: t('admin.removeTable'),
+            onClick: () => {
+              if (window.confirm(t('admin.removeTableConfirm'))) {
+                call('super:removeTeam', { teamId });
+                dialog.close();
+              }
+            },
+          }),
+        ])
+      );
+
+      /* ------------------------------------------------------------ effectif */
+      body.appendChild(h('div', { class: 'label', text: t('team.roster') }));
+      body.appendChild(
+        C.rosterList(team.players, {
+          round: team.round,
+          showVotes: Boolean(team.round && team.round.status === 'open'),
+          /* Dans la fiche, chaque ligne porte deux commandes : en colonne
+             unique le nom et le rôle tiennent sur une ligne. */
+          single: true,
+          onRemove: (player) => {
+            if (window.confirm(t('admin.removePlayerConfirm', { name: player.name }))) {
+              call('super:removePlayer', { playerId: player.id });
+            }
+          },
+          onMove: (player) => openMoveModal(player, teamId),
+        })
+      );
+
+      /* ------------------------------------------------- manche et arbitrage */
+      if (team.round) {
+        const round = team.round;
+        const controls = [
+          h('button', {
+            class: 'btn btn-sm',
+            text: t('team.addTime'),
+            onClick: () => call('round:addTime', { teamId, seconds: 60 }),
+          }),
+          round.status === 'open'
+            ? h('button', {
+                class: 'btn btn-sm',
+                text: round.pausedAt ? t('team.resume') : t('team.pause'),
+                onClick: () => call(round.pausedAt ? 'round:resume' : 'round:pause', { teamId }),
+              })
+            : null,
+          round.status === 'open'
+            ? h('button', {
+                class: 'btn btn-sm btn-primary',
+                text: t('team.closeVote'),
+                onClick: () => call('round:close', { teamId }),
+              })
+            : null,
+          round.status === 'closed'
+            ? h('button', {
+                class: 'btn btn-sm btn-primary',
+                text: t('team.finish'),
+                onClick: () => call('round:finish', { teamId }),
+              })
+            : null,
+          h('button', {
+            class: 'btn btn-sm btn-ghost btn-danger',
+            text: t('team.cancel'),
+            onClick: () => {
+              if (window.confirm(t('team.cancelConfirm'))) call('round:cancel', { teamId });
+            },
+          }),
+        ].filter(Boolean);
+
         body.appendChild(
-          h('div', {}, [
-            h('div', { class: 'label', text: t('admin.adjustments') }),
-            h(
-              'div',
-              { class: 'list' },
-              live.adjustments
-                .slice()
-                .reverse()
-                .map((adj) =>
-                  h('div', { class: 'list-item' }, [
-                    h('b', { class: signClass(adj.delta), text: fmtSigned(adj.delta) }),
-                    h('span', { class: 'grow small muted', text: adj.reason || '—' }),
-                    h('span', { class: 'small muted', text: fmtTimeOnly(adj.ts) }),
+          h('div', { class: 'panel tight' }, [
+            h('div', { class: 'row' }, [
+              h('div', { class: 'grow' }, [
+                h('div', { class: 'label', text: t('admin.live') }),
+                h('div', {
+                  class: 'team-title',
+                  style: 'font-size:1rem',
+                  text: L(round.event && round.event.title),
+                }),
+                h('div', {
+                  class: 'small muted',
+                  text: t('team.voted', { n: round.votedCount, total: round.headcount }),
+                }),
+              ]),
+            ]),
+            round.tally ? C.tallyBars(round.tally, { decision: round.decision, winners: round.tied }) : null,
+            round.status === 'arbitration'
+              ? h(
+                  'div',
+                  { class: 'arb-choices', style: 'margin-top:10px' },
+                  (round.tied || []).map((key) =>
                     h('button', {
-                      class: 'btn btn-xs btn-danger',
-                      text: '×',
-                      onClick: async () => {
-                        await call('admin:removeAdjustment', { teamId, adjustmentId: adj.id });
-                        refresh();
-                      },
-                    }),
-                  ])
+                      class: 'btn btn-sm',
+                      text: `${t('team.arbitrateFor')} — ${key}`,
+                      onClick: () => call('round:arbitrate', { teamId, choice: key }),
+                    })
+                  )
                 )
-            ),
+              : null,
+            h('div', { class: 'row tight', style: 'margin-top:10px;gap:8px;flex-wrap:wrap' }, controls),
           ])
         );
       }
 
-      /* --- correction des réponses --- */
-      const answers = live.answers || {};
-      const rows = state.events.map((event) => {
-        const answer = answers[event.id];
-        const select = h(
-          'select',
-          {
-            style: 'max-width:120px',
-            onChange: () =>
-              call('admin:setAnswer', {
-                teamId,
-                eventId: event.id,
-                choice: select.value || null,
-              }),
-          },
-          [
-            h('option', { value: '', text: '—' }),
-            ...event.options.map((option) =>
-              h('option', {
-                value: option.key,
-                text: option.key,
-                selected: answer && answer.choice === option.key,
-              })
-            ),
-          ]
-        );
-        return h('div', { class: 'list-item' }, [
-          h('div', { class: 'grow' }, [
-            h('div', { class: 'small', text: L(event.title) }),
-            h('div', { class: 'small muted', text: L(event.ref) }),
+      /* ---------------------------------------------------------- ajustements */
+      const deltaInput = h('input', { type: 'number', value: '0', step: '1' });
+      const reasonInput = h('input', { type: 'text', maxlength: '80' });
+      body.appendChild(
+        h('div', { class: 'panel tight' }, [
+          h('div', { class: 'label', text: t('admin.adjust') }),
+          h('div', { class: 'row', style: 'gap:8px;align-items:flex-end;flex-wrap:wrap' }, [
+            h('label', { class: 'field', style: 'margin:0;width:110px' }, [
+              h('span', { text: t('admin.adjustHint') }),
+              deltaInput,
+            ]),
+            h('label', { class: 'field', style: 'margin:0;flex:1 1 160px' }, [
+              h('span', { text: t('admin.reason') }),
+              reasonInput,
+            ]),
+            h('button', {
+              class: 'btn btn-sm',
+              text: t('btn.add'),
+              onClick: () => {
+                const delta = Number(deltaInput.value);
+                if (!delta) return;
+                call('super:adjustScore', { teamId, delta, reason: reasonInput.value.trim() });
+                deltaInput.value = '0';
+                reasonInput.value = '';
+              },
+            }),
           ]),
-          h('b', {
-            class: signClass(answer ? answer.total : 0),
-            text: answer ? fmtSigned(answer.total) : '—',
-          }),
-          select,
-        ]);
-      });
-
-      body.appendChild(
-        h('div', {}, [
-          h('div', { class: 'label', text: t('admin.override') }),
-          h('div', { class: 'list' }, rows),
+          team.adjustments.length
+            ? h(
+                'div',
+                { class: 'list', style: 'margin-top:10px' },
+                team.adjustments.map((adj) =>
+                  h('div', { class: 'list-item' }, [
+                    h('span', { class: `num ${signClass(adj.delta)}`, text: fmtSigned(adj.delta) }),
+                    h('div', { class: 'grow small', text: adj.reason || '—' }),
+                    h('button', {
+                      class: 'btn btn-xs btn-ghost btn-danger',
+                      text: '×',
+                      onClick: () =>
+                        call('super:removeAdjustment', { teamId, adjustmentId: adj.id }),
+                    }),
+                  ])
+                )
+              )
+            : null,
         ])
       );
 
-      /* --- suppression --- */
+      /* ------------------------------------------------ décisions et correction */
+      body.appendChild(h('div', { class: 'label', text: t('team.history') }));
       body.appendChild(
-        h('div', { class: 'row', style: 'margin-top:6px' }, [
-          h('button', {
-            class: 'btn btn-sm btn-danger',
-            text: t('btn.delete'),
-            onClick: async () => {
-              if (!window.confirm(t('admin.removeTeamConfirm'))) return;
-              await call('admin:removeTeam', { teamId });
-              dialog.close();
-            },
-          }),
-          h('div', { class: 'spacer' }),
-          h('button', { class: 'btn btn-sm', text: t('btn.close'), onClick: dialog.close }),
-        ])
+        h(
+          'div',
+          { class: 'list' },
+          team.history.length
+            ? team.history.map((entryRow) => {
+                const select = h(
+                  'select',
+                  {},
+                  ['A', 'B', 'C'].map((key) =>
+                    h('option', { value: key, text: key, selected: entryRow.decision === key })
+                  )
+                );
+                return h('div', { class: 'list-item' }, [
+                  h('div', { class: 'grow' }, [
+                    h('div', { class: 'title', text: L(entryRow.eventTitle) }),
+                    h('div', {
+                      class: 'small muted',
+                      text: `${entryRow.decision || t('score.noAnswer')} · ${C.decidedByText(
+                        entryRow.decidedBy
+                      )} · ${entryRow.tally.A}/${entryRow.tally.B}/${entryRow.tally.C}`,
+                    }),
+                  ]),
+                  h('span', {
+                    class: `num ${signClass(entryRow.total)}`,
+                    text: fmtSigned(entryRow.total),
+                  }),
+                  select,
+                  h('button', {
+                    class: 'btn btn-xs',
+                    text: t('admin.override'),
+                    onClick: () =>
+                      call('super:setDecision', {
+                        teamId,
+                        eventId: entryRow.eventId,
+                        choice: select.value,
+                      }),
+                  }),
+                ]);
+              })
+            : [h('p', { class: 'muted small', text: t('team.noHistory') })]
+        )
       );
+
       return undefined;
     }
 
-    function metric(k, v) {
-      return h('div', { class: 'metric' }, [
-        h('div', { class: 'k', text: k }),
-        h('div', { class: `v small ${signClass(v)}`, text: v }),
-      ]);
-    }
-
-    refresh();
-    stopI18n = window.I18N.onChange(refresh);
-    subscribers.add(refresh);
+    paint();
   }
 
-  /* ----------------------------------------------- éditeur d'événement (modale) */
+  function openMoveModal(player, fromTeamId) {
+    const body = h('div', { class: 'stack' });
+    const dialog = modal(body);
+    body.appendChild(
+      h('div', { class: 'panel-head' }, [
+        h('h2', { text: `${t('admin.movePlayer')} — ${player.name}` }),
+        h('div', { class: 'spacer' }),
+        h('button', { class: 'btn btn-sm btn-ghost', text: '×', onClick: dialog.close }),
+      ])
+    );
+    state.teams
+      .filter((team) => team.id !== fromTeamId)
+      .forEach((team) => {
+        body.appendChild(
+          h('button', {
+            class: 'btn btn-block',
+            type: 'button',
+            text: `${team.name} — ${t('admin.playersCount', { n: team.headcount })}`,
+            onClick: async () => {
+              await call('super:movePlayer', { playerId: player.id, teamId: team.id });
+              dialog.close();
+            },
+          })
+        );
+      });
+    return dialog;
+  }
+
+  /* ------------------------------------------------------- éditeur d'événement */
 
   function openEventModal(event) {
     const isNew = !event;
     const body = h('div', { class: 'stack' });
     const dialog = modal(body);
 
-    const src =
-      event ||
-      {
-        act: 1,
-        round: 1,
-        color: 'red',
-        ref: { fr: '', en: '' },
-        tag: { fr: '', en: '' },
-        title: { fr: '', en: '' },
-        situation: { fr: '', en: '' },
-        motif: [],
-        impact: [],
-        tension: null,
-        options: [
-          { key: 'A', label: { fr: '', en: '' }, short: 2, long: -3, points: 0, reveal: null },
-          { key: 'B', label: { fr: '', en: '' }, short: 1, long: 1, points: 2, reveal: null },
-          { key: 'C', label: { fr: '', en: '' }, short: -2, long: 3, points: 4, reveal: null },
-        ],
-      };
+    const src = event || {
+      act: 1,
+      round: 1,
+      color: 'red',
+      ref: { fr: '', en: '' },
+      tag: { fr: '', en: '' },
+      title: { fr: '', en: '' },
+      situation: { fr: '', en: '' },
+      motif: [],
+      impact: [],
+      tension: null,
+      options: [
+        { key: 'A', label: { fr: '', en: '' }, short: 2, long: -3, points: 0, reveal: null },
+        { key: 'B', label: { fr: '', en: '' }, short: 1, long: 1, points: 2, reveal: null },
+        { key: 'C', label: { fr: '', en: '' }, short: -2, long: 3, points: 4, reveal: null },
+      ],
+    };
 
     const f = {};
 
@@ -787,10 +857,22 @@
 
     const optionRows = ['A', 'B', 'C'].map((key) => {
       const option = (src.options || []).find((o) => o.key === key) || { key };
-      f[`opt_${key}_label_fr`] = h('input', { type: 'text', value: (option.label && option.label.fr) || '' });
-      f[`opt_${key}_label_en`] = h('input', { type: 'text', value: (option.label && option.label.en) || '' });
-      f[`opt_${key}_short`] = h('input', { type: 'number', value: option.short != null ? option.short : 0 });
-      f[`opt_${key}_long`] = h('input', { type: 'number', value: option.long != null ? option.long : 0 });
+      f[`opt_${key}_label_fr`] = h('input', {
+        type: 'text',
+        value: (option.label && option.label.fr) || '',
+      });
+      f[`opt_${key}_label_en`] = h('input', {
+        type: 'text',
+        value: (option.label && option.label.en) || '',
+      });
+      f[`opt_${key}_short`] = h('input', {
+        type: 'number',
+        value: option.short != null ? option.short : 0,
+      });
+      f[`opt_${key}_long`] = h('input', {
+        type: 'number',
+        value: option.long != null ? option.long : 0,
+      });
       f[`opt_${key}_points`] = h('input', {
         type: 'number',
         value: option.points != null ? option.points : 0,
@@ -884,8 +966,8 @@
           onClick: async () => {
             const payload = buildPayload();
             const res = isNew
-              ? await call('admin:addEvent', { event: payload })
-              : await call('admin:updateEvent', { eventId: event.id, event: payload });
+              ? await call('super:addEvent', { event: payload })
+              : await call('super:updateEvent', { eventId: event.id, event: payload });
             if (res) dialog.close();
           },
         }),
@@ -920,7 +1002,8 @@
         act,
         round: Number(roundInput.value) || 1,
         color: colorSelect.value,
-        ref: textPair('ref') || { fr: act === 1 ? 'Carte' : 'Étape', en: act === 1 ? 'Card' : 'Step' },
+        ref:
+          textPair('ref') || { fr: act === 1 ? 'Carte' : 'Étape', en: act === 1 ? 'Card' : 'Step' },
         tag: textPair('tag') || { fr: 'Événement', en: 'Event' },
         title: textPair('title') || { fr: 'Événement', en: 'Event' },
         situation: textPair('situation') || { fr: '', en: '' },
@@ -953,37 +1036,24 @@
   $('#copy-code').addEventListener('click', (e) => copyText(state.session.code, e.target));
   $('#copy-link').addEventListener('click', (e) => copyText(joinUrl(state.session.code), e.target));
   $('#btn-new-event').addEventListener('click', () => openEventModal(null));
+  $('#btn-add-team').addEventListener('click', () => call('super:addTeam', {}));
 
-  $('#add-team-form').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const input = $('#add-team-name');
-    const res = await call('admin:addTeam', { name: input.value.trim() });
-    if (res) input.value = '';
+  ['#set-duration', '#set-arbitration', '#set-teamsize'].forEach((sel) => {
+    $(sel).addEventListener('change', pushSettings);
   });
-
-  ['#set-autoreveal', '#set-autoclose', '#set-allowchange', '#set-latejoin', '#set-showboard'].forEach(
-    (id) => $(id).addEventListener('change', pushSettings)
-  );
-  ['#set-duration', '#set-penalty'].forEach((id) => $(id).addEventListener('change', pushSettings));
-
-  $('#launch-duration').addEventListener('input', () => {
-    pendingDuration = $('#launch-duration').value;
+  ['#set-autoassign', '#set-autoclose', '#set-allowchange', '#set-latejoin'].forEach((sel) => {
+    $(sel).addEventListener('change', pushSettings);
   });
 
   $('#btn-end-session').addEventListener('click', async () => {
     if (!window.confirm(t('admin.endConfirm'))) return;
-    const res = await call('admin:endSession');
+    const res = await call('super:endSession');
     if (res && res.recordId) {
-      toast(t('flash.session_ended'), 'success');
+      toast(t('flash.session_ended'));
     }
   });
 
-  $('#btn-reopen').addEventListener('click', () => call('admin:reopenSession'));
+  $('#btn-reopen').addEventListener('click', () => call('super:reopenSession'));
 
-  /* Rafraîchissement de secours si la socket se réveille après une veille. */
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && socket.connected) {
-      socket.call('state:refresh').then((res) => res && res.state && onState(res.state)).catch(() => {});
-    }
-  });
+  window.I18N.onChange(() => render());
 })();

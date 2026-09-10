@@ -26,17 +26,24 @@
     $('#rec-count').textContent = records.length;
 
     if (!records.length) {
-      host.appendChild(h('p', { class: 'muted small', text: t('rec.empty') }));
+      host.appendChild(
+        h('div', { class: 'stage-empty' }, [
+          h('h2', { text: t('rec.empty') }),
+          h('p', { class: 'muted small', text: t('rec.emptyHint') }),
+        ])
+      );
       return;
     }
 
     host.appendChild(
+      h('div', { class: 'table-wrap' }, [
       h('table', { class: 'table' }, [
         h('thead', {}, [
           h('tr', {}, [
             h('th', { text: t('rec.date') }),
             h('th', { text: t('rec.session') }),
             h('th', { class: 'num', text: t('rec.teamsCol') }),
+            h('th', { class: 'num', text: t('rec.playersCol') }),
             h('th', { class: 'num', text: t('rec.eventsCol') }),
             h('th', { text: t('rec.winnerCol') }),
             h('th', {}),
@@ -56,6 +63,7 @@
                 }),
               ]),
               h('td', { class: 'num', text: record.teamCount }),
+              h('td', { class: 'num', text: record.playerCount }),
               h('td', { class: 'num', text: record.eventCount }),
               h('td', {}, [
                 record.winner
@@ -89,6 +97,7 @@
             ])
           )
         ),
+      ]),
       ])
     );
   }
@@ -149,7 +158,7 @@
     const host = clear($('#detail-host'));
 
     host.appendChild(
-      h('section', { class: 'panel gold' }, [
+      h('section', { class: 'panel' }, [
         h('div', { class: 'panel-head' }, [
           h('div', {}, [
             h('div', { class: 'eyebrow', text: record.code }),
@@ -178,9 +187,9 @@
         ]),
         h('div', { class: 'grid cols-4' }, [
           metric(t('rec.teamsCol'), record.teamCount),
-          metric(t('rec.eventsCol'), record.eventCount),
+          metric(t('rec.playersCol'), record.playerCount),
           metric(t('rec.duration'), fmtDuration(record.endedAt - (record.startedAt || record.createdAt))),
-          metric(t('rec.winnerCol'), record.winner ? record.winner.name : '—'),
+          metric(t('rec.winnerCol'), record.winner ? record.winner.name : '—', 'accent'),
         ]),
       ])
     );
@@ -192,28 +201,66 @@
       ])
     );
 
+    /* Composition des tables : qui jouait quel rôle. */
+    if (record.teams && record.teams.length) {
+      host.appendChild(
+        h('section', { class: 'panel' }, [
+          h('div', { class: 'panel-head' }, [h('h3', { text: t('rec.rosters') })]),
+          h(
+            'div',
+            { class: 'team-grid' },
+            record.teams.map((team) =>
+              h('div', { class: 'team-tile' }, [
+                h('div', { class: 'tile-head' }, [
+                  h('span', { class: 'team-title', text: team.name }),
+                  h('span', {
+                    class: 'badge',
+                    text: t('admin.playersCount', { n: team.headcount }),
+                  }),
+                ]),
+                h(
+                  'div',
+                  { class: 'roster' },
+                  team.roster.map((member) =>
+                    h('div', { class: 'roster-item' }, [
+                      h('div', { class: 'roster-main' }, [
+                        h('div', { class: 'roster-name' }, [h('span', { text: member.name })]),
+                        h('div', { class: 'roster-role', text: L(member.role) || '—' }),
+                      ]),
+                    ])
+                  )
+                ),
+              ])
+            )
+          ),
+        ])
+      );
+    }
+
     const eventsPanel = h('section', { class: 'panel' }, [
       h('div', { class: 'panel-head' }, [h('h3', { text: t('rec.events') })]),
     ]);
     if (!record.events.length) {
-      eventsPanel.appendChild(h('p', { class: 'muted small', text: t('admin.noHistory') }));
+      eventsPanel.appendChild(h('p', { class: 'muted small', text: t('admin.noRanks') }));
     }
     for (const event of record.events) {
       eventsPanel.appendChild(
         h('details', { class: 'list-item', style: 'display:block' }, [
           h('summary', { style: 'cursor:pointer' }, [
-            h('span', { class: 'title', text: `#${event.no} ${L(event.title)}` }),
+            h('span', { class: 'title', text: `${L(event.ref)} — ${L(event.title)}` }),
             h('span', {
               class: 'muted small',
-              text: ` — ${t('admin.winnerOf')} : ${event.winners.join(' · ') || '—'}`,
+              text: ` — ${t('score.winner')} : ${event.winners.join(' · ') || '—'}`,
             }),
           ]),
-          h('div', { class: 'table-wrap', style: 'margin-top:10px' }, [
+          h('div', { class: 'table-wrap results-table', style: 'margin-top:10px' }, [
             h('table', { class: 'table' }, [
               h('thead', {}, [
                 h('tr', {}, [
+                  h('th', { text: t('score.rank') }),
                   h('th', { text: t('score.team') }),
                   h('th', { text: t('score.choice') }),
+                  h('th', { class: 'num', text: t('score.votes') }),
                   h('th', { class: 'num', text: t('score.points') }),
                   h('th', { class: 'num', text: t('score.seconds') }),
                 ]),
@@ -221,14 +268,23 @@
               h(
                 'tbody',
                 {},
-                event.results.map((row) =>
-                  h('tr', { class: event.winners.includes(row.team) ? 'is-winner' : '' }, [
+                event.results.map((row) => {
+                  const tally = row.tally || {};
+                  return h('tr', { class: row.rank === 1 ? 'is-winner' : '' }, [
+                    h('td', { class: 'rank' }, [C.rankMedal(row.rank)]),
                     h('td', { text: row.team }),
-                    h('td', { text: row.choice || t('score.noAnswer') }),
+                    h('td', {}, [
+                      h('span', { text: row.choice || t('score.noAnswer') }),
+                      h('div', { class: 'small muted', text: C.decidedByText(row.decidedBy) }),
+                    ]),
+                    h('td', {
+                      class: 'num muted',
+                      text: row.tally ? `${tally.A || 0}/${tally.B || 0}/${tally.C || 0}` : '—',
+                    }),
                     h('td', { class: `num ${signClass(row.total)}`, text: fmtSigned(row.total) }),
                     h('td', { class: 'num muted', text: row.seconds == null ? '—' : row.seconds }),
-                  ])
-                )
+                  ]);
+                })
               ),
             ]),
           ]),
@@ -272,10 +328,10 @@
     host.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function metric(k, v) {
+  function metric(k, v, cls) {
     return h('div', { class: 'metric' }, [
       h('div', { class: 'k', text: k }),
-      h('div', { class: 'v small', text: v }),
+      h('div', { class: `v small${cls ? ` ${cls}` : ''}`, text: v }),
     ]);
   }
 

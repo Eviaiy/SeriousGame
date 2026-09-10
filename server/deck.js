@@ -343,9 +343,39 @@ const DEFAULT_EVENTS = [
   },
 ];
 
+/** Récit d'ouverture lu avant le premier événement (script du kit de cartes). */
+const NARRATIVE = {
+  eyebrow: { fr: 'À lire à voix haute · Acte 1', en: 'Read aloud · Act 1' },
+  title: { fr: 'Comité de crise', en: 'Crisis committee' },
+  lines: [
+    { fr: 'Nous sommes le 1er octobre 2026.', en: 'It is 1 October 2026.' },
+    {
+      fr: 'Votre entreprise est conforme… techniquement. Les factures passent, la plateforme est en place.',
+      en: 'Your company is compliant… technically. Invoices go through, the platform is live.',
+    },
+    {
+      fr: 'Mais depuis 30 jours, les signaux faibles s’accumulent. Vous êtes réunis en comité de crise.',
+      en: 'But for 30 days the warning signs have been piling up. You are gathered in a crisis committee.',
+    },
+    {
+      fr: 'Vos décisions dans les 60 prochaines minutes vont déterminer votre exposition fiscale, vos relations clients et votre performance financière.',
+      en: 'Your decisions over the next 60 minutes will determine your tax exposure, your customer relationships and your financial performance.',
+    },
+  ],
+  punch: {
+    fr: 'Bienvenue dans le vrai monde de la facturation électronique.',
+    en: 'Welcome to the real world of electronic invoicing.',
+  },
+  instruction: {
+    fr: 'Chacun défend son point de vue — mais la table doit trancher collectivement.',
+    en: 'Everyone defends their own view, but the table has to decide together.',
+  },
+};
+
 const ROLES = [
   {
     id: 'role-fiscal',
+    icon: 'scale',
     name: { fr: 'Directeur fiscal', en: 'Head of Tax' },
     mission: {
       fr: 'Arbitrer la position TVA, la réponse à l’administration et le sort de la CA3.',
@@ -363,6 +393,7 @@ const ROLES = [
   },
   {
     id: 'role-daf',
+    icon: 'cash',
     name: { fr: 'DAF / Trésorerie', en: 'CFO / Treasury' },
     mission: {
       fr: 'Préserver la trésorerie et le BFR malgré les paiements bloqués.',
@@ -380,6 +411,7 @@ const ROLES = [
   },
   {
     id: 'role-dsi',
+    icon: 'chip',
     name: { fr: 'DSI / Chef de projet e-invoicing', en: 'CIO / E-invoicing project lead' },
     mission: {
       fr: 'Diagnostiquer la cause technique et piloter la plateforme.',
@@ -397,6 +429,7 @@ const ROLES = [
   },
   {
     id: 'role-juridique',
+    icon: 'gavel',
     name: { fr: 'Direction juridique', en: 'Legal' },
     mission: {
       fr: 'Sécuriser la relation avec l’administration et qualifier l’erreur.',
@@ -417,6 +450,7 @@ const ROLES = [
   },
   {
     id: 'role-clients',
+    icon: 'handshake',
     name: { fr: 'Relation clients', en: 'Customer relations' },
     mission: {
       fr: 'Tenir la relation avec les clients bloqués et cadrer la communication.',
@@ -434,6 +468,8 @@ const ROLES = [
   },
   {
     id: 'role-dg',
+    icon: 'crown',
+    dg: true,
     name: { fr: 'Direction générale / Communication', en: 'CEO / Communications' },
     mission: {
       fr: 'Arbitrer les priorités, gérer l’escalade et l’image de l’entreprise.',
@@ -448,8 +484,20 @@ const ROLES = [
       fr: 'Vous portez l’arbitrage final. Forcez la décision avant la fin du temps.',
       en: 'You carry the final call. Force the decision before time runs out.',
     },
+    power: {
+      fr: 'En cas d’égalité des votes, c’est vous qui tranchez pour toute l’équipe.',
+      en: 'If the vote is tied, you make the final call for the whole team.',
+    },
   },
 ];
+
+function dgRole() {
+  return ROLES.find((r) => r.dg) || ROLES[ROLES.length - 1];
+}
+
+function roleById(roleId) {
+  return ROLES.find((r) => r.id === roleId) || null;
+}
 
 /** Profils Acte 1 : bornes sur (court terme + long terme) cumulés. */
 const ACT1_PROFILES = [
@@ -535,9 +583,12 @@ module.exports = {
   ACT1_MATRIX,
   ACT2_MATRIX,
   DEFAULT_EVENTS,
+  NARRATIVE,
   ROLES,
   ACT1_PROFILES,
   ACT2_PROFILES,
   cloneDefaultEvents,
   profileFor,
+  dgRole,
+  roleById,
 };

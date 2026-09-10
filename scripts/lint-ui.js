@@ -65,6 +65,7 @@ for (const key of [...used].sort()) {
 const pageOfScript = {
   'home.js': 'index.html',
   'admin.js': 'admin.html',
+  'team.js': 'team.html',
   'play.js': 'play.html',
   'records.js': 'records.html',
 };
@@ -83,6 +84,35 @@ for (const [script, page] of Object.entries(pageOfScript)) {
   }
 }
 
+/* ---------- classes CSS ---------- */
+
+const css = fs.readFileSync(path.join(PUB, 'css/app.css'), 'utf8');
+const defined = new Set();
+for (const m of css.matchAll(/\.(-?[a-zA-Z][\w-]*)/g)) defined.add(m[1]);
+
+const usedClasses = new Set();
+const collect = (src) => {
+  for (const m of src.matchAll(/class(?:Name)?\s*[:=]\s*["'`]([^"'`]+)["'`]/g)) {
+    // Tout ce qui suit une interpolation est dynamique : on garde le préfixe littéral.
+    m[1]
+      .split('${')[0]
+      .split(/\s+/)
+      .forEach((c) => c && usedClasses.add(c));
+  }
+  for (const m of src.matchAll(/classList\.(?:add|remove|toggle)\(\s*'([^']+)'/g)) {
+    usedClasses.add(m[1]);
+  }
+};
+for (const f of jsFiles) collect(fs.readFileSync(path.join(PUB, 'js', f), 'utf8'));
+for (const f of htmlFiles) collect(fs.readFileSync(path.join(PUB, f), 'utf8'));
+
+// Les classes construites dynamiquement (`${signClass(x)}`, event.color…) sortent du contrôle.
+const ignoredClass = /[${}().]|^[A-Z]/;
+for (const c of [...usedClasses].sort()) {
+  if (ignoredClass.test(c)) continue;
+  if (!defined.has(c)) fail(`classe « ${c} » utilisée mais absente de app.css`);
+}
+
 /* ---------- scripts et styles référencés ---------- */
 
 for (const f of htmlFiles) {
@@ -95,6 +125,63 @@ for (const f of htmlFiles) {
   }
 }
 
+/* ---------- thèmes clair / sombre ---------- */
+
+const themeTokens = {};
+for (const name of ['light', 'dark']) {
+  const block = css.match(new RegExp(`:root\\[data-theme='${name}'\\]\\s*\\{([\\s\\S]*?)\\n\\}`));
+  if (!block) {
+    fail(`app.css ne définit pas le thème « ${name} »`);
+    continue;
+  }
+  themeTokens[name] = new Set([...block[1].matchAll(/(--[\w-]+)\s*:/g)].map((m) => m[1]));
+}
+if (themeTokens.light && themeTokens.dark) {
+  for (const tok of themeTokens.light) {
+    if (!themeTokens.dark.has(tok)) fail(`${tok} défini en thème clair mais pas en sombre`);
+  }
+  for (const tok of themeTokens.dark) {
+    if (!themeTokens.light.has(tok)) fail(`${tok} défini en thème sombre mais pas en clair`);
+  }
+}
+
+for (const f of htmlFiles) {
+  const src = fs.readFileSync(path.join(PUB, f), 'utf8');
+  // Sans ce script inline exécuté avant le rendu, la page clignote au chargement.
+  if (!src.includes('sg.theme') || !/setAttribute\("data-theme"/.test(src)) {
+    fail(`${f} : script inline de thème (anti-clignotement) absent`);
+  }
+  if (!src.includes('name="theme-color"')) fail(`${f} : meta theme-color absente`);
+}
+
+const commonSrc = fs.readFileSync(path.join(PUB, 'js/common.js'), 'utf8');
+for (const needle of ["setAttribute('data-theme'", 'data-theme-btn', 'sg.theme', 'theme.toDark']) {
+  if (!commonSrc.includes(needle)) fail(`common.js : « ${needle} » introuvable (bascule de thème)`);
+}
+
+/* ---------- messages de journal : clé, langues et paramètres ----------
+   Le serveur écrit addLog(session, 'type', { … }) et le front interpole les
+   { … } du dictionnaire. Un nom qui diverge ne casse rien : il affiche une
+   phrase trouée. On compare donc les deux côtés. */
+
+const gameSrc = fs.readFileSync(path.join(ROOT, 'server/game.js'), 'utf8');
+const placeholders = (str) => new Set([...String(str).matchAll(/\{(\w+)\}/g)].map((m) => m[1]));
+
+for (const call of gameSrc.matchAll(/addLog\(session,\s*'(\w+)',\s*\{([^}]*)\}/g)) {
+  const [, type, body] = call;
+  const key = `log.${type}`;
+  const sent = new Set([...body.matchAll(/(\w+)\s*:/g)].map((m) => m[1]));
+  for (const [lang, dict] of [['fr', fr], ['en', en]]) {
+    if (!(key in dict)) {
+      fail(`${key} : message absent du dictionnaire ${lang}`);
+      continue;
+    }
+    for (const name of placeholders(dict[key])) {
+      if (!sent.has(name)) fail(`${key} (${lang}) attend {${name}}, que game.js n'envoie pas`);
+    }
+  }
+}
+
 /* ---------- rapport ---------- */
 
 if (problems.length) {
@@ -104,5 +191,6 @@ if (problems.length) {
 }
 console.log(
   `✓ front vérifié : ${frKeys.length} clés FR / ${enKeys.length} EN, ${used.size} clés utilisées, ` +
-    `${htmlFiles.length} pages, ${jsFiles.length} scripts.`
+    `${htmlFiles.length} pages, ${jsFiles.length} scripts, ` +
+    `${themeTokens.light ? themeTokens.light.size : 0} tokens × 2 thèmes.`
 );

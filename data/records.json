@@ -1,0 +1,2275 @@
+{
+  "savedAt": 1788966240230,
+  "records": [
+    {
+      "id": "rec_3f6d575c55687cfc",
+      "sessionId": "sess_066e49e1fe4002ed",
+      "code": "BPL9U3",
+      "name": "Atelier Direction Financière",
+      "facilitator": "",
+      "lang": "fr",
+      "createdAt": 1788966214711,
+      "startedAt": 1788966214756,
+      "endedAt": 1788966239974,
+      "teamCount": 4,
+      "eventCount": 2,
+      "winner": {
+        "name": "Les Sceptiques",
+        "total": 4
+      },
+      "leaderboard": [
+        {
+          "teamId": "team_01512b2fd9715f95",
+          "name": "Les Sceptiques",
+          "short": 2,
+          "long": 2,
+          "act1": 4,
+          "act2": 0,
+          "adjust": 0,
+          "total": 4,
+          "wins": 2,
+          "answered": 2,
+          "act1Profile": {
+            "id": "conforme-fragile",
+            "label": {
+              "fr": "Conforme fragile",
+              "en": "Fragile compliance"
+            },
+            "desc": {
+              "fr": "Conforme, mais dépendant des corrections",
+              "en": "Compliant, but dependent on fixes"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        },
+        {
+          "teamId": "team_5d8fd8e1f3c362f4",
+          "name": "Data Squad",
+          "short": 1,
+          "long": 1,
+          "act1": 2,
+          "act2": 0,
+          "adjust": 0,
+          "total": 2,
+          "wins": 0,
+          "answered": 2,
+          "act1Profile": {
+            "id": "conforme-fragile",
+            "label": {
+              "fr": "Conforme fragile",
+              "en": "Fragile compliance"
+            },
+            "desc": {
+              "fr": "Conforme, mais dépendant des corrections",
+              "en": "Compliant, but dependent on fixes"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 2
+        },
+        {
+          "teamId": "team_c3e55de6077afd56",
+          "name": "Team Delta",
+          "short": 0,
+          "long": 0,
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "answered": 2,
+          "act1Profile": {
+            "id": "conforme-fragile",
+            "label": {
+              "fr": "Conforme fragile",
+              "en": "Fragile compliance"
+            },
+            "desc": {
+              "fr": "Conforme, mais dépendant des corrections",
+              "en": "Compliant, but dependent on fixes"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 3
+        },
+        {
+          "teamId": "team_b7b04dea7604ad11",
+          "name": "Compliance First",
+          "short": 2,
+          "long": -3,
+          "act1": -1,
+          "act2": 0,
+          "adjust": 0,
+          "total": -1,
+          "wins": 0,
+          "answered": 2,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 4
+        }
+      ],
+      "events": [
+        {
+          "eventId": "act1-card1",
+          "title": {
+            "fr": "Factures rejetées",
+            "en": "Rejected invoices"
+          },
+          "ref": {
+            "fr": "Carte 1",
+            "en": "Card 1"
+          },
+          "act": 1,
+          "no": 1,
+          "startedAt": 1788966214756,
+          "closedAt": 1788966214793,
+          "durationSec": 90,
+          "winners": [
+            "Les Sceptiques"
+          ],
+          "results": [
+            {
+              "team": "Les Sceptiques",
+              "choice": "B",
+              "total": 2,
+              "short": 1,
+              "long": 1,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Data Squad",
+              "choice": "B",
+              "total": 2,
+              "short": 1,
+              "long": 1,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Team Delta",
+              "choice": "C",
+              "total": 1,
+              "short": -2,
+              "long": 3,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Compliance First",
+              "choice": "A",
+              "total": -1,
+              "short": 2,
+              "long": -3,
+              "points": 0,
+              "seconds": 0
+            }
+          ]
+        },
+        {
+          "eventId": "act1-card2",
+          "title": {
+            "fr": "Blocage de paiement",
+            "en": "Payment freeze"
+          },
+          "ref": {
+            "fr": "Carte 2",
+            "en": "Card 2"
+          },
+          "act": 1,
+          "no": 2,
+          "startedAt": 1788966215102,
+          "closedAt": 1788966228904,
+          "durationSec": 120,
+          "winners": [
+            "Les Sceptiques"
+          ],
+          "results": [
+            {
+              "team": "Les Sceptiques",
+              "choice": "B",
+              "total": 2,
+              "short": 1,
+              "long": 1,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Compliance First",
+              "choice": null,
+              "total": 0,
+              "short": 0,
+              "long": 0,
+              "points": 0,
+              "seconds": null
+            },
+            {
+              "team": "Data Squad",
+              "choice": null,
+              "total": 0,
+              "short": 0,
+              "long": 0,
+              "points": 0,
+              "seconds": null
+            },
+            {
+              "team": "Team Delta",
+              "choice": "A",
+              "total": -1,
+              "short": 2,
+              "long": -3,
+              "points": 0,
+              "seconds": 0
+            }
+          ]
+        }
+      ],
+      "adjustments": [],
+      "log": [
+        {
+          "id": "log_10f08eeb0b6bc94c",
+          "ts": 1788966214712,
+          "type": "session_created",
+          "params": {
+            "name": "Atelier Direction Financière"
+          }
+        },
+        {
+          "id": "log_e69caf1d248aa264",
+          "ts": 1788966214717,
+          "type": "team_joined",
+          "params": {
+            "team": "Les Sceptiques"
+          }
+        },
+        {
+          "id": "log_3e62bcb518706896",
+          "ts": 1788966214722,
+          "type": "team_joined",
+          "params": {
+            "team": "Team Delta"
+          }
+        },
+        {
+          "id": "log_84949c94e5492c89",
+          "ts": 1788966214726,
+          "type": "team_joined",
+          "params": {
+            "team": "Compliance First"
+          }
+        },
+        {
+          "id": "log_95e0a1c320ec5787",
+          "ts": 1788966214731,
+          "type": "team_joined",
+          "params": {
+            "team": "Data Squad"
+          }
+        },
+        {
+          "id": "log_006133a9fe767d06",
+          "ts": 1788966214756,
+          "type": "round_started",
+          "params": {
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices",
+            "seconds": 90
+          }
+        },
+        {
+          "id": "log_dbb6605f6d8df7c9",
+          "ts": 1788966214783,
+          "type": "team_submitted",
+          "params": {
+            "team": "Les Sceptiques",
+            "choice": "B"
+          }
+        },
+        {
+          "id": "log_34c2af725e44745d",
+          "ts": 1788966214786,
+          "type": "team_submitted",
+          "params": {
+            "team": "Team Delta",
+            "choice": "C"
+          }
+        },
+        {
+          "id": "log_4e0dabcaf7500b4b",
+          "ts": 1788966214788,
+          "type": "team_submitted",
+          "params": {
+            "team": "Compliance First",
+            "choice": "A"
+          }
+        },
+        {
+          "id": "log_d98f8c0902ea3f57",
+          "ts": 1788966214791,
+          "type": "team_submitted",
+          "params": {
+            "team": "Data Squad",
+            "choice": "B"
+          }
+        },
+        {
+          "id": "log_3572fe5d36211f4c",
+          "ts": 1788966214794,
+          "type": "round_closed",
+          "params": {
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices",
+            "reason": "manual",
+            "winners": [
+              "Les Sceptiques"
+            ]
+          }
+        },
+        {
+          "id": "log_5d32e6ad50c34274",
+          "ts": 1788966214796,
+          "type": "round_revealed",
+          "params": {}
+        },
+        {
+          "id": "log_bbeee937b7c0dffb",
+          "ts": 1788966215099,
+          "type": "round_archived",
+          "params": {
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices"
+          }
+        },
+        {
+          "id": "log_865b85501f61581d",
+          "ts": 1788966215102,
+          "type": "round_started",
+          "params": {
+            "event": "Blocage de paiement",
+            "eventEn": "Payment freeze",
+            "seconds": 120
+          }
+        },
+        {
+          "id": "log_63b576a48b584ede",
+          "ts": 1788966215103,
+          "type": "team_submitted",
+          "params": {
+            "team": "Les Sceptiques",
+            "choice": "B"
+          }
+        },
+        {
+          "id": "log_af3575395ab0df07",
+          "ts": 1788966215105,
+          "type": "team_submitted",
+          "params": {
+            "team": "Team Delta",
+            "choice": "A"
+          }
+        },
+        {
+          "id": "log_63d38bec7eef342d",
+          "ts": 1788966228904,
+          "type": "round_closed",
+          "params": {
+            "event": "Blocage de paiement",
+            "eventEn": "Payment freeze",
+            "reason": "manual",
+            "winners": [
+              "Les Sceptiques"
+            ]
+          }
+        },
+        {
+          "id": "log_a8151ea64019608d",
+          "ts": 1788966228906,
+          "type": "round_revealed",
+          "params": {}
+        },
+        {
+          "id": "log_f26295a071628e43",
+          "ts": 1788966239971,
+          "type": "round_archived",
+          "params": {
+            "event": "Blocage de paiement",
+            "eventEn": "Payment freeze"
+          }
+        },
+        {
+          "id": "log_691543d7c3b47493",
+          "ts": 1788966239974,
+          "type": "session_ended",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "rec_d70929a675db03eb",
+      "sessionId": "sess_9cfdc519ef78b53f",
+      "code": "LP6FTP",
+      "name": "Atelier Direction Financière",
+      "facilitator": "",
+      "lang": "fr",
+      "createdAt": 1788965849337,
+      "startedAt": 1788965849367,
+      "endedAt": 1788965873542,
+      "teamCount": 4,
+      "eventCount": 2,
+      "winner": {
+        "name": "Les Sceptiques",
+        "total": 4
+      },
+      "leaderboard": [
+        {
+          "teamId": "team_67b8a248ac3b83d0",
+          "name": "Les Sceptiques",
+          "short": 2,
+          "long": 2,
+          "act1": 4,
+          "act2": 0,
+          "adjust": 0,
+          "total": 4,
+          "wins": 2,
+          "answered": 2,
+          "act1Profile": {
+            "id": "conforme-fragile",
+            "label": {
+              "fr": "Conforme fragile",
+              "en": "Fragile compliance"
+            },
+            "desc": {
+              "fr": "Conforme, mais dépendant des corrections",
+              "en": "Compliant, but dependent on fixes"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        },
+        {
+          "teamId": "team_b19d547d56a674f5",
+          "name": "Data Squad",
+          "short": 1,
+          "long": 1,
+          "act1": 2,
+          "act2": 0,
+          "adjust": 0,
+          "total": 2,
+          "wins": 0,
+          "answered": 2,
+          "act1Profile": {
+            "id": "conforme-fragile",
+            "label": {
+              "fr": "Conforme fragile",
+              "en": "Fragile compliance"
+            },
+            "desc": {
+              "fr": "Conforme, mais dépendant des corrections",
+              "en": "Compliant, but dependent on fixes"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 2
+        },
+        {
+          "teamId": "team_457b2791c796841a",
+          "name": "Team Delta",
+          "short": 0,
+          "long": 0,
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "answered": 2,
+          "act1Profile": {
+            "id": "conforme-fragile",
+            "label": {
+              "fr": "Conforme fragile",
+              "en": "Fragile compliance"
+            },
+            "desc": {
+              "fr": "Conforme, mais dépendant des corrections",
+              "en": "Compliant, but dependent on fixes"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 3
+        },
+        {
+          "teamId": "team_944692acfccbb98d",
+          "name": "Compliance First",
+          "short": 2,
+          "long": -3,
+          "act1": -1,
+          "act2": 0,
+          "adjust": 0,
+          "total": -1,
+          "wins": 0,
+          "answered": 2,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 4
+        }
+      ],
+      "events": [
+        {
+          "eventId": "act1-card1",
+          "title": {
+            "fr": "Factures rejetées",
+            "en": "Rejected invoices"
+          },
+          "ref": {
+            "fr": "Carte 1",
+            "en": "Card 1"
+          },
+          "act": 1,
+          "no": 1,
+          "startedAt": 1788965849367,
+          "closedAt": 1788965849383,
+          "durationSec": 90,
+          "winners": [
+            "Les Sceptiques"
+          ],
+          "results": [
+            {
+              "team": "Les Sceptiques",
+              "choice": "B",
+              "total": 2,
+              "short": 1,
+              "long": 1,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Data Squad",
+              "choice": "B",
+              "total": 2,
+              "short": 1,
+              "long": 1,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Team Delta",
+              "choice": "C",
+              "total": 1,
+              "short": -2,
+              "long": 3,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Compliance First",
+              "choice": "A",
+              "total": -1,
+              "short": 2,
+              "long": -3,
+              "points": 0,
+              "seconds": 0
+            }
+          ]
+        },
+        {
+          "eventId": "act1-card2",
+          "title": {
+            "fr": "Blocage de paiement",
+            "en": "Payment freeze"
+          },
+          "ref": {
+            "fr": "Carte 2",
+            "en": "Card 2"
+          },
+          "act": 1,
+          "no": 2,
+          "startedAt": 1788965849689,
+          "closedAt": 1788965863114,
+          "durationSec": 120,
+          "winners": [
+            "Les Sceptiques"
+          ],
+          "results": [
+            {
+              "team": "Les Sceptiques",
+              "choice": "B",
+              "total": 2,
+              "short": 1,
+              "long": 1,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Compliance First",
+              "choice": null,
+              "total": 0,
+              "short": 0,
+              "long": 0,
+              "points": 0,
+              "seconds": null
+            },
+            {
+              "team": "Data Squad",
+              "choice": null,
+              "total": 0,
+              "short": 0,
+              "long": 0,
+              "points": 0,
+              "seconds": null
+            },
+            {
+              "team": "Team Delta",
+              "choice": "A",
+              "total": -1,
+              "short": 2,
+              "long": -3,
+              "points": 0,
+              "seconds": 0
+            }
+          ]
+        }
+      ],
+      "adjustments": [],
+      "log": [
+        {
+          "id": "log_74e4aab587b0d42e",
+          "ts": 1788965849337,
+          "type": "session_created",
+          "params": {
+            "name": "Atelier Direction Financière"
+          }
+        },
+        {
+          "id": "log_af9d0d635dbed05a",
+          "ts": 1788965849340,
+          "type": "team_joined",
+          "params": {
+            "team": "Les Sceptiques"
+          }
+        },
+        {
+          "id": "log_f8207d2141bd0f1d",
+          "ts": 1788965849343,
+          "type": "team_joined",
+          "params": {
+            "team": "Team Delta"
+          }
+        },
+        {
+          "id": "log_ae65195c3327aa31",
+          "ts": 1788965849346,
+          "type": "team_joined",
+          "params": {
+            "team": "Compliance First"
+          }
+        },
+        {
+          "id": "log_171a1266220b6b02",
+          "ts": 1788965849349,
+          "type": "team_joined",
+          "params": {
+            "team": "Data Squad"
+          }
+        },
+        {
+          "id": "log_89e2aba96e064ffb",
+          "ts": 1788965849367,
+          "type": "round_started",
+          "params": {
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices",
+            "seconds": 90
+          }
+        },
+        {
+          "id": "log_e509d6573960a5f8",
+          "ts": 1788965849378,
+          "type": "team_submitted",
+          "params": {
+            "team": "Les Sceptiques",
+            "choice": "B"
+          }
+        },
+        {
+          "id": "log_b01ba101b2cc3069",
+          "ts": 1788965849380,
+          "type": "team_submitted",
+          "params": {
+            "team": "Team Delta",
+            "choice": "C"
+          }
+        },
+        {
+          "id": "log_af494c3a9967171d",
+          "ts": 1788965849381,
+          "type": "team_submitted",
+          "params": {
+            "team": "Compliance First",
+            "choice": "A"
+          }
+        },
+        {
+          "id": "log_5704407a4e307c39",
+          "ts": 1788965849382,
+          "type": "team_submitted",
+          "params": {
+            "team": "Data Squad",
+            "choice": "B"
+          }
+        },
+        {
+          "id": "log_f9e476a98907b461",
+          "ts": 1788965849383,
+          "type": "round_closed",
+          "params": {
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices",
+            "reason": "manual",
+            "winners": [
+              "Les Sceptiques"
+            ]
+          }
+        },
+        {
+          "id": "log_cbaedead3ef85c88",
+          "ts": 1788965849384,
+          "type": "round_revealed",
+          "params": {}
+        },
+        {
+          "id": "log_7461d65b79d5f5ef",
+          "ts": 1788965849687,
+          "type": "round_archived",
+          "params": {
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices"
+          }
+        },
+        {
+          "id": "log_e7865cb6d484d6d9",
+          "ts": 1788965849689,
+          "type": "round_started",
+          "params": {
+            "event": "Blocage de paiement",
+            "eventEn": "Payment freeze",
+            "seconds": 120
+          }
+        },
+        {
+          "id": "log_d388179581bd7570",
+          "ts": 1788965849691,
+          "type": "team_submitted",
+          "params": {
+            "team": "Les Sceptiques",
+            "choice": "B"
+          }
+        },
+        {
+          "id": "log_20eda246730fe301",
+          "ts": 1788965849694,
+          "type": "team_submitted",
+          "params": {
+            "team": "Team Delta",
+            "choice": "A"
+          }
+        },
+        {
+          "id": "log_3833ccbbd9114cdb",
+          "ts": 1788965863114,
+          "type": "round_closed",
+          "params": {
+            "event": "Blocage de paiement",
+            "eventEn": "Payment freeze",
+            "reason": "manual",
+            "winners": [
+              "Les Sceptiques"
+            ]
+          }
+        },
+        {
+          "id": "log_e8a24dcf20e55a9d",
+          "ts": 1788965863116,
+          "type": "round_revealed",
+          "params": {}
+        },
+        {
+          "id": "log_ac8daf8683ea063e",
+          "ts": 1788965873541,
+          "type": "round_archived",
+          "params": {
+            "event": "Blocage de paiement",
+            "eventEn": "Payment freeze"
+          }
+        },
+        {
+          "id": "log_f0398acb2609874a",
+          "ts": 1788965873542,
+          "type": "session_ended",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "rec_f3c52d8fe7196604",
+      "sessionId": "sess_7570ee1fcc976883",
+      "code": "4L3KGX",
+      "name": "Atelier Direction Financière",
+      "facilitator": "",
+      "lang": "fr",
+      "createdAt": 1788965682926,
+      "startedAt": 1788965682950,
+      "endedAt": 1788965707160,
+      "teamCount": 4,
+      "eventCount": 2,
+      "winner": {
+        "name": "Les Sceptiques",
+        "total": 4
+      },
+      "leaderboard": [
+        {
+          "teamId": "team_3d036bc82c782c71",
+          "name": "Les Sceptiques",
+          "short": 2,
+          "long": 2,
+          "act1": 4,
+          "act2": 0,
+          "adjust": 0,
+          "total": 4,
+          "wins": 2,
+          "answered": 2,
+          "act1Profile": {
+            "id": "conforme-fragile",
+            "label": {
+              "fr": "Conforme fragile",
+              "en": "Fragile compliance"
+            },
+            "desc": {
+              "fr": "Conforme, mais dépendant des corrections",
+              "en": "Compliant, but dependent on fixes"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        },
+        {
+          "teamId": "team_a3813bd2ea140e04",
+          "name": "Data Squad",
+          "short": 1,
+          "long": 1,
+          "act1": 2,
+          "act2": 0,
+          "adjust": 0,
+          "total": 2,
+          "wins": 0,
+          "answered": 2,
+          "act1Profile": {
+            "id": "conforme-fragile",
+            "label": {
+              "fr": "Conforme fragile",
+              "en": "Fragile compliance"
+            },
+            "desc": {
+              "fr": "Conforme, mais dépendant des corrections",
+              "en": "Compliant, but dependent on fixes"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 2
+        },
+        {
+          "teamId": "team_f2a219726f20d85c",
+          "name": "Team Delta",
+          "short": 0,
+          "long": 0,
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "answered": 2,
+          "act1Profile": {
+            "id": "conforme-fragile",
+            "label": {
+              "fr": "Conforme fragile",
+              "en": "Fragile compliance"
+            },
+            "desc": {
+              "fr": "Conforme, mais dépendant des corrections",
+              "en": "Compliant, but dependent on fixes"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 3
+        },
+        {
+          "teamId": "team_c5f3930c3f9bee34",
+          "name": "Compliance First",
+          "short": 2,
+          "long": -3,
+          "act1": -1,
+          "act2": 0,
+          "adjust": 0,
+          "total": -1,
+          "wins": 0,
+          "answered": 2,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 4
+        }
+      ],
+      "events": [
+        {
+          "eventId": "act1-card1",
+          "title": {
+            "fr": "Factures rejetées",
+            "en": "Rejected invoices"
+          },
+          "ref": {
+            "fr": "Carte 1",
+            "en": "Card 1"
+          },
+          "act": 1,
+          "no": 1,
+          "startedAt": 1788965682950,
+          "closedAt": 1788965682964,
+          "durationSec": 90,
+          "winners": [
+            "Les Sceptiques"
+          ],
+          "results": [
+            {
+              "team": "Les Sceptiques",
+              "choice": "B",
+              "total": 2,
+              "short": 1,
+              "long": 1,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Data Squad",
+              "choice": "B",
+              "total": 2,
+              "short": 1,
+              "long": 1,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Team Delta",
+              "choice": "C",
+              "total": 1,
+              "short": -2,
+              "long": 3,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Compliance First",
+              "choice": "A",
+              "total": -1,
+              "short": 2,
+              "long": -3,
+              "points": 0,
+              "seconds": 0
+            }
+          ]
+        },
+        {
+          "eventId": "act1-card2",
+          "title": {
+            "fr": "Blocage de paiement",
+            "en": "Payment freeze"
+          },
+          "ref": {
+            "fr": "Carte 2",
+            "en": "Card 2"
+          },
+          "act": 1,
+          "no": 2,
+          "startedAt": 1788965683273,
+          "closedAt": 1788965696714,
+          "durationSec": 120,
+          "winners": [
+            "Les Sceptiques"
+          ],
+          "results": [
+            {
+              "team": "Les Sceptiques",
+              "choice": "B",
+              "total": 2,
+              "short": 1,
+              "long": 1,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Compliance First",
+              "choice": null,
+              "total": 0,
+              "short": 0,
+              "long": 0,
+              "points": 0,
+              "seconds": null
+            },
+            {
+              "team": "Data Squad",
+              "choice": null,
+              "total": 0,
+              "short": 0,
+              "long": 0,
+              "points": 0,
+              "seconds": null
+            },
+            {
+              "team": "Team Delta",
+              "choice": "A",
+              "total": -1,
+              "short": 2,
+              "long": -3,
+              "points": 0,
+              "seconds": 0
+            }
+          ]
+        }
+      ],
+      "adjustments": [],
+      "log": [
+        {
+          "id": "log_cb474db745525596",
+          "ts": 1788965682927,
+          "type": "session_created",
+          "params": {
+            "name": "Atelier Direction Financière"
+          }
+        },
+        {
+          "id": "log_045c7f9d8582c9df",
+          "ts": 1788965682931,
+          "type": "team_joined",
+          "params": {
+            "team": "Les Sceptiques"
+          }
+        },
+        {
+          "id": "log_f37651710072dbb7",
+          "ts": 1788965682934,
+          "type": "team_joined",
+          "params": {
+            "team": "Team Delta"
+          }
+        },
+        {
+          "id": "log_125974e2d7b5c3ff",
+          "ts": 1788965682936,
+          "type": "team_joined",
+          "params": {
+            "team": "Compliance First"
+          }
+        },
+        {
+          "id": "log_699c4e4d0001cca8",
+          "ts": 1788965682939,
+          "type": "team_joined",
+          "params": {
+            "team": "Data Squad"
+          }
+        },
+        {
+          "id": "log_d2b3468f8a049794",
+          "ts": 1788965682950,
+          "type": "round_started",
+          "params": {
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices",
+            "seconds": 90
+          }
+        },
+        {
+          "id": "log_bb61adbb4a3fabb1",
+          "ts": 1788965682960,
+          "type": "team_submitted",
+          "params": {
+            "team": "Les Sceptiques",
+            "choice": "B"
+          }
+        },
+        {
+          "id": "log_5d9854915506485e",
+          "ts": 1788965682962,
+          "type": "team_submitted",
+          "params": {
+            "team": "Team Delta",
+            "choice": "C"
+          }
+        },
+        {
+          "id": "log_23ce14010b062321",
+          "ts": 1788965682962,
+          "type": "team_submitted",
+          "params": {
+            "team": "Compliance First",
+            "choice": "A"
+          }
+        },
+        {
+          "id": "log_d60dca6fc37520f8",
+          "ts": 1788965682963,
+          "type": "team_submitted",
+          "params": {
+            "team": "Data Squad",
+            "choice": "B"
+          }
+        },
+        {
+          "id": "log_beb61cdc21a88041",
+          "ts": 1788965682964,
+          "type": "round_closed",
+          "params": {
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices",
+            "reason": "manual",
+            "winners": [
+              "Les Sceptiques"
+            ]
+          }
+        },
+        {
+          "id": "log_414f4cb4d8a63287",
+          "ts": 1788965682965,
+          "type": "round_revealed",
+          "params": {}
+        },
+        {
+          "id": "log_6174342c83940122",
+          "ts": 1788965683269,
+          "type": "round_archived",
+          "params": {
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices"
+          }
+        },
+        {
+          "id": "log_533a755a6f70a7b7",
+          "ts": 1788965683273,
+          "type": "round_started",
+          "params": {
+            "event": "Blocage de paiement",
+            "eventEn": "Payment freeze",
+            "seconds": 120
+          }
+        },
+        {
+          "id": "log_52d997813902b173",
+          "ts": 1788965683275,
+          "type": "team_submitted",
+          "params": {
+            "team": "Les Sceptiques",
+            "choice": "B"
+          }
+        },
+        {
+          "id": "log_786490f47a77a74b",
+          "ts": 1788965683278,
+          "type": "team_submitted",
+          "params": {
+            "team": "Team Delta",
+            "choice": "A"
+          }
+        },
+        {
+          "id": "log_e1c5b9c71cd1ea6e",
+          "ts": 1788965696714,
+          "type": "round_closed",
+          "params": {
+            "event": "Blocage de paiement",
+            "eventEn": "Payment freeze",
+            "reason": "manual",
+            "winners": [
+              "Les Sceptiques"
+            ]
+          }
+        },
+        {
+          "id": "log_34c14df92640c048",
+          "ts": 1788965696715,
+          "type": "round_revealed",
+          "params": {}
+        },
+        {
+          "id": "log_b881f98403dd852d",
+          "ts": 1788965707158,
+          "type": "round_archived",
+          "params": {
+            "event": "Blocage de paiement",
+            "eventEn": "Payment freeze"
+          }
+        },
+        {
+          "id": "log_c959e990830e010e",
+          "ts": 1788965707160,
+          "type": "session_ended",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "rec_b7f4c10216d70a87",
+      "sessionId": "sess_38bf5bfbe96250a1",
+      "code": "F8LGK2",
+      "name": "Atelier Direction Financière",
+      "facilitator": "",
+      "lang": "fr",
+      "createdAt": 1788965083248,
+      "startedAt": 1788965083278,
+      "endedAt": 1788965107610,
+      "teamCount": 4,
+      "eventCount": 2,
+      "winner": {
+        "name": "Les Sceptiques",
+        "total": 4
+      },
+      "leaderboard": [
+        {
+          "teamId": "team_c7d450e9a53e47d3",
+          "name": "Les Sceptiques",
+          "short": 2,
+          "long": 2,
+          "act1": 4,
+          "act2": 0,
+          "adjust": 0,
+          "total": 4,
+          "wins": 2,
+          "answered": 2,
+          "act1Profile": {
+            "id": "conforme-fragile",
+            "label": {
+              "fr": "Conforme fragile",
+              "en": "Fragile compliance"
+            },
+            "desc": {
+              "fr": "Conforme, mais dépendant des corrections",
+              "en": "Compliant, but dependent on fixes"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        },
+        {
+          "teamId": "team_b34da5826cc09d5c",
+          "name": "Data Squad",
+          "short": 1,
+          "long": 1,
+          "act1": 2,
+          "act2": 0,
+          "adjust": 0,
+          "total": 2,
+          "wins": 0,
+          "answered": 2,
+          "act1Profile": {
+            "id": "conforme-fragile",
+            "label": {
+              "fr": "Conforme fragile",
+              "en": "Fragile compliance"
+            },
+            "desc": {
+              "fr": "Conforme, mais dépendant des corrections",
+              "en": "Compliant, but dependent on fixes"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 2
+        },
+        {
+          "teamId": "team_5588a2e563e9ed04",
+          "name": "Team Delta",
+          "short": 0,
+          "long": 0,
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "answered": 2,
+          "act1Profile": {
+            "id": "conforme-fragile",
+            "label": {
+              "fr": "Conforme fragile",
+              "en": "Fragile compliance"
+            },
+            "desc": {
+              "fr": "Conforme, mais dépendant des corrections",
+              "en": "Compliant, but dependent on fixes"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 3
+        },
+        {
+          "teamId": "team_33cb8388a8e53a4c",
+          "name": "Compliance First",
+          "short": 2,
+          "long": -3,
+          "act1": -1,
+          "act2": 0,
+          "adjust": 0,
+          "total": -1,
+          "wins": 0,
+          "answered": 2,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 4
+        }
+      ],
+      "events": [
+        {
+          "eventId": "act1-card1",
+          "title": {
+            "fr": "Factures rejetées",
+            "en": "Rejected invoices"
+          },
+          "ref": {
+            "fr": "Carte 1",
+            "en": "Card 1"
+          },
+          "act": 1,
+          "no": 1,
+          "startedAt": 1788965083278,
+          "closedAt": 1788965083295,
+          "durationSec": 90,
+          "winners": [
+            "Les Sceptiques"
+          ],
+          "results": [
+            {
+              "team": "Les Sceptiques",
+              "choice": "B",
+              "total": 2,
+              "short": 1,
+              "long": 1,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Data Squad",
+              "choice": "B",
+              "total": 2,
+              "short": 1,
+              "long": 1,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Team Delta",
+              "choice": "C",
+              "total": 1,
+              "short": -2,
+              "long": 3,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Compliance First",
+              "choice": "A",
+              "total": -1,
+              "short": 2,
+              "long": -3,
+              "points": 0,
+              "seconds": 0
+            }
+          ]
+        },
+        {
+          "eventId": "act1-card2",
+          "title": {
+            "fr": "Blocage de paiement",
+            "en": "Payment freeze"
+          },
+          "ref": {
+            "fr": "Carte 2",
+            "en": "Card 2"
+          },
+          "act": 1,
+          "no": 2,
+          "startedAt": 1788965083601,
+          "closedAt": 1788965097166,
+          "durationSec": 120,
+          "winners": [
+            "Les Sceptiques"
+          ],
+          "results": [
+            {
+              "team": "Les Sceptiques",
+              "choice": "B",
+              "total": 2,
+              "short": 1,
+              "long": 1,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Compliance First",
+              "choice": null,
+              "total": 0,
+              "short": 0,
+              "long": 0,
+              "points": 0,
+              "seconds": null
+            },
+            {
+              "team": "Data Squad",
+              "choice": null,
+              "total": 0,
+              "short": 0,
+              "long": 0,
+              "points": 0,
+              "seconds": null
+            },
+            {
+              "team": "Team Delta",
+              "choice": "A",
+              "total": -1,
+              "short": 2,
+              "long": -3,
+              "points": 0,
+              "seconds": 0
+            }
+          ]
+        }
+      ],
+      "adjustments": [],
+      "log": [
+        {
+          "id": "log_4e5e3c9d92f008e6",
+          "ts": 1788965083249,
+          "type": "session_created",
+          "params": {
+            "name": "Atelier Direction Financière"
+          }
+        },
+        {
+          "id": "log_2b29ac282b198198",
+          "ts": 1788965083251,
+          "type": "team_joined",
+          "params": {
+            "team": "Les Sceptiques"
+          }
+        },
+        {
+          "id": "log_c5b0467e8360c888",
+          "ts": 1788965083254,
+          "type": "team_joined",
+          "params": {
+            "team": "Team Delta"
+          }
+        },
+        {
+          "id": "log_921d0719f0f1f7e5",
+          "ts": 1788965083258,
+          "type": "team_joined",
+          "params": {
+            "team": "Compliance First"
+          }
+        },
+        {
+          "id": "log_a8ef6501bdad3ebb",
+          "ts": 1788965083261,
+          "type": "team_joined",
+          "params": {
+            "team": "Data Squad"
+          }
+        },
+        {
+          "id": "log_e6c841140b8e1bb3",
+          "ts": 1788965083278,
+          "type": "round_started",
+          "params": {
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices",
+            "seconds": 90
+          }
+        },
+        {
+          "id": "log_999de508c252a843",
+          "ts": 1788965083290,
+          "type": "team_submitted",
+          "params": {
+            "team": "Les Sceptiques",
+            "choice": "B"
+          }
+        },
+        {
+          "id": "log_5c839ccf1d36224b",
+          "ts": 1788965083292,
+          "type": "team_submitted",
+          "params": {
+            "team": "Team Delta",
+            "choice": "C"
+          }
+        },
+        {
+          "id": "log_672c45d0d6cddf1c",
+          "ts": 1788965083293,
+          "type": "team_submitted",
+          "params": {
+            "team": "Compliance First",
+            "choice": "A"
+          }
+        },
+        {
+          "id": "log_235eef89d98c529f",
+          "ts": 1788965083294,
+          "type": "team_submitted",
+          "params": {
+            "team": "Data Squad",
+            "choice": "B"
+          }
+        },
+        {
+          "id": "log_445a46c4eee6bd34",
+          "ts": 1788965083295,
+          "type": "round_closed",
+          "params": {
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices",
+            "reason": "manual",
+            "winners": [
+              "Les Sceptiques"
+            ]
+          }
+        },
+        {
+          "id": "log_1ef084eb0ea84746",
+          "ts": 1788965083296,
+          "type": "round_revealed",
+          "params": {}
+        },
+        {
+          "id": "log_6a1b9267b8861b67",
+          "ts": 1788965083599,
+          "type": "round_archived",
+          "params": {
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices"
+          }
+        },
+        {
+          "id": "log_6f21daa02b773ddb",
+          "ts": 1788965083601,
+          "type": "round_started",
+          "params": {
+            "event": "Blocage de paiement",
+            "eventEn": "Payment freeze",
+            "seconds": 120
+          }
+        },
+        {
+          "id": "log_8bc117823f666afe",
+          "ts": 1788965083603,
+          "type": "team_submitted",
+          "params": {
+            "team": "Les Sceptiques",
+            "choice": "B"
+          }
+        },
+        {
+          "id": "log_1ff2fe575b26ca54",
+          "ts": 1788965083604,
+          "type": "team_submitted",
+          "params": {
+            "team": "Team Delta",
+            "choice": "A"
+          }
+        },
+        {
+          "id": "log_d13e719d2a727c12",
+          "ts": 1788965097166,
+          "type": "round_closed",
+          "params": {
+            "event": "Blocage de paiement",
+            "eventEn": "Payment freeze",
+            "reason": "manual",
+            "winners": [
+              "Les Sceptiques"
+            ]
+          }
+        },
+        {
+          "id": "log_00e732173caea71e",
+          "ts": 1788965097167,
+          "type": "round_revealed",
+          "params": {}
+        },
+        {
+          "id": "log_870f175372863858",
+          "ts": 1788965107609,
+          "type": "round_archived",
+          "params": {
+            "event": "Blocage de paiement",
+            "eventEn": "Payment freeze"
+          }
+        },
+        {
+          "id": "log_43aabcf7b9cf47bf",
+          "ts": 1788965107610,
+          "type": "session_ended",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "rec_9356f390db21a86d",
+      "sessionId": "sess_a2e18144bc194099",
+      "code": "FT93XW",
+      "name": "Atelier Direction Financière",
+      "facilitator": "",
+      "lang": "fr",
+      "createdAt": 1788964551377,
+      "startedAt": 1788964551410,
+      "endedAt": 1788964575719,
+      "teamCount": 4,
+      "eventCount": 2,
+      "winner": {
+        "name": "Les Sceptiques",
+        "total": 4
+      },
+      "leaderboard": [
+        {
+          "teamId": "team_343706a81a1c0155",
+          "name": "Les Sceptiques",
+          "short": 2,
+          "long": 2,
+          "act1": 4,
+          "act2": 0,
+          "adjust": 0,
+          "total": 4,
+          "wins": 2,
+          "answered": 2,
+          "act1Profile": {
+            "id": "conforme-fragile",
+            "label": {
+              "fr": "Conforme fragile",
+              "en": "Fragile compliance"
+            },
+            "desc": {
+              "fr": "Conforme, mais dépendant des corrections",
+              "en": "Compliant, but dependent on fixes"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        },
+        {
+          "teamId": "team_4c7a9c745cd8f6ff",
+          "name": "Data Squad",
+          "short": 1,
+          "long": 1,
+          "act1": 2,
+          "act2": 0,
+          "adjust": 0,
+          "total": 2,
+          "wins": 0,
+          "answered": 2,
+          "act1Profile": {
+            "id": "conforme-fragile",
+            "label": {
+              "fr": "Conforme fragile",
+              "en": "Fragile compliance"
+            },
+            "desc": {
+              "fr": "Conforme, mais dépendant des corrections",
+              "en": "Compliant, but dependent on fixes"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 2
+        },
+        {
+          "teamId": "team_35db8aa4d70d4929",
+          "name": "Team Delta",
+          "short": 0,
+          "long": 0,
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "answered": 2,
+          "act1Profile": {
+            "id": "conforme-fragile",
+            "label": {
+              "fr": "Conforme fragile",
+              "en": "Fragile compliance"
+            },
+            "desc": {
+              "fr": "Conforme, mais dépendant des corrections",
+              "en": "Compliant, but dependent on fixes"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 3
+        },
+        {
+          "teamId": "team_853ff042e48a146f",
+          "name": "Compliance First",
+          "short": 2,
+          "long": -3,
+          "act1": -1,
+          "act2": 0,
+          "adjust": 0,
+          "total": -1,
+          "wins": 0,
+          "answered": 2,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 4
+        }
+      ],
+      "events": [
+        {
+          "eventId": "act1-card1",
+          "title": {
+            "fr": "Factures rejetées",
+            "en": "Rejected invoices"
+          },
+          "ref": {
+            "fr": "Carte 1",
+            "en": "Card 1"
+          },
+          "act": 1,
+          "no": 1,
+          "startedAt": 1788964551410,
+          "closedAt": 1788964551430,
+          "durationSec": 90,
+          "winners": [
+            "Les Sceptiques"
+          ],
+          "results": [
+            {
+              "team": "Les Sceptiques",
+              "choice": "B",
+              "total": 2,
+              "short": 1,
+              "long": 1,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Data Squad",
+              "choice": "B",
+              "total": 2,
+              "short": 1,
+              "long": 1,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Team Delta",
+              "choice": "C",
+              "total": 1,
+              "short": -2,
+              "long": 3,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Compliance First",
+              "choice": "A",
+              "total": -1,
+              "short": 2,
+              "long": -3,
+              "points": 0,
+              "seconds": 0
+            }
+          ]
+        },
+        {
+          "eventId": "act1-card2",
+          "title": {
+            "fr": "Blocage de paiement",
+            "en": "Payment freeze"
+          },
+          "ref": {
+            "fr": "Carte 2",
+            "en": "Card 2"
+          },
+          "act": 1,
+          "no": 2,
+          "startedAt": 1788964551736,
+          "closedAt": 1788964565234,
+          "durationSec": 120,
+          "winners": [
+            "Les Sceptiques"
+          ],
+          "results": [
+            {
+              "team": "Les Sceptiques",
+              "choice": "B",
+              "total": 2,
+              "short": 1,
+              "long": 1,
+              "points": 0,
+              "seconds": 0
+            },
+            {
+              "team": "Compliance First",
+              "choice": null,
+              "total": 0,
+              "short": 0,
+              "long": 0,
+              "points": 0,
+              "seconds": null
+            },
+            {
+              "team": "Data Squad",
+              "choice": null,
+              "total": 0,
+              "short": 0,
+              "long": 0,
+              "points": 0,
+              "seconds": null
+            },
+            {
+              "team": "Team Delta",
+              "choice": "A",
+              "total": -1,
+              "short": 2,
+              "long": -3,
+              "points": 0,
+              "seconds": 0
+            }
+          ]
+        }
+      ],
+      "adjustments": [],
+      "log": [
+        {
+          "id": "log_dbc45a1c9f0f5b45",
+          "ts": 1788964551378,
+          "type": "session_created",
+          "params": {
+            "name": "Atelier Direction Financière"
+          }
+        },
+        {
+          "id": "log_e4c2a9de6d561556",
+          "ts": 1788964551383,
+          "type": "team_joined",
+          "params": {
+            "team": "Les Sceptiques"
+          }
+        },
+        {
+          "id": "log_2cedd0aed5a7328d",
+          "ts": 1788964551389,
+          "type": "team_joined",
+          "params": {
+            "team": "Team Delta"
+          }
+        },
+        {
+          "id": "log_a771da01ec1ec206",
+          "ts": 1788964551393,
+          "type": "team_joined",
+          "params": {
+            "team": "Compliance First"
+          }
+        },
+        {
+          "id": "log_a8c1783f1a5c248a",
+          "ts": 1788964551400,
+          "type": "team_joined",
+          "params": {
+            "team": "Data Squad"
+          }
+        },
+        {
+          "id": "log_f8b0a830014aff19",
+          "ts": 1788964551410,
+          "type": "round_started",
+          "params": {
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices",
+            "seconds": 90
+          }
+        },
+        {
+          "id": "log_12170ad19ae0fa04",
+          "ts": 1788964551423,
+          "type": "team_submitted",
+          "params": {
+            "team": "Les Sceptiques",
+            "choice": "B"
+          }
+        },
+        {
+          "id": "log_31039e18f6e31cff",
+          "ts": 1788964551425,
+          "type": "team_submitted",
+          "params": {
+            "team": "Team Delta",
+            "choice": "C"
+          }
+        },
+        {
+          "id": "log_6710f0362a6ecd1d",
+          "ts": 1788964551427,
+          "type": "team_submitted",
+          "params": {
+            "team": "Compliance First",
+            "choice": "A"
+          }
+        },
+        {
+          "id": "log_a1a92d3fd946dd22",
+          "ts": 1788964551428,
+          "type": "team_submitted",
+          "params": {
+            "team": "Data Squad",
+            "choice": "B"
+          }
+        },
+        {
+          "id": "log_f5f96ef1e70e015d",
+          "ts": 1788964551430,
+          "type": "round_closed",
+          "params": {
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices",
+            "reason": "manual",
+            "winners": [
+              "Les Sceptiques"
+            ]
+          }
+        },
+        {
+          "id": "log_784ccf244b943254",
+          "ts": 1788964551431,
+          "type": "round_revealed",
+          "params": {}
+        },
+        {
+          "id": "log_9853daab1e6644bd",
+          "ts": 1788964551734,
+          "type": "round_archived",
+          "params": {
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices"
+          }
+        },
+        {
+          "id": "log_0d637c9809319d91",
+          "ts": 1788964551736,
+          "type": "round_started",
+          "params": {
+            "event": "Blocage de paiement",
+            "eventEn": "Payment freeze",
+            "seconds": 120
+          }
+        },
+        {
+          "id": "log_5226827e3134abd0",
+          "ts": 1788964551738,
+          "type": "team_submitted",
+          "params": {
+            "team": "Les Sceptiques",
+            "choice": "B"
+          }
+        },
+        {
+          "id": "log_053b12a62ec837f5",
+          "ts": 1788964551739,
+          "type": "team_submitted",
+          "params": {
+            "team": "Team Delta",
+            "choice": "A"
+          }
+        },
+        {
+          "id": "log_84a8d8ed01b11977",
+          "ts": 1788964565234,
+          "type": "round_closed",
+          "params": {
+            "event": "Blocage de paiement",
+            "eventEn": "Payment freeze",
+            "reason": "manual",
+            "winners": [
+              "Les Sceptiques"
+            ]
+          }
+        },
+        {
+          "id": "log_f91fe0e9b0887940",
+          "ts": 1788964565235,
+          "type": "round_revealed",
+          "params": {}
+        },
+        {
+          "id": "log_ab8c963b50c17c9b",
+          "ts": 1788964575718,
+          "type": "round_archived",
+          "params": {
+            "event": "Blocage de paiement",
+            "eventEn": "Payment freeze"
+          }
+        },
+        {
+          "id": "log_a0509e3cc79d71dd",
+          "ts": 1788964575719,
+          "type": "session_ended",
+          "params": {}
+        }
+      ]
+    }
+  ]
+}

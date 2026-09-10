@@ -2,9 +2,26 @@
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Console animateur — Serious Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0a0a0d" />
+    <title>Direction de jeu — Serious Game</title>
     <link rel="stylesheet" href="/css/app.css" />
+    <script>
+      /* Thème posé avant le rendu : évite le clignotement au chargement. */
+      (function () {
+        var t;
+        try {
+          t = localStorage.getItem("sg.theme");
+        } catch (e) {}
+        if (t !== "light" && t !== "dark") {
+          t =
+            window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches
+              ? "light"
+              : "dark";
+        }
+        document.documentElement.setAttribute("data-theme", t);
+      })();
+    </script>
   </head>
   <body>
     <header class="topbar">
@@ -31,7 +48,7 @@
         <!-- =============================================== colonne gauche -->
         <div class="stack">
           <!-- accès joueurs -->
-          <section class="panel gold">
+          <section class="panel">
             <div class="grid cols-2" style="align-items: center">
               <div>
                 <div class="label" data-i18n="admin.code">Code de session</div>
@@ -52,32 +69,43 @@
             <div class="divider"></div>
             <div class="grid cols-4">
               <div class="metric">
-                <div class="k" data-i18n="admin.teams">Équipes</div>
-                <div class="v" id="m-teams">0</div>
+                <div class="k" data-i18n="admin.tables">Tables</div>
+                <div class="v" id="m-tables">0</div>
+              </div>
+              <div class="metric">
+                <div class="k" data-i18n="admin.players">Joueurs</div>
+                <div class="v" id="m-players">0</div>
               </div>
               <div class="metric">
                 <div class="k" data-i18n="rec.eventsCol">Événements</div>
                 <div class="v" id="m-events">0</div>
               </div>
               <div class="metric">
-                <div class="k" data-i18n="admin.answersLabel">Réponses</div>
-                <div class="v" id="m-answers">—</div>
-              </div>
-              <div class="metric">
-                <div class="k" data-i18n="play.timeLeft">Temps restant</div>
-                <div class="v" id="m-timer">—</div>
+                <div class="k" data-i18n="admin.live">Vote en cours</div>
+                <div class="v" id="m-live">0</div>
               </div>
             </div>
           </section>
 
-          <!-- événement en cours -->
-          <section class="panel" id="current-panel">
+          <!-- suivi des tables -->
+          <section class="panel">
             <div class="panel-head">
-              <h2 data-i18n="admin.current">Événement en cours</h2>
+              <h2 data-i18n="admin.tables">Tables</h2>
               <div class="spacer"></div>
-              <span class="badge" id="round-badge"></span>
+              <span class="badge" id="tables-count"></span>
+              <button class="btn btn-sm" id="btn-add-team" data-i18n="admin.addTable">
+                Ajouter une table
+              </button>
             </div>
-            <div id="current-host"></div>
+            <div class="team-grid" id="teams-host"></div>
+          </section>
+
+          <!-- classement par événement -->
+          <section class="panel">
+            <div class="panel-head">
+              <h2 data-i18n="admin.eventRanks">Classement par événement</h2>
+            </div>
+            <div id="ranks-host"></div>
           </section>
 
           <!-- déroulé -->
@@ -85,61 +113,31 @@
             <div class="panel-head">
               <h2 data-i18n="admin.deck">Déroulé des événements</h2>
               <div class="spacer"></div>
-              <label class="row tight small muted" style="gap: 6px">
-                <span data-i18n="admin.duration">Durée</span>
-                <input
-                  type="number"
-                  id="launch-duration"
-                  min="5"
-                  max="3600"
-                  step="10"
-                  style="width: 88px"
-                />
-              </label>
               <button class="btn btn-sm" id="btn-new-event" data-i18n="admin.newEvent">
                 Créer un événement
               </button>
             </div>
             <div class="list" id="deck-host"></div>
           </section>
-
-          <!-- historique -->
-          <section class="panel">
-            <div class="panel-head">
-              <h2 data-i18n="admin.rounds">Historique des événements</h2>
-            </div>
-            <div id="history-host"></div>
-          </section>
         </div>
 
         <!-- =============================================== colonne droite -->
         <div class="stack">
-          <!-- classement -->
+          <!-- dévoilement -->
+          <section class="panel" id="reveal-panel">
+            <div class="panel-head">
+              <h2 data-i18n="admin.overview">Vue d’ensemble</h2>
+            </div>
+            <div id="reveal-host"></div>
+          </section>
+
+          <!-- classement général -->
           <section class="panel">
             <div class="panel-head">
               <h2 data-i18n="admin.leaderboard">Classement général</h2>
             </div>
             <div class="table-wrap" id="board-host"></div>
-          </section>
-
-          <!-- équipes -->
-          <section class="panel">
-            <div class="panel-head">
-              <h2 data-i18n="admin.teams">Équipes</h2>
-              <div class="spacer"></div>
-              <span class="badge" id="teams-count"></span>
-            </div>
-            <div class="list" id="teams-host"></div>
-            <div class="divider"></div>
-            <form class="inline-form" id="add-team-form">
-              <input
-                type="text"
-                id="add-team-name"
-                maxlength="40"
-                data-i18n-placeholder="admin.addTeam"
-              />
-              <button class="btn btn-sm" type="submit" data-i18n="btn.add">Ajouter</button>
-            </form>
+            <p class="small muted" style="margin: 10px 0 0" data-i18n="admin.noIndividual"></p>
           </section>
 
           <!-- réglages -->
@@ -151,9 +149,17 @@
               <span data-i18n="admin.duration">Durée du vote (secondes)</span>
               <input type="number" id="set-duration" min="5" max="3600" step="10" />
             </label>
+            <label class="field">
+              <span data-i18n="admin.arbitration">Temps d’arbitrage (secondes)</span>
+              <input type="number" id="set-arbitration" min="5" max="600" step="5" />
+            </label>
+            <label class="field">
+              <span data-i18n="admin.teamSizeSetting">Joueurs par table</span>
+              <input type="number" id="set-teamsize" min="2" max="10" step="1" />
+            </label>
             <label class="checkline">
-              <input type="checkbox" id="set-autoreveal" />
-              <span data-i18n="admin.autoReveal"></span>
+              <input type="checkbox" id="set-autoassign" />
+              <span data-i18n="admin.autoAssign"></span>
             </label>
             <label class="checkline">
               <input type="checkbox" id="set-autoclose" />
@@ -166,14 +172,6 @@
             <label class="checkline">
               <input type="checkbox" id="set-latejoin" />
               <span data-i18n="admin.allowLateJoin"></span>
-            </label>
-            <label class="checkline">
-              <input type="checkbox" id="set-showboard" />
-              <span data-i18n="admin.showBoard"></span>
-            </label>
-            <label class="field" style="margin-top: 10px">
-              <span data-i18n="admin.penalty">Pénalité si aucune réponse</span>
-              <input type="number" id="set-penalty" min="-20" max="0" step="1" />
             </label>
             <div class="divider"></div>
             <div class="row">
@@ -189,9 +187,9 @@
           <!-- rôles -->
           <section class="panel">
             <div class="panel-head">
-              <h2 data-i18n="admin.roles">Rôles à distribuer</h2>
+              <h2 data-i18n="admin.roles">Rôles et missions</h2>
             </div>
-            <div class="grid" id="roles-host" style="gap: 10px"></div>
+            <div id="roles-host"></div>
           </section>
 
           <!-- journal -->

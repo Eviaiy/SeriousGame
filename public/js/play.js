@@ -1,299 +1,424 @@
-/* Espace équipe : vote A/B/C, chrono, résultats, classement. */
+/* Poste d'un joueur : son rôle, son vote, l'arbitrage s'il est DG. */
 (function () {
   'use strict';
 
-  const {
-    $,
-    h,
-    clear,
-    toast,
-    teamStore,
-    t,
-    L,
-    fmtSigned,
-    signClass,
-    qs,
-    startTicker,
-  } = window.SG;
+  const { $, h, clear, toast, playerStore, LS, t, L, connect, startTicker, qs } = window.SG;
   const C = window.CARDS;
 
   window.SG.initChrome();
 
-  /* -------------------------------------------------------- identification */
-
-  const sessionId = qs('s');
-  const code = (qs('code') || '').toUpperCase();
-  let creds = sessionId ? teamStore.find(sessionId) : code ? teamStore.findByCode(code) : null;
-  if (!creds) creds = teamStore.latest();
-
-  if (!creds) {
-    window.location.href = code ? `/?code=${encodeURIComponent(code)}` : '/';
-    return;
-  }
-
-  /* ------------------------------------------------------------------ état */
-
-  let state = null;
-  let lastEventId = null;
-  let lastRoundStatus = null;
+  const stage = $('#stage');
+  const dock = $('#dock');
   const timer = C.createTimer();
-  let submitting = false;
+  $('#dock-timer').appendChild(timer.node);
 
-  const socket = window.SG.connect(onState, onFlash);
-  socket.on('connect', joinSession);
+  const NARRATIVE_SEEN = 'sg.narrative.seen';
 
-  async function joinSession() {
-    try {
-      const res = await socket.call('team:join', {
-        sessionId: creds.sessionId,
-        code: creds.code,
-        teamId: creds.teamId,
-        teamToken: creds.teamToken,
-      });
-      onState(res.state);
-    } catch (err) {
-      toast(err.message, 'error');
-      if (err.code === 'forbidden' || err.code === 'session_not_found') {
-        teamStore.remove(creds.sessionId);
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 1600);
-      }
+  let socket = null;
+  let state = null;
+  let creds = null;
+  let shownRound = null;
+  let shownClosed = null;
+  let narrativeDone = false;
+  let revealShown = false;
+
+  /* ------------------------------------------------------------ identification */
+
+  function resolveCreds() {
+    const playerId = qs('p');
+    if (playerId) {
+      const saved = playerStore.find(playerId);
+      if (saved) return saved;
     }
+    return playerStore.latest();
   }
 
-  function onState(next) {
-    state = next;
-    const me = myTeam();
-    if (me) {
-      teamStore.save({
-        sessionId: state.session.id,
-        code: state.session.code,
-        teamId: creds.teamId,
-        teamToken: creds.teamToken,
-        teamName: me.name,
-      });
-    }
-    render();
-  }
-
-  function onFlash(payload) {
-    if (!payload || !payload.type) return;
-    toast(t(`flash.${payload.type}`));
-  }
-
-  function myTeam() {
-    if (!state) return null;
-    return state.teams.find((x) => x.id === state.teamId) || null;
-  }
-
-  function buzz(pattern) {
-    if (navigator.vibrate) {
-      try {
-        navigator.vibrate(pattern);
-      } catch (err) {
-        /* ignore */
-      }
-    }
-  }
-
-  /* ---------------------------------------------------------------- entête */
+  /* ------------------------------------------------------------------ entête */
 
   function renderHeader() {
-    const me = myTeam();
-    const name = me ? me.name : creds.teamName;
-    $('#team-name').textContent = name;
-    $('#team-title').textContent = name;
-
-    const badge = $('#session-status');
-    const status = state.session.status;
-    badge.textContent = t(`admin.status.${status}`);
-    badge.className = `badge ${status === 'running' ? 'green' : status === 'finished' ? 'red' : 'gold'}`;
-
-    const row = (state.leaderboard || []).find((r) => r.teamId === state.teamId);
-    $('#my-rank').textContent = row && !state.leaderboardHidden ? `#${row.rank}` : '—';
-    $('#my-total').textContent = me ? fmtSigned(me.total) : '0';
-    $('#my-total').className = `v small ${signClass(me ? me.total : 0)}`;
-    $('#my-act1').textContent = me ? fmtSigned(me.act1) : '0';
-    $('#my-act2').textContent = me ? fmtSigned(me.act2) : '0';
-    $('#my-wins').textContent = me ? me.wins : 0;
+    $('#player-name').textContent = (state.me && state.me.name) || creds.playerName || '—';
+    const badge = $('#team-badge');
+    badge.textContent = state.team.name;
+    badge.className = 'badge accent';
   }
 
-  /* ----------------------------------------------------------------- scène */
+  /* --------------------------------------------------------- récit d'ouverture */
 
-  function renderStage() {
-    const host = clear($('#stage'));
-    const round = state.round;
-
-    if (state.session.status === 'finished' && !round) {
-      host.appendChild(
-        h('div', { class: 'panel center' }, [
-          h('h2', { text: t('play.sessionEnded') }),
-          h('p', { class: 'muted small', text: t('play.finalProfile') }),
-        ])
-      );
-      return;
-    }
-
-    if (!round) {
-      host.appendChild(
-        h('div', { class: 'panel center' }, [
-          h('div', { class: 'eyebrow', text: t('app.tagline') }),
-          h('h2', { text: t('play.waiting') }),
-          h('p', { class: 'muted small', text: t('play.waitingHint') }),
-        ])
-      );
-      return;
-    }
-
-    const open = round.status === 'open' && !round.pausedAt;
-    const alreadyAnswered = Boolean(round.myChoice);
-    const canChange = state.session.settings.allowChangeBeforeDeadline;
-    const interactive = open && (!alreadyAnswered || canChange) && !submitting;
-
-    const winningKeys = (round.results || [])
-      .filter((r) => (round.winners || []).includes(r.teamId))
-      .map((r) => r.choice)
-      .filter(Boolean);
-
+  function renderNarrative() {
+    const host = clear($('#narrative-host'));
+    /* Le récit s'efface dès que la table a commencé à jouer. */
+    const played = state.team.progress.played > 0 || Boolean(state.round);
+    if (played || narrativeDone) return;
     host.appendChild(
-      C.renderCard(round.event, {
-        interactive,
-        disabled: !interactive,
-        selected: round.myChoice,
-        revealed: round.revealed,
-        winningKeys,
-        showPoints: round.revealed,
-        onChoose: choose,
+      C.narrativeBlock(state.narrative, {
+        onReady: () => {
+          narrativeDone = true;
+          LS.set(NARRATIVE_SEEN, state.session.id);
+          renderNarrative();
+        },
       })
     );
+  }
 
-    /* --- chrono et état de la table --- */
-    const statusLine = h('div', { class: 'row' }, [
-      alreadyAnswered
-        ? h('span', { class: 'badge green', text: `${t('play.submitted')} · ${round.myChoice}` })
-        : h('span', { class: 'badge', text: t('play.chooseNow') }),
-      round.status === 'closed' && !round.revealed
-        ? h('span', { class: 'badge gold', text: t('play.waitingReveal') })
-        : null,
-      h('div', { class: 'spacer' }),
-      h('span', {
-        class: 'small muted',
-        text: t('admin.answered', { n: round.answeredCount, total: round.teamCount }),
-      }),
-    ]);
+  /* ------------------------------------------------------------------ mon rôle */
 
+  function renderRole() {
+    const host = clear($('#role-host'));
     host.appendChild(
-      h('div', { class: 'panel tight' }, [
-        timer.node,
-        statusLine,
-        h('div', { style: 'margin-top:10px' }, [C.answerChips(round, { showSeconds: round.revealed })]),
+      C.roleHero(state.me && state.me.role, {
+        eyebrow: t('play.myRole'),
+        folded: Boolean(state.round),
+      })
+    );
+  }
+
+  function renderRoster() {
+    $('#roster-count').textContent = t('team.connected', {
+      n: state.team.players.filter((p) => p.online).length,
+      total: state.team.players.length,
+    });
+    const host = clear($('#roster-host'));
+    host.appendChild(
+      C.rosterList(state.team.players, {
+        round: state.round,
+        showVotes: Boolean(state.round && state.round.status !== 'closed'),
+      })
+    );
+  }
+
+  function renderHistory() {
+    const host = clear($('#history-host'));
+    host.appendChild(C.historyTable(state.history, { showScores: state.scoresVisible }));
+  }
+
+  /* -------------------------------------------------------- résultats finaux */
+
+  function renderFinal() {
+    const host = clear($('#final-host'));
+    if (!state.scoresVisible) {
+      host.appendChild(C.sealedNotice('play.scoresSealedHint'));
+      return;
+    }
+    /* Le dévoilement est le moment fort : on amène l'écran dessus une fois. */
+    if (!revealShown) {
+      revealShown = true;
+      requestAnimationFrame(() => host.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    }
+
+    const me = (state.leaderboard || []).find((row) => row.teamId === state.team.id);
+    host.appendChild(
+      h('div', { class: 'panel' }, [
+        h('div', { class: 'panel-head' }, [
+          h('h2', { text: t('play.finalTitle') }),
+          me ? h('span', { class: 'badge gold', text: `${t('score.rank')} ${me.rank}` }) : null,
+        ]),
+        h('div', { class: 'score-strip' }, [
+          metric('score.total', state.team.total),
+          metric('score.act1', state.team.act1),
+          metric('score.act2', state.team.act2),
+          metric('score.wins', state.team.wins, true),
+        ]),
+        state.team.act1Profile
+          ? h('div', { class: 'grid cols-2', style: 'margin-top:14px' }, [
+              C.profileCard('score.profile1', state.team.act1Profile),
+              C.profileCard('score.profile2', state.team.act2Profile, 'blue'),
+            ])
+          : null,
+        h('div', { style: 'margin-top:14px' }, [
+          h('div', { class: 'meta-label', text: t('admin.leaderboard') }),
+          C.leaderboardTable(state.leaderboard, { compact: true, teamId: state.team.id }),
+        ]),
+        h('div', { class: 'small muted', style: 'margin-top:10px', text: t('play.noIndividual') }),
       ])
     );
-    timer.update(round);
+  }
 
-    /* --- résultats --- */
-    if (round.revealed) {
-      host.appendChild(
-        h('div', { class: 'stack' }, [
-          C.winnerBanner(round, { teamId: state.teamId }),
-          h('div', { class: 'panel tight' }, [
-            h('div', { class: 'label', text: t('play.results') }),
-            C.resultsTable(round, { teamId: state.teamId }),
-          ]),
+  function metric(labelKey, value, raw) {
+    return h('div', { class: 'metric' }, [
+      h('div', { class: 'k', text: t(labelKey) }),
+      h('div', {
+        class: 'v small',
+        text: raw ? String(value || 0) : window.SG.fmtSigned(value || 0),
+      }),
+    ]);
+  }
+
+  /* ------------------------------------------------------------------ la scène */
+
+  function waitingPanel() {
+    if (state.session.status === 'finished') {
+      return h('div', { class: 'stage-empty' }, [
+        h('h2', { text: t('play.sessionEnded') }),
+      ]);
+    }
+    if (!state.team.rolesAssigned) {
+      return h('div', { class: 'stage-empty' }, [
+        h('div', { class: 'pulse-dot' }),
+        h('h2', { text: t('play.waitingRole') }),
+        h('div', { class: 'small muted', text: t('play.waitingRoleHint') }),
+      ]);
+    }
+    if (state.team.progress.done) {
+      return h('div', { class: 'stage-empty' }, [
+        h('div', { class: 'eyebrow', text: t('admin.tableDone') }),
+        h('h2', { text: t('play.done') }),
+        h('div', { class: 'small muted', text: t('play.doneHint') }),
+      ]);
+    }
+    return h('div', { class: 'stage-empty' }, [
+      h('div', { class: 'pulse-dot' }),
+      h('h2', { text: t('play.waiting') }),
+      h('div', { class: 'small muted', text: t('play.waitingHint') }),
+    ]);
+  }
+
+  /** Le DG tranche l'égalité ; les autres attendent sa décision. */
+  function arbitrationPanel(round) {
+    const tied = round.tied || [];
+    const event = round.event;
+    const mine = state.isDg;
+    return h('div', { class: 'arb' }, [
+      h('div', { class: 'row', style: 'gap:10px;align-items:center' }, [
+        C.dgBadge(),
+        h('div', { class: 'grow' }, [
+          h('div', { style: 'font-weight:620', text: t('play.tie') }),
+          h('div', {
+            class: 'small',
+            text: mine ? t('play.tieYouDecide') : t('play.tieWaitDg', { name: round.dgName || '' }),
+          }),
+        ]),
+      ]),
+      C.tallyBars(round.tally, { winners: tied }),
+      mine
+        ? h(
+            'div',
+            { class: 'arb-choices' },
+            tied.map((key) => {
+              const option = event ? event.options.find((o) => o.key === key) : null;
+              return h('button', {
+                class: 'btn btn-sm btn-primary',
+                type: 'button',
+                text: option ? `${key} — ${L(option.label)}` : key,
+                onClick: () => socket.callSafe('player:arbitrate', { choice: key }),
+              });
+            })
+          )
+        : null,
+    ]);
+  }
+
+  function decisionPanel(round) {
+    const event = round.event;
+    const option =
+      event && round.decision ? event.options.find((o) => o.key === round.decision) : null;
+    return h('div', { class: 'panel' }, [
+      h('div', { class: 'panel-head' }, [h('h2', { text: t('play.decision') })]),
+      round.decision
+        ? h('div', {}, [
+            h('div', { class: 'row', style: 'gap:10px;align-items:baseline' }, [
+              h('span', { class: 'choice-key', text: round.decision }),
+              h('div', {
+                class: 'team-title',
+                style: 'font-size:1.05rem',
+                text: L(option && option.label),
+              }),
+            ]),
+            h('div', { class: 'small muted', text: C.decidedByText(round.decidedBy) }),
+          ])
+        : h('div', { class: 'small warn', text: t('play.noDecision') }),
+      h('div', { style: 'margin-top:14px' }, [
+        h('div', { class: 'meta-label', text: t('play.tally') }),
+        C.tallyBars(round.tally, { decision: round.decision }),
+      ]),
+      state.scoresVisible && round.score
+        ? h('div', { class: 'center', style: 'margin-top:14px' }, [
+            C.deltaChip(round.score.total, 'score.points'),
+          ])
+        : null,
+    ]);
+  }
+
+  function renderStage() {
+    clear(stage);
+    const round = state.round;
+
+    if (!round) {
+      shownRound = null;
+      shownClosed = null;
+      stage.appendChild(waitingPanel());
+      return;
+    }
+
+    const isNew = shownRound !== round.no;
+    shownRound = round.no;
+    const closed = round.status === 'closed';
+    const canVote =
+      round.status === 'open' &&
+      !round.pausedAt &&
+      (!round.myVote || state.session.settings.allowChangeVote);
+
+    stage.appendChild(
+      C.renderCard(round.event, {
+        flipIn: isNew,
+        interactive: canVote,
+        disabled: !canVote,
+        selected: round.myVote || (closed ? round.decision : null),
+        /* Le barème n'apparaît qu'une fois les scores dévoilés : sinon on
+           voterait pour les points, pas pour la décision. */
+        showPoints: state.scoresVisible,
+        revealed: closed && Boolean(round.decision),
+        winningKeys: closed && round.decision ? [round.decision] : [],
+        animateReveal: closed && shownClosed !== round.no,
+        /* La carte demande toujours la même chose ; la confirmation du vote
+           vit dans la barre du bas, pas dans l'énoncé. */
+        promptKey: 'play.chooseNow',
+        onChoose: (key) => socket.callSafe('player:vote', { choice: key }),
+      })
+    );
+    if (closed) shownClosed = round.no;
+
+    if (round.status === 'arbitration') stage.appendChild(arbitrationPanel(round));
+    else if (closed) stage.appendChild(decisionPanel(round));
+    else {
+      const waiting = Math.max(0, round.headcount - round.votedCount);
+      stage.appendChild(
+        h('div', { class: 'panel tight' }, [
+          h('div', {
+            class: 'team-title',
+            style: 'font-size:1.05rem',
+            text: waiting ? t('play.waitingOthers', { n: waiting }) : t('play.allVoted'),
+          }),
+          h('p', { class: 'small muted', style: 'margin:4px 0 0', text: t('play.voteHint') }),
         ])
       );
     }
   }
 
-  async function choose(key) {
-    if (submitting) return;
-    submitting = true;
-    render();
-    const res = await socket.callSafe('team:submit', { choice: key });
-    submitting = false;
-    if (res) {
-      buzz(40);
-      toast(t('play.submitted'), 'success');
-    }
-    render();
+  /* --------------------------------------------------------------- barre de vote */
+
+  /* Le DG tranche depuis la barre : sur téléphone, le panneau d'arbitrage se
+     trouve sous la carte et sortait du champ de vision pendant le décompte. */
+  function renderDockActions(round) {
+    const host = clear($('#dock-actions'));
+    const arbitrating = round.status === 'arbitration' && state.isDg;
+    dock.classList.toggle('has-actions', arbitrating);
+    if (!arbitrating) return;
+    const event = round.event;
+    (round.tied || []).forEach((key) => {
+      const option = event ? event.options.find((o) => o.key === key) : null;
+      const label = option ? `${key} — ${L(option.label)}` : key;
+      host.appendChild(
+        h('button', {
+          class: 'btn btn-sm btn-primary',
+          type: 'button',
+          text: key,
+          title: label,
+          'aria-label': label,
+          onClick: () => socket.callSafe('player:arbitrate', { choice: key }),
+        })
+      );
+    });
   }
 
-  /* ------------------------------------------------------------ classement */
-
-  function renderBoard() {
-    const host = clear($('#board-host'));
-    if (state.leaderboardHidden) {
-      host.appendChild(h('p', { class: 'muted small', text: t('play.leaderboardHidden') }));
-      const me = (state.leaderboard || [])[0];
-      if (me) host.appendChild(C.leaderboardTable([me], { compact: true, teamId: state.teamId }));
+  function renderDock() {
+    const round = state.round;
+    dock.classList.toggle('hidden', !round);
+    if (!round) {
+      timer.update(null);
       return;
     }
-    host.appendChild(C.leaderboardTable(state.leaderboard, { compact: true, teamId: state.teamId }));
+    const badge = $('#dock-badge');
+    const hint = $('#dock-hint');
+    renderDockActions(round);
+
+    if (round.status === 'arbitration') {
+      badge.textContent = t('play.tie');
+      badge.className = 'badge warn';
+      hint.textContent = state.isDg ? t('play.tieYouDecide') : t('play.tieWaitDg', { name: round.dgName || '' });
+    } else if (round.status === 'closed') {
+      badge.textContent = t('play.closed');
+      badge.className = 'badge';
+      hint.textContent = round.decision
+        ? `${round.decision} · ${C.decidedByText(round.decidedBy)}`
+        : t('play.noDecision');
+    } else if (round.myVote) {
+      badge.textContent = `${t('play.sent')} · ${round.myVote}`;
+      badge.className = 'badge green';
+      hint.textContent = t('play.voted');
+    } else {
+      badge.textContent = t('play.yourCall');
+      badge.className = 'badge accent';
+      hint.textContent = t('play.chooseNow');
+    }
+    timer.update(round);
   }
 
-  function renderProfiles() {
-    const host = clear($('#profiles-host'));
-    const me = myTeam();
-    if (!me) return;
-    host.appendChild(C.profileCard('score.profile1', me.act1Profile, 'orange'));
-    host.appendChild(C.profileCard('score.profile2', me.act2Profile, 'blue'));
-  }
-
-  function renderRoles() {
-    const host = clear($('#roles-host'));
-    host.appendChild(C.rolesGrid(state.roles));
-  }
-
-  /* ---------------------------------------------------------------- render */
+  /* -------------------------------------------------------------- application */
 
   function render() {
-    if (!state) return;
+    if (!state || !state.team) return;
     renderHeader();
+    renderNarrative();
+    renderRole();
     renderStage();
-    renderBoard();
-    renderProfiles();
-    renderRoles();
+    renderDock();
+    renderFinal();
+    renderRoster();
+    renderHistory();
+  }
 
-    const round = state.round;
-    const eventId = round ? round.eventId : null;
-    const status = round ? `${round.status}:${round.revealed}` : 'none';
-    if (eventId && eventId !== lastEventId) buzz([60, 40, 60]);
-    if (status !== lastRoundStatus && round && round.revealed) buzz(120);
-    lastEventId = eventId;
-    lastRoundStatus = status;
+  function applyState(next) {
+    state = next;
+    render();
   }
 
   startTicker(() => {
-    if (state) timer.update(state.round);
-  });
-
-  window.I18N.onChange(() => {
-    window.I18N.applyStatic();
-    render();
-  });
-
-  /* ----------------------------------------------------------------- events */
-
-  $('#btn-rename').addEventListener('click', async () => {
-    const me = myTeam();
-    const next = window.prompt(t('play.rename'), me ? me.name : '');
-    if (!next) return;
-    await socket.callSafe('team:rename', { name: next.trim() });
+    if (!state || !state.round) return;
+    timer.update(state.round);
   });
 
   $('#btn-leave').addEventListener('click', () => {
     if (!window.confirm(t('play.leaveConfirm'))) return;
-    teamStore.remove(creds.sessionId);
+    if (creds) playerStore.remove(creds.playerId);
     window.location.href = '/';
   });
 
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && socket.connected) {
-      socket
-        .call('state:refresh')
-        .then((res) => res && res.state && onState(res.state))
-        .catch(() => {});
+  window.I18N.onChange(() => render());
+
+  /* --------------------------------------------------------------- démarrage */
+
+  (function boot() {
+    creds = resolveCreds();
+    if (!creds) {
+      const code = (qs('code') || '').toUpperCase();
+      window.location.href = code ? `/?code=${encodeURIComponent(code)}` : '/';
+      return;
     }
-  });
+    narrativeDone = LS.get(NARRATIVE_SEEN, null) === creds.sessionId;
+
+    socket = connect(applyState, (payload) => {
+      if (!payload || !payload.type) return;
+      const message = t(`flash.${payload.type}`);
+      if (message) toast(message, payload.type === 'round_tied' ? 'warn' : '');
+    });
+
+    socket.on('connect', async () => {
+      try {
+        const res = await socket.call('player:join', {
+          sessionId: creds.sessionId,
+          playerId: creds.playerId,
+          playerToken: creds.playerToken,
+        });
+        applyState(res.state);
+      } catch (err) {
+        toast(err.message, 'error');
+        if (err.code === 'session_not_found' || err.code === 'player_not_found') {
+          playerStore.remove(creds.playerId);
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1800);
+        }
+      }
+    });
+  })();
 })();

@@ -30,6 +30,23 @@
     return node;
   }
 
+  /* createElement ne suffit pas pour du SVG : sans le namespace, le navigateur
+     crée un élément HTML inconnu et ne dessine rien. */
+  function svg(tag, attrs, children) {
+    const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    if (attrs) {
+      for (const [key, value] of Object.entries(attrs)) {
+        if (value === null || value === undefined || value === false) continue;
+        node.setAttribute(key, value === true ? '' : value);
+      }
+    }
+    for (const child of [].concat(children || [])) {
+      if (child === null || child === undefined || child === false) continue;
+      node.appendChild(child);
+    }
+    return node;
+  }
+
   function clear(node) {
     while (node && node.firstChild) node.removeChild(node.firstChild);
     return node;
@@ -91,6 +108,7 @@
   function fmtDuration(ms) {
     if (!ms || ms < 0) return '—';
     const min = Math.round(ms / 60000);
+    if (min < 1) return '< 1 min';
     if (min < 60) return `${min} min`;
     return `${Math.floor(min / 60)} h ${String(min % 60).padStart(2, '0')}`;
   }
@@ -122,60 +140,44 @@
     },
   };
 
-  const ADMIN_KEY = 'sg.admin.sessions';
-  const TEAM_KEY = 'sg.team.sessions';
+  /**
+   * Trois accès mémorisés séparément : direction de jeu, animateur de table,
+   * joueur. Un même navigateur peut porter les trois (poste de démonstration).
+   */
+  function makeStore(lsKey, idField) {
+    const store = {
+      all() {
+        const list = LS.get(lsKey, []);
+        return Array.isArray(list) ? list : [];
+      },
+      save(entry) {
+        const list = store.all().filter((s) => s[idField] !== entry[idField]);
+        list.unshift({ ...entry, ts: Date.now() });
+        LS.set(lsKey, list.slice(0, 12));
+      },
+      find(id) {
+        return store.all().find((s) => s[idField] === id) || null;
+      },
+      findByCode(code) {
+        const wanted = String(code || '').toUpperCase();
+        return store.all().find((s) => (s.code || '').toUpperCase() === wanted) || null;
+      },
+      latest() {
+        return store.all()[0] || null;
+      },
+      remove(id) {
+        LS.set(
+          lsKey,
+          store.all().filter((s) => s[idField] !== id)
+        );
+      },
+    };
+    return store;
+  }
 
-  const adminStore = {
-    all() {
-      const list = LS.get(ADMIN_KEY, []);
-      return Array.isArray(list) ? list : [];
-    },
-    save(entry) {
-      const list = adminStore.all().filter((s) => s.sessionId !== entry.sessionId);
-      list.unshift({ ...entry, ts: Date.now() });
-      LS.set(ADMIN_KEY, list.slice(0, 12));
-    },
-    find(sessionId) {
-      return adminStore.all().find((s) => s.sessionId === sessionId) || null;
-    },
-    latest() {
-      return adminStore.all()[0] || null;
-    },
-    remove(sessionId) {
-      LS.set(
-        ADMIN_KEY,
-        adminStore.all().filter((s) => s.sessionId !== sessionId)
-      );
-    },
-  };
-
-  const teamStore = {
-    all() {
-      const list = LS.get(TEAM_KEY, []);
-      return Array.isArray(list) ? list : [];
-    },
-    save(entry) {
-      const list = teamStore.all().filter((s) => s.sessionId !== entry.sessionId);
-      list.unshift({ ...entry, ts: Date.now() });
-      LS.set(TEAM_KEY, list.slice(0, 12));
-    },
-    find(sessionId) {
-      return teamStore.all().find((s) => s.sessionId === sessionId) || null;
-    },
-    findByCode(code) {
-      const wanted = String(code || '').toUpperCase();
-      return teamStore.all().find((s) => s.code === wanted) || null;
-    },
-    latest() {
-      return teamStore.all()[0] || null;
-    },
-    remove(sessionId) {
-      LS.set(
-        TEAM_KEY,
-        teamStore.all().filter((s) => s.sessionId !== sessionId)
-      );
-    },
-  };
+  const superStore = makeStore('sg.super.sessions', 'sessionId');
+  const tableStore = makeStore('sg.table.sessions', 'teamId');
+  const playerStore = makeStore('sg.player.sessions', 'playerId');
 
   /* --------------------------------------------------------------- REST API */
 
@@ -372,12 +374,56 @@
 
   /* -------------------------------------------------------------- interface */
 
+  /* ------------------------------------------------------------------ thème */
+
+  /* La clé est écrite en clair (pas de JSON) : le script inline des pages la lit
+     avant le rendu pour poser data-theme sans clignotement. */
+  const THEME_KEY = 'sg.theme';
+  const THEME_BG = { light: '#f1eee4', dark: '#0a0a0d' };
+
+  const theme = {
+    current() {
+      return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    },
+    apply(name) {
+      const next = name === 'light' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      const meta = $('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', THEME_BG[next]);
+      $$('[data-theme-btn]').forEach((btn) => {
+        btn.textContent = next === 'light' ? '☾' : '☀';
+        btn.setAttribute('aria-label', t(next === 'light' ? 'theme.toDark' : 'theme.toLight'));
+        btn.setAttribute('title', btn.getAttribute('aria-label'));
+      });
+      return next;
+    },
+    toggle() {
+      const next = this.current() === 'light' ? 'dark' : 'light';
+      try {
+        localStorage.setItem(THEME_KEY, next);
+      } catch (err) {
+        /* navigation privée : le thème reste valable pour la page en cours */
+      }
+      return this.apply(next);
+    },
+  };
+
   function initChrome() {
     document.documentElement.setAttribute('lang', window.I18N.getLang());
     window.I18N.applyStatic();
     $$('[data-lang-btn]').forEach((btn) => {
       btn.addEventListener('click', () => window.I18N.setLang(btn.getAttribute('data-lang-btn')));
     });
+
+    /* Bascule clair/sombre insérée devant le sélecteur de langue de chaque page. */
+    const langRow = $('[data-lang-btn]') ? $('[data-lang-btn]').parentNode : null;
+    if (langRow && !$('[data-theme-btn]')) {
+      const btn = h('button', { class: 'btn btn-icon', type: 'button' });
+      btn.setAttribute('data-theme-btn', '');
+      btn.addEventListener('click', () => theme.toggle());
+      langRow.parentNode.insertBefore(btn, langRow);
+    }
+    theme.apply(theme.current());
   }
 
   async function copyText(text, btn) {
@@ -433,10 +479,15 @@
     return `${window.location.origin}/join/${encodeURIComponent(code)}`;
   }
 
+  function tableUrl(code) {
+    return `${window.location.origin}/table/${encodeURIComponent(code)}`;
+  }
+
   window.SG = {
     $,
     $$,
     h,
+    svg,
     clear,
     escapeHtml,
     fmtSigned,
@@ -446,8 +497,9 @@
     fmtTimeOnly,
     fmtDuration,
     LS,
-    adminStore,
-    teamStore,
+    superStore,
+    tableStore,
+    playerStore,
     passStore,
     api,
     download,
@@ -457,10 +509,12 @@
     startTicker,
     connect,
     initChrome,
+    theme,
     copyText,
     modal,
     qs,
     joinUrl,
+    tableUrl,
     t,
     L,
   };

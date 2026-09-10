@@ -1,23 +1,41 @@
 'use strict';
 
+/**
+ * Moteur de jeu / Game engine.
+ *
+ * Hiérarchie :
+ *   super animateur  → crée la session, voit tout, dévoile les scores à la fin
+ *   animateur d'équipe → lance et prolonge les événements de SA table
+ *   joueur           → un rôle, une voix, un vote par événement
+ *
+ * Deux règles structurantes :
+ *   1. Chaque équipe avance à son rythme : la manche est portée par l'équipe,
+ *      pas par la session.
+ *   2. Les scores restent invisibles (sauf pour le super animateur) jusqu'au
+ *      dévoilement final, pour que personne n'ajuste sa stratégie en route.
+ */
+
 const crypto = require('crypto');
 const store = require('./store');
 const deck = require('./deck');
 
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-const MAX_TEAMS = 24;
+const MAX_TEAMS = 12;
 const MAX_EVENTS = 60;
-const DEFAULT_DURATION = 120;
+const MAX_PLAYERS_PER_TEAM = 10;
+const DEFAULT_DURATION = 300;
 const MIN_DURATION = 5;
+const DEFAULT_TEAM_SIZE = 6;
+const DEFAULT_ARBITRATION = 90;
 
 const DEFAULT_SETTINGS = {
   defaultDuration: DEFAULT_DURATION,
-  autoReveal: true,
-  autoCloseOnAllAnswers: false,
-  allowChangeBeforeDeadline: false,
+  teamSize: DEFAULT_TEAM_SIZE,
+  arbitrationSeconds: DEFAULT_ARBITRATION,
+  autoAssignRoles: true,
+  autoCloseOnAllVotes: true,
   allowLateJoin: true,
-  showLeaderboardToTeams: true,
-  noAnswerPenalty: 0,
+  allowChangeVote: true,
 };
 
 /* ------------------------------------------------------------------ utils */
@@ -64,6 +82,16 @@ function bilingual(value, fallback = '') {
   return { fr: text, en: text };
 }
 
+/** Mélange de Fisher-Yates : le tirage des rôles doit être réellement uniforme. */
+function shuffle(list) {
+  const out = list.slice();
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    const j = crypto.randomInt(i + 1);
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
 class GameError extends Error {
   constructor(code, message) {
     super(message || code);
@@ -73,35 +101,55 @@ class GameError extends Error {
 
 /* --------------------------------------------------------------- sessions */
 
-function createSession({ name, lang, facilitator } = {}) {
+function usedCodes() {
+  const codes = new Set();
+  for (const s of Object.values(store.state.sessions)) {
+    codes.add(s.code);
+    for (const t of s.teams) codes.add(t.adminCode);
+  }
+  return codes;
+}
+
+function uniqueCode(taken = usedCodes()) {
   let code = newCode();
   let guard = 0;
-  while (findByCode(code) && guard < 50) {
+  while (taken.has(code) && guard < 80) {
     code = newCode();
     guard += 1;
   }
+  taken.add(code);
+  return code;
+}
 
+function createSession({ name, lang, facilitator, teamCount, teamSize } = {}) {
+  const taken = usedCodes();
   const session = {
     id: id('sess'),
-    code,
-    adminKey: token(),
+    code: uniqueCode(taken),
+    superKey: token(),
     name: cleanText(name, 80) || 'Serious Game — Facturation électronique',
     facilitator: cleanText(facilitator, 60),
     lang: lang === 'en' ? 'en' : 'fr',
     status: 'lobby',
+    revealed: false,
+    revealedAt: null,
     createdAt: Date.now(),
     startedAt: null,
     endedAt: null,
-    settings: { ...DEFAULT_SETTINGS },
+    settings: {
+      ...DEFAULT_SETTINGS,
+      teamSize: clamp(toInt(teamSize, DEFAULT_TEAM_SIZE), 2, MAX_PLAYERS_PER_TEAM),
+    },
     teams: [],
     events: deck.cloneDefaultEvents(),
-    round: null,
-    history: [],
     log: [],
     archivedRecordId: null,
   };
 
-  addLog(session, 'session_created', { name: session.name });
+  const count = clamp(toInt(teamCount, 4), 1, MAX_TEAMS);
+  for (let i = 0; i < count; i += 1) createTeam(session, null, taken);
+
+  addLog(session, 'session_created', { name: session.name, teams: count });
   store.state.sessions[session.id] = session;
   store.persistSessions();
   return session;
@@ -117,16 +165,46 @@ function findByCode(code) {
   return Object.values(store.state.sessions).find((s) => s.code === wanted) || null;
 }
 
+/** Retrouve la table à partir du code remis à son animateur. */
+function findByTeamCode(code) {
+  const wanted = cleanText(code, 12).toUpperCase();
+  if (!wanted) return null;
+  for (const session of Object.values(store.state.sessions)) {
+    const team = session.teams.find((t) => t.adminCode === wanted);
+    if (team) return { session, team };
+  }
+  return null;
+}
+
 function requireSession(sessionId) {
   const session = getSession(sessionId);
   if (!session) throw new GameError('session_not_found', 'Session introuvable');
   return session;
 }
 
-function assertAdmin(session, adminKey) {
-  if (!adminKey || adminKey !== session.adminKey) {
-    throw new GameError('forbidden', 'Clé animateur invalide');
+function assertSuper(session, key) {
+  if (!key || key !== session.superKey) {
+    throw new GameError('forbidden', 'Clé super animateur invalide');
   }
+}
+
+function authTeamAdmin(session, teamId, adminToken) {
+  const team = getTeam(session, teamId);
+  if (!team || !adminToken || team.adminToken !== adminToken) {
+    throw new GameError('forbidden', 'Accès animateur d’équipe invalide');
+  }
+  return team;
+}
+
+function authPlayer(session, playerId, playerToken) {
+  for (const team of session.teams) {
+    const player = team.players.find((p) => p.id === playerId);
+    if (player) {
+      if (player.token !== playerToken) throw new GameError('forbidden', 'Accès joueur invalide');
+      return { team, player };
+    }
+  }
+  throw new GameError('player_not_found', 'Joueur introuvable');
 }
 
 function deleteSession(session) {
@@ -134,7 +212,6 @@ function deleteSession(session) {
   store.persistSessions();
 }
 
-/** Supprime les sessions terminées ou inactives depuis plus de 30 jours. */
 function pruneSessions(maxAgeMs = 30 * 24 * 3600 * 1000) {
   const now = Date.now();
   let removed = 0;
@@ -158,30 +235,24 @@ function lastActivity(session) {
 
 function addLog(session, type, params = {}) {
   session.log.push({ id: id('log'), ts: Date.now(), type, params });
-  if (session.log.length > 500) session.log.splice(0, session.log.length - 500);
+  if (session.log.length > 600) session.log.splice(0, session.log.length - 600);
 }
 
 /* ------------------------------------------------------------------ teams */
 
-function addTeam(session, name) {
-  if (session.status === 'finished') throw new GameError('session_finished', 'Session terminée');
-  if (!session.settings.allowLateJoin && session.status === 'running') {
-    throw new GameError('join_closed', 'Les inscriptions sont fermées');
-  }
-  if (session.teams.length >= MAX_TEAMS) throw new GameError('too_many_teams', 'Trop d’équipes');
-
-  const clean = cleanText(name, 40);
-  if (clean.length < 2) throw new GameError('bad_name', 'Nom d’équipe trop court');
-  const exists = session.teams.some((t) => t.name.toLowerCase() === clean.toLowerCase());
-  if (exists) throw new GameError('name_taken', 'Ce nom d’équipe est déjà pris');
-
+function createTeam(session, name, taken) {
+  const index = session.teams.length + 1;
   const team = {
     id: id('team'),
-    token: token(),
-    name: clean,
+    name: cleanText(name, 40) || `Table ${index}`,
+    adminToken: token(),
+    adminCode: uniqueCode(taken || usedCodes()),
     createdAt: Date.now(),
-    sockets: 0,
+    players: [],
+    rolesAssignedAt: null,
+    round: null,
     answers: {},
+    history: [],
     adjustments: [],
     short: 0,
     long: 0,
@@ -190,7 +261,17 @@ function addTeam(session, name) {
     wins: 0,
   };
   session.teams.push(team);
-  addLog(session, 'team_joined', { team: team.name });
+  return team;
+}
+
+function addTeam(session, name) {
+  if (session.teams.length >= MAX_TEAMS) throw new GameError('too_many_teams', 'Trop d’équipes');
+  const clean = cleanText(name, 40);
+  if (clean && session.teams.some((t) => t.name.toLowerCase() === clean.toLowerCase())) {
+    throw new GameError('name_taken', 'Ce nom d’équipe est déjà pris');
+  }
+  const team = createTeam(session, clean);
+  addLog(session, 'team_added', { team: team.name });
   store.persistSessions();
   return team;
 }
@@ -202,12 +283,6 @@ function getTeam(session, teamId) {
 function requireTeam(session, teamId) {
   const team = getTeam(session, teamId);
   if (!team) throw new GameError('team_not_found', 'Équipe introuvable');
-  return team;
-}
-
-function authTeam(session, teamId, teamToken) {
-  const team = getTeam(session, teamId);
-  if (!team || team.token !== teamToken) throw new GameError('forbidden', 'Accès équipe invalide');
   return team;
 }
 
@@ -228,14 +303,165 @@ function renameTeam(session, teamId, name) {
 
 function removeTeam(session, teamId) {
   const team = requireTeam(session, teamId);
+  if (session.teams.length <= 1) throw new GameError('last_team', 'Il faut au moins une équipe');
   session.teams = session.teams.filter((t) => t.id !== teamId);
-  if (session.round && session.round.submissions[teamId]) {
-    delete session.round.submissions[teamId];
-    if (session.round.status === 'closed') computeRoundResults(session);
-  }
   addLog(session, 'team_removed', { team: team.name });
   store.persistSessions();
   return team;
+}
+
+function regenTeamCode(session, teamId) {
+  const team = requireTeam(session, teamId);
+  team.adminCode = uniqueCode();
+  team.adminToken = token();
+  addLog(session, 'team_code_reset', { team: team.name });
+  store.persistSessions();
+  return team;
+}
+
+/* ---------------------------------------------------------------- joueurs */
+
+function findPlayerByName(session, name) {
+  const wanted = name.toLowerCase();
+  for (const team of session.teams) {
+    const player = team.players.find((p) => p.name.toLowerCase() === wanted);
+    if (player) return { team, player };
+  }
+  return null;
+}
+
+/** Répartition automatique : la table la moins remplie accueille le joueur. */
+function pickTeamForJoin(session) {
+  const size = session.settings.teamSize;
+  const open = session.teams.filter((t) => t.players.length < size);
+  const pool = open.length ? open : session.teams.filter((t) => t.players.length < MAX_PLAYERS_PER_TEAM);
+  if (!pool.length) throw new GameError('session_full', 'Toutes les tables sont complètes');
+  return pool.reduce((best, t) => (t.players.length < best.players.length ? t : best), pool[0]);
+}
+
+function joinPlayer(session, name) {
+  if (session.status === 'finished') throw new GameError('session_finished', 'Session terminée');
+  const clean = cleanText(name, 40);
+  if (clean.length < 2) throw new GameError('bad_name', 'Nom trop court');
+  if (findPlayerByName(session, clean)) throw new GameError('name_taken', 'Ce nom est déjà pris');
+  if (!session.settings.allowLateJoin && session.status === 'running') {
+    throw new GameError('join_closed', 'Les inscriptions sont fermées');
+  }
+
+  const team = pickTeamForJoin(session);
+  const player = {
+    id: id('pl'),
+    token: token(),
+    name: clean,
+    roleId: null,
+    sockets: 0,
+    joinedAt: Date.now(),
+  };
+  team.players.push(player);
+  addLog(session, 'player_joined', { player: clean, team: team.name });
+
+  // Table complète : on distribue les rôles sans attendre l'animateur.
+  let rolesJustAssigned = false;
+  if (
+    session.settings.autoAssignRoles &&
+    !team.rolesAssignedAt &&
+    team.players.length >= session.settings.teamSize
+  ) {
+    assignRoles(session, team.id);
+    rolesJustAssigned = true;
+  } else if (team.rolesAssignedAt) {
+    // Arrivée tardive : le retardataire reçoit un rôle libre, jamais celui du DG.
+    player.roleId = spareRoleFor(team);
+  }
+
+  store.persistSessions();
+  return { team, player, rolesJustAssigned };
+}
+
+function spareRoleFor(team) {
+  const taken = new Set(team.players.map((p) => p.roleId).filter(Boolean));
+  const free = deck.ROLES.filter((r) => !r.dg && !taken.has(r.id));
+  if (free.length) return shuffle(free)[0].id;
+  const others = deck.ROLES.filter((r) => !r.dg);
+  return shuffle(others)[0].id;
+}
+
+/**
+ * Tirage des rôles. Le DG est placé en tête de liste avant de mélanger les
+ * joueurs : la table a donc toujours exactement un arbitre, même incomplète.
+ */
+function assignRoles(session, teamId) {
+  const team = requireTeam(session, teamId);
+  if (!team.players.length) throw new GameError('no_players', 'Aucun joueur dans cette équipe');
+
+  const dg = deck.dgRole();
+  const others = shuffle(deck.ROLES.filter((r) => r.id !== dg.id));
+  const order = [dg, ...others];
+  const players = shuffle(team.players);
+
+  players.forEach((player, index) => {
+    const role = index < order.length ? order[index] : others[(index - order.length) % others.length];
+    player.roleId = role.id;
+  });
+
+  team.rolesAssignedAt = Date.now();
+  addLog(session, 'roles_assigned', { team: team.name, players: team.players.length });
+  store.persistSessions();
+  return team;
+}
+
+function renamePlayer(session, playerId, name) {
+  const found = session.teams
+    .flatMap((team) => team.players.map((player) => ({ team, player })))
+    .find((x) => x.player.id === playerId);
+  if (!found) throw new GameError('player_not_found', 'Joueur introuvable');
+  const clean = cleanText(name, 40);
+  if (clean.length < 2) throw new GameError('bad_name', 'Nom trop court');
+  const clash = findPlayerByName(session, clean);
+  if (clash && clash.player.id !== playerId) throw new GameError('name_taken', 'Ce nom est déjà pris');
+  found.player.name = clean;
+  store.persistSessions();
+  return found.player;
+}
+
+function removePlayer(session, playerId) {
+  for (const team of session.teams) {
+    const player = team.players.find((p) => p.id === playerId);
+    if (!player) continue;
+    team.players = team.players.filter((p) => p.id !== playerId);
+    if (team.round && team.round.votes[playerId]) delete team.round.votes[playerId];
+    if (!team.players.length) team.rolesAssignedAt = null;
+    addLog(session, 'player_removed', { player: player.name, team: team.name });
+    store.persistSessions();
+    return { team, player };
+  }
+  throw new GameError('player_not_found', 'Joueur introuvable');
+}
+
+function movePlayer(session, playerId, targetTeamId) {
+  const target = requireTeam(session, targetTeamId);
+  for (const team of session.teams) {
+    const player = team.players.find((p) => p.id === playerId);
+    if (!player) continue;
+    if (team.id === target.id) return { team, player };
+    if (target.players.length >= MAX_PLAYERS_PER_TEAM) {
+      throw new GameError('team_full', 'Cette table est complète');
+    }
+    team.players = team.players.filter((p) => p.id !== playerId);
+    if (team.round && team.round.votes[playerId]) delete team.round.votes[playerId];
+    if (!team.players.length) team.rolesAssignedAt = null;
+    target.players.push(player);
+    player.roleId = target.rolesAssignedAt ? spareRoleFor(target) : null;
+    addLog(session, 'player_moved', { player: player.name, team: target.name, from: team.name });
+    store.persistSessions();
+    return { team: target, player };
+  }
+  throw new GameError('player_not_found', 'Joueur introuvable');
+}
+
+function dgPlayer(team) {
+  const dg = deck.dgRole();
+  return team.players.find((p) => p.roleId === dg.id) || null;
 }
 
 /* ----------------------------------------------------------------- events */
@@ -252,11 +478,7 @@ function requireEvent(session, eventId) {
 
 function normalizeOptionScores(act, opt) {
   if (act === 2) {
-    return {
-      short: null,
-      long: null,
-      points: clamp(toInt(opt.points, 0), -50, 50),
-    };
+    return { short: null, long: null, points: clamp(toInt(opt.points, 0), -50, 50) };
   }
   return {
     short: clamp(toInt(opt.short, 0), -50, 50),
@@ -268,25 +490,22 @@ function normalizeOptionScores(act, opt) {
 function buildEvent(input, existing) {
   const act = toInt(input.act, existing ? existing.act : 1) === 2 ? 2 : 1;
   const source = Array.isArray(input.options) && input.options.length ? input.options : null;
-  const fallbackOptions = existing ? existing.options : [];
-  const rawOptions = source || fallbackOptions;
+  const rawOptions = source || (existing ? existing.options : []);
 
-  const options = ['A', 'B', 'C']
-    .map((key) => {
-      const raw = rawOptions.find((o) => o && o.key === key) || {};
-      const scores = normalizeOptionScores(act, {
-        short: raw.short != null ? raw.short : act === 1 ? deck.ACT1_MATRIX[key].short : 0,
-        long: raw.long != null ? raw.long : act === 1 ? deck.ACT1_MATRIX[key].long : 0,
-        points: raw.points != null ? raw.points : deck.ACT2_MATRIX[key],
-      });
-      return {
-        key,
-        label: bilingual(raw.label, key),
-        ...scores,
-        reveal: raw.reveal ? bilingual(raw.reveal) : null,
-      };
-    })
-    .filter(Boolean);
+  const options = ['A', 'B', 'C'].map((key) => {
+    const raw = rawOptions.find((o) => o && o.key === key) || {};
+    const scores = normalizeOptionScores(act, {
+      short: raw.short != null ? raw.short : deck.ACT1_MATRIX[key].short,
+      long: raw.long != null ? raw.long : deck.ACT1_MATRIX[key].long,
+      points: raw.points != null ? raw.points : deck.ACT2_MATRIX[key],
+    });
+    return {
+      key,
+      label: bilingual(raw.label, key),
+      ...scores,
+      reveal: raw.reveal ? bilingual(raw.reveal) : null,
+    };
+  });
 
   const listOf = (value) => {
     if (!Array.isArray(value)) return [];
@@ -328,11 +547,7 @@ function addEvent(session, input) {
 function updateEvent(session, eventId, input) {
   const existing = requireEvent(session, eventId);
   const updated = buildEvent(input || {}, existing);
-  const index = session.events.findIndex((e) => e.id === eventId);
-  session.events[index] = updated;
-  if (session.round && session.round.eventId === eventId && session.round.status === 'closed') {
-    computeRoundResults(session);
-  }
+  session.events[session.events.findIndex((e) => e.id === eventId)] = updated;
   recomputeAllScores(session);
   addLog(session, 'event_updated', { event: updated.title.fr });
   store.persistSessions();
@@ -341,12 +556,14 @@ function updateEvent(session, eventId, input) {
 
 function removeEvent(session, eventId) {
   const event = requireEvent(session, eventId);
-  if (session.round && session.round.eventId === eventId) {
-    throw new GameError('event_in_play', 'Événement en cours');
+  if (session.teams.some((t) => t.round && t.round.eventId === eventId)) {
+    throw new GameError('event_in_play', 'Événement en cours sur une table');
   }
   session.events = session.events.filter((e) => e.id !== eventId);
-  for (const team of session.teams) delete team.answers[eventId];
-  session.history = session.history.filter((h) => h.eventId !== eventId);
+  for (const team of session.teams) {
+    delete team.answers[eventId];
+    team.history = team.history.filter((h) => h.eventId !== eventId);
+  }
   recomputeAllScores(session);
   addLog(session, 'event_removed', { event: event.title.fr });
   store.persistSessions();
@@ -364,19 +581,39 @@ function moveEvent(session, eventId, direction) {
   return session.events;
 }
 
-function eventPlayed(session, eventId) {
-  return session.history.some((h) => h.eventId === eventId);
+function teamPlayed(team, eventId) {
+  return team.history.some((h) => h.eventId === eventId);
 }
 
-/* ------------------------------------------------------------------ round */
+/** Prochain événement de la liste que cette table n'a pas encore joué. */
+function nextEventFor(session, team) {
+  return session.events.find((e) => !teamPlayed(team, e.id)) || null;
+}
 
-function startRound(session, eventId, durationSec) {
-  const event = requireEvent(session, eventId);
+function teamDone(session, team) {
+  return session.events.length > 0 && session.events.every((e) => teamPlayed(team, e.id));
+}
+
+function activeTeams(session) {
+  return session.teams.filter((t) => t.players.length > 0);
+}
+
+function allTeamsDone(session) {
+  const active = activeTeams(session);
+  if (!active.length) return false;
+  return active.every((team) => teamDone(session, team) && !team.round);
+}
+
+/* --------------------------------------------------------- manche d'équipe */
+
+function startRound(session, teamId, eventId, durationSec) {
+  const team = requireTeam(session, teamId);
   if (session.status === 'finished') throw new GameError('session_finished', 'Session terminée');
-  if (session.round && session.round.status === 'open') {
-    throw new GameError('round_open', 'Un événement est déjà en cours');
-  }
-  if (!session.teams.length) throw new GameError('no_teams', 'Aucune équipe inscrite');
+  if (team.round) throw new GameError('round_open', 'Un événement est déjà en cours sur cette table');
+  if (!team.players.length) throw new GameError('no_players', 'Aucun joueur à cette table');
+
+  const event = eventId ? requireEvent(session, eventId) : nextEventFor(session, team);
+  if (!event) throw new GameError('no_event_left', 'Tous les événements ont été joués');
 
   const duration = clamp(toInt(durationSec, session.settings.defaultDuration), MIN_DURATION, 3600);
   const now = Date.now();
@@ -384,102 +621,182 @@ function startRound(session, eventId, durationSec) {
   session.status = 'running';
   if (!session.startedAt) session.startedAt = now;
 
-  session.round = {
+  team.round = {
     eventId: event.id,
-    no: session.history.length + 1,
+    no: team.history.length + 1,
     startedAt: now,
     durationSec: duration,
     endsAt: now + duration * 1000,
     pausedAt: null,
     closedAt: null,
     status: 'open',
-    revealed: false,
-    submissions: {},
-    results: null,
-    winners: [],
-    replay: eventPlayed(session, event.id),
+    votes: {},
+    tally: { A: 0, B: 0, C: 0 },
+    tied: [],
+    decision: null,
+    decidedBy: null,
+    arbitrationEndsAt: null,
+    replay: teamPlayed(team, event.id),
   };
 
   addLog(session, 'round_started', {
+    team: team.name,
     event: event.title.fr,
     eventEn: event.title.en,
     seconds: duration,
   });
   store.persistSessions();
-  return session.round;
+  return team.round;
 }
 
-function requireOpenRound(session) {
-  if (!session.round || session.round.status !== 'open') {
-    throw new GameError('no_open_round', 'Aucun événement ouvert');
-  }
-  return session.round;
+function requireRound(team) {
+  if (!team.round) throw new GameError('no_round', 'Aucun événement en cours');
+  return team.round;
 }
 
-function pauseRound(session) {
-  const round = requireOpenRound(session);
+function requireOpenRound(team) {
+  const round = requireRound(team);
+  if (round.status !== 'open') throw new GameError('round_closed', 'Le vote est clos');
+  return round;
+}
+
+function pauseRound(session, teamId) {
+  const team = requireTeam(session, teamId);
+  const round = requireOpenRound(team);
   if (round.pausedAt) return round;
   round.pausedAt = Date.now();
-  addLog(session, 'round_paused', {});
+  addLog(session, 'round_paused', { team: team.name });
   store.persistSessions();
   return round;
 }
 
-function resumeRound(session) {
-  const round = requireOpenRound(session);
-  if (!round.pausedAt) return round;
-  const paused = Date.now() - round.pausedAt;
-  round.endsAt += paused;
-  round.pausedAt = null;
-  addLog(session, 'round_resumed', {});
-  store.persistSessions();
-  return round;
-}
-
-function addTime(session, seconds) {
-  const round = requireOpenRound(session);
-  const delta = clamp(toInt(seconds, 0), -3600, 3600);
-  round.endsAt = Math.max(Date.now() + 3000, round.endsAt + delta * 1000);
-  round.durationSec = Math.max(MIN_DURATION, Math.round((round.endsAt - round.startedAt) / 1000));
-  addLog(session, 'round_time_changed', { seconds: delta });
-  store.persistSessions();
-  return round;
-}
-
-function submit(session, teamId, choice) {
-  const round = requireOpenRound(session);
-  if (round.pausedAt) throw new GameError('round_paused', 'Événement en pause');
+function resumeRound(session, teamId) {
   const team = requireTeam(session, teamId);
+  const round = requireOpenRound(team);
+  if (!round.pausedAt) return round;
+  round.endsAt += Date.now() - round.pausedAt;
+  round.pausedAt = null;
+  addLog(session, 'round_resumed', { team: team.name });
+  store.persistSessions();
+  return round;
+}
+
+function addTime(session, teamId, seconds) {
+  const team = requireTeam(session, teamId);
+  const round = requireRound(team);
+  const delta = clamp(toInt(seconds, 0), -3600, 3600);
+
+  if (round.status === 'arbitration') {
+    round.arbitrationEndsAt = Math.max(Date.now() + 3000, round.arbitrationEndsAt + delta * 1000);
+  } else {
+    round.endsAt = Math.max(Date.now() + 3000, round.endsAt + delta * 1000);
+    round.durationSec = Math.max(MIN_DURATION, Math.round((round.endsAt - round.startedAt) / 1000));
+  }
+  addLog(session, 'round_time_changed', { team: team.name, seconds: delta });
+  store.persistSessions();
+  return round;
+}
+
+function vote(session, teamId, playerId, choice) {
+  const team = requireTeam(session, teamId);
+  const round = requireOpenRound(team);
+  if (round.pausedAt) throw new GameError('round_paused', 'Événement en pause');
+  const player = team.players.find((p) => p.id === playerId);
+  if (!player) throw new GameError('player_not_found', 'Joueur introuvable');
+
   const event = requireEvent(session, round.eventId);
   const key = String(choice || '').toUpperCase();
   if (!event.options.some((o) => o.key === key)) throw new GameError('bad_choice', 'Choix invalide');
-
-  const existing = round.submissions[teamId];
-  if (existing && !session.settings.allowChangeBeforeDeadline) {
-    throw new GameError('already_submitted', 'Réponse déjà enregistrée');
-  }
   if (Date.now() > round.endsAt) throw new GameError('time_up', 'Temps écoulé');
 
+  const existing = round.votes[playerId];
+  if (existing && !session.settings.allowChangeVote) {
+    throw new GameError('already_voted', 'Vote déjà enregistré');
+  }
+
   const at = Date.now();
-  round.submissions[teamId] = {
+  round.votes[playerId] = {
     choice: key,
     at,
     ms: Math.max(0, at - round.startedAt),
     changed: Boolean(existing),
   };
-  addLog(session, 'team_submitted', { team: team.name, choice: key });
 
   let closed = false;
-  if (
-    session.settings.autoCloseOnAllAnswers &&
-    session.teams.length > 0 &&
-    session.teams.every((t) => round.submissions[t.id])
-  ) {
-    closeRound(session, 'all_answered');
+  if (session.settings.autoCloseOnAllVotes && team.players.every((p) => round.votes[p.id])) {
+    closeRound(session, teamId, 'all_voted');
     closed = true;
   }
   store.persistSessions();
-  return { submission: round.submissions[teamId], closed };
+  return { vote: round.votes[playerId], closed, round: team.round };
+}
+
+function computeTally(team, round) {
+  const tally = { A: 0, B: 0, C: 0 };
+  for (const player of team.players) {
+    const v = round.votes[player.id];
+    if (v && tally[v.choice] !== undefined) tally[v.choice] += 1;
+  }
+  return tally;
+}
+
+/**
+ * Clôture du vote. Majorité simple ; en cas d'égalité la manche passe en
+ * arbitrage et seul le DG (ou l'animateur d'équipe) peut trancher.
+ */
+function closeRound(session, teamId, reason = 'manual') {
+  const team = requireTeam(session, teamId);
+  const round = requireRound(team);
+  if (round.status !== 'open') return round;
+
+  round.pausedAt = null;
+  round.closeReason = reason;
+  const tally = computeTally(team, round);
+  round.tally = tally;
+
+  const cast = tally.A + tally.B + tally.C;
+  if (!cast) {
+    round.tied = [];
+    finalizeRound(session, team, null, 'none');
+    return team.round || round;
+  }
+
+  const best = Math.max(tally.A, tally.B, tally.C);
+  const leaders = ['A', 'B', 'C'].filter((k) => tally[k] === best);
+
+  if (leaders.length === 1) {
+    round.tied = [];
+    finalizeRound(session, team, leaders[0], 'majority');
+    return team.round || round;
+  }
+
+  round.status = 'arbitration';
+  round.tied = leaders;
+  round.arbitrationEndsAt = Date.now() + session.settings.arbitrationSeconds * 1000;
+  const dg = dgPlayer(team);
+  addLog(session, 'round_tied', { team: team.name, options: leaders.join(' / '), dg: dg ? dg.name : '—' });
+  store.persistSessions();
+  return round;
+}
+
+function arbitrate(session, teamId, choice, by = 'dg') {
+  const team = requireTeam(session, teamId);
+  const round = requireRound(team);
+  if (round.status !== 'arbitration') throw new GameError('no_arbitration', 'Aucun arbitrage en cours');
+  const key = String(choice || '').toUpperCase();
+  if (!round.tied.includes(key)) throw new GameError('bad_choice', 'Choix hors égalité');
+  finalizeRound(session, team, key, by);
+  return team.round;
+}
+
+/** L'arbitrage n'a pas eu lieu à temps : tirage au sort entre les options à égalité. */
+function autoArbitrate(session, teamId) {
+  const team = requireTeam(session, teamId);
+  const round = requireRound(team);
+  if (round.status !== 'arbitration') return round;
+  const pick = round.tied[crypto.randomInt(round.tied.length)];
+  finalizeRound(session, team, pick, 'draw');
+  return team.round;
 }
 
 function optionScore(event, key) {
@@ -494,189 +811,86 @@ function optionScore(event, key) {
   return { short, long, points: 0, total: short + long };
 }
 
-/** Recalcule le classement de l'événement courant à partir des réponses. */
-function computeRoundResults(session) {
-  const round = session.round;
-  if (!round) return null;
+/** Fige la décision de la table, l'archive et libère le plateau. */
+function finalizeRound(session, team, decision, decidedBy) {
+  const round = team.round;
   const event = requireEvent(session, round.eventId);
-  const penalty = clamp(toInt(session.settings.noAnswerPenalty, 0), -20, 0);
-
-  const results = session.teams.map((team) => {
-    const sub = round.submissions[team.id];
-    if (!sub) {
-      return {
-        teamId: team.id,
-        teamName: team.name,
-        choice: null,
-        ms: null,
-        short: event.act === 1 ? penalty : 0,
-        long: 0,
-        points: event.act === 2 ? penalty : 0,
-        total: penalty,
-        answered: false,
-      };
-    }
-    const score = optionScore(event, sub.choice);
-    return {
-      teamId: team.id,
-      teamName: team.name,
-      choice: sub.choice,
-      ms: sub.ms,
-      short: score.short,
-      long: score.long,
-      points: score.points,
-      total: score.total,
-      answered: true,
-    };
-  });
-
-  const answered = results.filter((r) => r.answered);
-  let winners = [];
-  if (answered.length) {
-    const best = Math.max(...answered.map((r) => r.total));
-    const tied = answered.filter((r) => r.total === best);
-    const fastest = Math.min(...tied.map((r) => r.ms));
-    winners = tied.filter((r) => r.ms === fastest).map((r) => r.teamId);
-  }
-
-  results.sort((a, b) => {
-    if (b.total !== a.total) return b.total - a.total;
-    if (a.answered !== b.answered) return a.answered ? -1 : 1;
-    return (a.ms == null ? Infinity : a.ms) - (b.ms == null ? Infinity : b.ms);
-  });
-
-  round.results = results;
-  round.winners = winners;
-  return results;
-}
-
-function closeRound(session, reason = 'manual') {
-  const round = session.round;
-  if (!round) throw new GameError('no_round', 'Aucun événement');
-  if (round.status === 'closed') return round;
+  const now = Date.now();
 
   round.status = 'closed';
-  round.closedAt = Date.now();
-  round.pausedAt = null;
-  round.closeReason = reason;
-  computeRoundResults(session);
+  round.closedAt = now;
+  round.decision = decision;
+  round.decidedBy = decidedBy;
+  round.arbitrationEndsAt = null;
 
-  const event = requireEvent(session, round.eventId);
-  for (const team of session.teams) {
-    const result = round.results.find((r) => r.teamId === team.id);
-    if (!result) continue;
-    team.answers[event.id] = {
-      eventId: event.id,
-      act: event.act,
-      choice: result.choice,
-      ms: result.ms,
-      short: result.short,
-      long: result.long,
-      points: result.points,
-      total: result.total,
-      answeredAt: result.answered ? round.submissions[team.id].at : null,
-      roundNo: round.no,
-    };
-  }
-  recomputeAllScores(session);
-
-  if (session.settings.autoReveal) {
-    round.revealed = true;
-    applyWins(session, round);
-  }
-
-  addLog(session, 'round_closed', {
-    event: event.title.fr,
-    eventEn: event.title.en,
-    reason,
-    winners: round.winners.map((wid) => {
-      const t = getTeam(session, wid);
-      return t ? t.name : wid;
-    }),
-  });
-  store.persistSessions();
-  return round;
-}
-
-function applyWins(session, round) {
-  if (round.winsApplied) return;
-  round.winsApplied = true;
-  for (const teamId of round.winners) {
-    const team = getTeam(session, teamId);
-    if (team) team.wins += 1;
-  }
-}
-
-function revealRound(session) {
-  const round = session.round;
-  if (!round) throw new GameError('no_round', 'Aucun événement');
-  if (round.status === 'open') closeRound(session, 'manual');
-  round.revealed = true;
-  applyWins(session, round);
-  addLog(session, 'round_revealed', {});
-  store.persistSessions();
-  return round;
-}
-
-/** Archive l'événement courant et libère la table pour le suivant. */
-function finishRound(session) {
-  const round = session.round;
-  if (!round) return null;
-  if (round.status === 'open') closeRound(session, 'manual');
-  if (!round.revealed) {
-    round.revealed = true;
-    applyWins(session, round);
-  }
-
-  const event = getEvent(session, round.eventId);
+  const score = decision ? optionScore(event, decision) : { short: 0, long: 0, points: 0, total: 0 };
   const entry = {
-    eventId: round.eventId,
-    eventTitle: event ? event.title : { fr: '?', en: '?' },
-    eventRef: event ? event.ref : { fr: '', en: '' },
-    act: event ? event.act : 1,
+    eventId: event.id,
+    eventTitle: event.title,
+    eventRef: event.ref,
+    act: event.act,
     no: round.no,
     startedAt: round.startedAt,
-    closedAt: round.closedAt,
+    closedAt: now,
     durationSec: round.durationSec,
-    results: round.results || [],
-    winners: round.winners || [],
+    decision,
+    decidedBy,
+    tally: { ...round.tally },
+    voters: Object.keys(round.votes).length,
+    headcount: team.players.length,
+    decisionMs: Math.max(0, now - round.startedAt),
+    ...score,
   };
-  session.history = session.history.filter((h) => h.eventId !== round.eventId);
-  session.history.push(entry);
-  session.history.sort((a, b) => a.startedAt - b.startedAt);
-  session.round = null;
-  addLog(session, 'round_archived', { event: entry.eventTitle.fr, eventEn: entry.eventTitle.en });
+
+  team.answers[event.id] = entry;
+  team.history = team.history.filter((h) => h.eventId !== event.id);
+  team.history.push(entry);
+  team.history.sort((a, b) => a.startedAt - b.startedAt);
+  recomputeTeamScore(team);
+
+  addLog(session, 'round_decided', {
+    team: team.name,
+    event: event.title.fr,
+    eventEn: event.title.en,
+    choice: decision || '—',
+    by: decidedBy,
+  });
   store.persistSessions();
   return entry;
 }
 
-/** Annule l'événement courant sans conserver les points. */
-function cancelRound(session) {
-  const round = session.round;
-  if (!round) return null;
+/** L'animateur d'équipe range la carte : le plateau est prêt pour la suivante. */
+function finishRound(session, teamId) {
+  const team = requireTeam(session, teamId);
+  const round = requireRound(team);
+  if (round.status === 'open') closeRound(session, teamId, 'manual');
+  if (team.round && team.round.status === 'arbitration') autoArbitrate(session, teamId);
+  team.round = null;
+  store.persistSessions();
+  return teamDone(session, team);
+}
+
+function cancelRound(session, teamId) {
+  const team = requireTeam(session, teamId);
+  const round = requireRound(team);
   const event = getEvent(session, round.eventId);
-  for (const team of session.teams) delete team.answers[round.eventId];
-  if (round.winsApplied) {
-    for (const teamId of round.winners) {
-      const team = getTeam(session, teamId);
-      if (team) team.wins = Math.max(0, team.wins - 1);
-    }
-  }
-  session.round = null;
-  recomputeAllScores(session);
-  addLog(session, 'round_cancelled', { event: event ? event.title.fr : '?' });
+  delete team.answers[round.eventId];
+  team.history = team.history.filter((h) => h.eventId !== round.eventId);
+  team.round = null;
+  recomputeTeamScore(team);
+  addLog(session, 'round_cancelled', { team: team.name, event: event ? event.title.fr : '?' });
   store.persistSessions();
   return true;
 }
 
-/** Rejoue un événement déjà archivé : on retire son score puis on le relance. */
-function replayEvent(session, eventId, durationSec) {
+function replayEvent(session, teamId, eventId, durationSec) {
+  const team = requireTeam(session, teamId);
   requireEvent(session, eventId);
-  if (session.round) finishRound(session);
-  session.history = session.history.filter((h) => h.eventId !== eventId);
-  for (const team of session.teams) delete team.answers[eventId];
-  recomputeAllScores(session);
-  return startRound(session, eventId, durationSec);
+  if (team.round) finishRound(session, teamId);
+  team.history = team.history.filter((h) => h.eventId !== eventId);
+  delete team.answers[eventId];
+  recomputeTeamScore(team);
+  return startRound(session, teamId, eventId, durationSec);
 }
 
 /* ----------------------------------------------------------------- scores */
@@ -719,19 +933,10 @@ function adjustScore(session, teamId, delta, reason) {
   const team = requireTeam(session, teamId);
   const value = clamp(toInt(delta, 0), -100, 100);
   if (!value) throw new GameError('bad_delta', 'Valeur invalide');
-  const entry = {
-    id: id('adj'),
-    delta: value,
-    reason: cleanText(reason, 120),
-    ts: Date.now(),
-  };
+  const entry = { id: id('adj'), delta: value, reason: cleanText(reason, 120), ts: Date.now() };
   team.adjustments.push(entry);
   recomputeTeamScore(team);
-  addLog(session, 'score_adjusted', {
-    team: team.name,
-    delta: value,
-    reason: entry.reason,
-  });
+  addLog(session, 'score_adjusted', { team: team.name, delta: value, reason: entry.reason });
   store.persistSessions();
   return entry;
 }
@@ -747,63 +952,52 @@ function removeAdjustment(session, teamId, adjustmentId) {
   return entry;
 }
 
-/** L'animateur corrige la réponse d'une équipe (saisie papier, erreur de clic...). */
-function setAnswer(session, teamId, eventId, choice) {
+/** Le super animateur corrige la décision d'une table (erreur de saisie, litige). */
+function setDecision(session, teamId, eventId, choice) {
   const team = requireTeam(session, teamId);
   const event = requireEvent(session, eventId);
   const key = choice ? String(choice).toUpperCase() : null;
+  if (key && !event.options.some((o) => o.key === key)) {
+    throw new GameError('bad_choice', 'Choix invalide');
+  }
 
   if (!key) {
     delete team.answers[eventId];
+    team.history = team.history.filter((h) => h.eventId !== eventId);
   } else {
-    if (!event.options.some((o) => o.key === key)) throw new GameError('bad_choice', 'Choix invalide');
     const score = optionScore(event, key);
-    const previous = team.answers[eventId];
-    team.answers[eventId] = {
+    const previous = team.answers[eventId] || {};
+    const entry = {
+      ...previous,
       eventId,
+      eventTitle: event.title,
+      eventRef: event.ref,
       act: event.act,
-      choice: key,
-      ms: previous ? previous.ms : null,
-      short: score.short,
-      long: score.long,
-      points: score.points,
-      total: score.total,
-      answeredAt: previous ? previous.answeredAt : Date.now(),
-      roundNo: previous ? previous.roundNo : null,
-      overridden: true,
+      no: previous.no || team.history.length + 1,
+      startedAt: previous.startedAt || Date.now(),
+      closedAt: previous.closedAt || Date.now(),
+      durationSec: previous.durationSec || session.settings.defaultDuration,
+      decision: key,
+      decidedBy: 'admin',
+      tally: previous.tally || { A: 0, B: 0, C: 0 },
+      voters: previous.voters || 0,
+      headcount: previous.headcount || team.players.length,
+      decisionMs: previous.decisionMs == null ? null : previous.decisionMs,
+      ...score,
     };
+    team.answers[eventId] = entry;
+    team.history = team.history.filter((h) => h.eventId !== eventId);
+    team.history.push(entry);
+    team.history.sort((a, b) => a.startedAt - b.startedAt);
   }
 
-  if (session.round && session.round.eventId === eventId) {
-    if (key) {
-      session.round.submissions[teamId] = {
-        choice: key,
-        at: Date.now(),
-        ms: session.round.submissions[teamId] ? session.round.submissions[teamId].ms : null,
-        byAdmin: true,
-      };
-    } else {
-      delete session.round.submissions[teamId];
-    }
-    if (session.round.status === 'closed') computeRoundResults(session);
-  }
-
-  const historyEntry = session.history.find((h) => h.eventId === eventId);
-  if (historyEntry) {
-    const row = historyEntry.results.find((r) => r.teamId === teamId);
-    const answer = team.answers[eventId];
-    if (row) {
-      row.choice = answer ? answer.choice : null;
-      row.short = answer ? answer.short : 0;
-      row.long = answer ? answer.long : 0;
-      row.points = answer ? answer.points : 0;
-      row.total = answer ? answer.total : 0;
-      row.answered = Boolean(answer);
-    }
+  if (team.round && team.round.eventId === eventId && team.round.status === 'closed') {
+    team.round.decision = key;
+    team.round.decidedBy = 'admin';
   }
 
   recomputeTeamScore(team);
-  addLog(session, 'answer_overridden', {
+  addLog(session, 'decision_overridden', {
     team: team.name,
     event: event.title.fr,
     choice: key || '—',
@@ -817,17 +1011,14 @@ function updateSettings(session, patch = {}) {
   if (patch.defaultDuration !== undefined) {
     s.defaultDuration = clamp(toInt(patch.defaultDuration, s.defaultDuration), MIN_DURATION, 3600);
   }
-  for (const key of [
-    'autoReveal',
-    'autoCloseOnAllAnswers',
-    'allowChangeBeforeDeadline',
-    'allowLateJoin',
-    'showLeaderboardToTeams',
-  ]) {
-    if (patch[key] !== undefined) s[key] = Boolean(patch[key]);
+  if (patch.teamSize !== undefined) {
+    s.teamSize = clamp(toInt(patch.teamSize, s.teamSize), 2, MAX_PLAYERS_PER_TEAM);
   }
-  if (patch.noAnswerPenalty !== undefined) {
-    s.noAnswerPenalty = clamp(toInt(patch.noAnswerPenalty, 0), -20, 0);
+  if (patch.arbitrationSeconds !== undefined) {
+    s.arbitrationSeconds = clamp(toInt(patch.arbitrationSeconds, s.arbitrationSeconds), 10, 900);
+  }
+  for (const key of ['autoAssignRoles', 'autoCloseOnAllVotes', 'allowLateJoin', 'allowChangeVote']) {
+    if (patch[key] !== undefined) s[key] = Boolean(patch[key]);
   }
   if (patch.lang === 'fr' || patch.lang === 'en') session.lang = patch.lang;
   if (patch.name !== undefined) session.name = cleanText(patch.name, 80) || session.name;
@@ -836,9 +1027,71 @@ function updateSettings(session, patch = {}) {
   return session.settings;
 }
 
-/* ------------------------------------------------------- classement final */
+/* ------------------------------------------------------------ classements */
+
+/**
+ * Classement par événement : uniquement entre les tables qui l'ont joué,
+ * départagées par le temps mis à décider. Conservé en interne jusqu'au
+ * dévoilement.
+ */
+function eventRankings(session) {
+  return session.events
+    .map((event) => {
+      const rows = session.teams
+        .filter((team) => team.answers[event.id])
+        .map((team) => {
+          const answer = team.answers[event.id];
+          return {
+            teamId: team.id,
+            teamName: team.name,
+            decision: answer.decision,
+            decidedBy: answer.decidedBy,
+            tally: answer.tally,
+            short: answer.short,
+            long: answer.long,
+            points: answer.points,
+            total: answer.total,
+            seconds: answer.decisionMs == null ? null : Math.round(answer.decisionMs / 100) / 10,
+          };
+        })
+        .sort((a, b) => {
+          if (b.total !== a.total) return b.total - a.total;
+          const sa = a.seconds == null ? Infinity : a.seconds;
+          const sb = b.seconds == null ? Infinity : b.seconds;
+          return sa - sb;
+        });
+
+      rows.forEach((row, index, arr) => {
+        const prev = arr[index - 1];
+        row.rank = prev && prev.total === row.total && prev.seconds === row.seconds ? prev.rank : index + 1;
+      });
+
+      const winners = rows.filter((r) => r.rank === 1).map((r) => r.teamId);
+      return {
+        eventId: event.id,
+        title: event.title,
+        ref: event.ref,
+        act: event.act,
+        played: rows.length,
+        rows,
+        winners,
+        winnerNames: rows.filter((r) => r.rank === 1).map((r) => r.teamName),
+      };
+    })
+    .filter((entry) => entry.played > 0);
+}
+
+function recomputeWins(session) {
+  const wins = new Map();
+  for (const entry of eventRankings(session)) {
+    for (const teamId of entry.winners) wins.set(teamId, (wins.get(teamId) || 0) + 1);
+  }
+  for (const team of session.teams) team.wins = wins.get(team.id) || 0;
+  return session.teams;
+}
 
 function leaderboard(session) {
+  recomputeWins(session);
   return session.teams
     .map((team) => {
       const totals = teamTotals(team);
@@ -847,7 +1100,8 @@ function leaderboard(session) {
         name: team.name,
         ...totals,
         wins: team.wins,
-        answered: Object.keys(team.answers).length,
+        played: team.history.length,
+        headcount: team.players.length,
         act1Profile: deck.profileFor(deck.ACT1_PROFILES, totals.act1),
         act2Profile: deck.profileFor(deck.ACT2_PROFILES, totals.act2),
       };
@@ -858,25 +1112,35 @@ function leaderboard(session) {
       return a.name.localeCompare(b.name);
     })
     .map((row, index, arr) => {
-      const previous = arr[index - 1];
-      const rank =
-        previous && previous.total === row.total && previous.wins === row.wins
-          ? previous.rank
-          : index + 1;
-      row.rank = rank;
+      const prev = arr[index - 1];
+      row.rank = prev && prev.total === row.total && prev.wins === row.wins ? prev.rank : index + 1;
       return row;
     });
 }
 
+/** Dévoile les scores à toutes les tables, en même temps. */
+function revealScores(session) {
+  if (session.revealed) return session;
+  session.revealed = true;
+  session.revealedAt = Date.now();
+  recomputeWins(session);
+  addLog(session, 'scores_revealed', {});
+  store.persistSessions();
+  return session;
+}
+
 function finishSession(session) {
-  if (session.round) finishRound(session);
+  for (const team of session.teams) {
+    if (team.round) finishRound(session, team.id);
+  }
   session.status = 'finished';
   session.endedAt = Date.now();
+  if (!session.revealed) revealScores(session);
   addLog(session, 'session_ended', {});
 
   const record = buildRecord(session);
-  const existingIndex = store.state.records.findIndex((r) => r.sessionId === session.id);
-  if (existingIndex >= 0) store.state.records[existingIndex] = record;
+  const existing = store.state.records.findIndex((r) => r.sessionId === session.id);
+  if (existing >= 0) store.state.records[existing] = record;
   else store.state.records.unshift(record);
   store.state.records = store.state.records.slice(0, 500);
   session.archivedRecordId = record.id;
@@ -887,7 +1151,7 @@ function finishSession(session) {
 }
 
 function reopenSession(session) {
-  session.status = session.history.length ? 'running' : 'lobby';
+  session.status = session.teams.some((t) => t.history.length) ? 'running' : 'lobby';
   session.endedAt = null;
   addLog(session, 'session_reopened', {});
   store.persistSessions();
@@ -896,6 +1160,7 @@ function reopenSession(session) {
 
 function buildRecord(session) {
   const board = leaderboard(session);
+  const rankings = eventRankings(session);
   return {
     id: session.archivedRecordId || id('rec'),
     sessionId: session.id,
@@ -907,30 +1172,35 @@ function buildRecord(session) {
     startedAt: session.startedAt,
     endedAt: session.endedAt || Date.now(),
     teamCount: session.teams.length,
-    eventCount: session.history.length,
+    playerCount: session.teams.reduce((sum, t) => sum + t.players.length, 0),
+    eventCount: rankings.length,
     winner: board.length ? { name: board[0].name, total: board[0].total } : null,
     leaderboard: board,
-    events: session.history.map((entry) => ({
+    teams: session.teams.map((team) => ({
+      name: team.name,
+      headcount: team.players.length,
+      roster: team.players.map((p) => ({
+        name: p.name,
+        role: (deck.roleById(p.roleId) || {}).name || null,
+      })),
+    })),
+    events: rankings.map((entry) => ({
       eventId: entry.eventId,
-      title: entry.eventTitle,
-      ref: entry.eventRef,
+      title: entry.title,
+      ref: entry.ref,
       act: entry.act,
-      no: entry.no,
-      startedAt: entry.startedAt,
-      closedAt: entry.closedAt,
-      durationSec: entry.durationSec,
-      winners: entry.winners.map((wid) => {
-        const t = session.teams.find((x) => x.id === wid);
-        return t ? t.name : wid;
-      }),
-      results: entry.results.map((r) => ({
+      winners: entry.winnerNames,
+      results: entry.rows.map((r) => ({
         team: r.teamName,
-        choice: r.choice,
+        rank: r.rank,
+        choice: r.decision,
+        decidedBy: r.decidedBy,
+        tally: r.tally,
         total: r.total,
         short: r.short,
         long: r.long,
         points: r.points,
-        seconds: r.ms == null ? null : Math.round(r.ms / 100) / 10,
+        seconds: r.seconds,
       })),
     })),
     adjustments: session.teams.flatMap((team) =>
@@ -967,30 +1237,47 @@ function publicEvent(event) {
   };
 }
 
-function roundState(session, { role, teamId }) {
-  const round = session.round;
+function publicPlayer(player, { self = false } = {}) {
+  const role = deck.roleById(player.roleId);
+  return {
+    id: player.id,
+    name: player.name,
+    online: player.sockets > 0,
+    self,
+    roleId: player.roleId,
+    role: role
+      ? {
+          id: role.id,
+          icon: role.icon,
+          dg: Boolean(role.dg),
+          name: role.name,
+          mission: role.mission,
+          focus: role.focus,
+          quote: role.quote,
+          stance: role.stance,
+          power: role.power || null,
+        }
+      : null,
+  };
+}
+
+/**
+ * Manche vue par un public donné. Les votes individuels ne sortent jamais
+ * nominativement : on expose qui a voté, jamais pour quoi.
+ */
+function roundStateFor(session, team, { canSeeScores, playerId }) {
+  const round = team.round;
   if (!round) return null;
   const event = getEvent(session, round.eventId);
-  const revealed = Boolean(round.revealed);
-  const isAdmin = role === 'admin';
-
-  const answered = session.teams.map((t) => ({
-    teamId: t.id,
-    name: t.name,
-    answered: Boolean(round.submissions[t.id]),
-    choice: isAdmin || revealed ? (round.submissions[t.id] || {}).choice || null : null,
-    seconds:
-      (isAdmin || revealed) && round.submissions[t.id] && round.submissions[t.id].ms != null
-        ? Math.round(round.submissions[t.id].ms / 100) / 10
-        : null,
-  }));
+  const decided = round.status === 'closed';
+  const dg = dgPlayer(team);
 
   return {
+    teamId: team.id,
     eventId: round.eventId,
     event: event ? publicEvent(event) : null,
     no: round.no,
     status: round.status,
-    revealed,
     startedAt: round.startedAt,
     endsAt: round.endsAt,
     durationSec: round.durationSec,
@@ -998,29 +1285,43 @@ function roundState(session, { role, teamId }) {
     closedAt: round.closedAt,
     closeReason: round.closeReason || null,
     replay: Boolean(round.replay),
-    answeredCount: Object.keys(round.submissions).length,
-    teamCount: session.teams.length,
-    answers: answered,
-    myChoice: teamId && round.submissions[teamId] ? round.submissions[teamId].choice : null,
-    results: revealed || isAdmin ? round.results : null,
-    winners: revealed || isAdmin ? round.winners : [],
-    winnerNames: (revealed || isAdmin ? round.winners : []).map((wid) => {
-      const t = getTeam(session, wid);
-      return t ? t.name : wid;
-    }),
+    arbitrationEndsAt: round.arbitrationEndsAt,
+    tied: round.tied,
+    decision: round.decision,
+    decidedBy: round.decidedBy,
+    tally: decided || round.status === 'arbitration' ? round.tally : null,
+    voted: team.players.map((p) => ({ id: p.id, name: p.name, voted: Boolean(round.votes[p.id]) })),
+    votedCount: Object.keys(round.votes).length,
+    headcount: team.players.length,
+    myVote: playerId && round.votes[playerId] ? round.votes[playerId].choice : null,
+    dgPlayerId: dg ? dg.id : null,
+    dgName: dg ? dg.name : null,
+    score: canSeeScores && decided ? optionScore(event, round.decision) : null,
+  };
+}
+
+function teamProgress(session, team) {
+  return {
+    played: team.history.length,
+    total: session.events.length,
+    done: teamDone(session, team),
+    current: team.round ? team.round.no : null,
+    currentStatus: team.round ? team.round.status : null,
   };
 }
 
 function stateFor(session, audience = {}) {
-  const role = audience.role === 'admin' ? 'admin' : 'team';
+  const role =
+    audience.role === 'super' ? 'super' : audience.role === 'teamAdmin' ? 'teamAdmin' : 'player';
   const teamId = audience.teamId || null;
-  const board = leaderboard(session);
-  const showBoard = role === 'admin' || session.settings.showLeaderboardToTeams;
+  const playerId = audience.playerId || null;
+  const canSeeScores = role === 'super' || session.revealed;
 
-  return {
+  const base = {
     serverNow: Date.now(),
     role,
     teamId,
+    playerId,
     session: {
       id: session.id,
       code: session.code,
@@ -1028,54 +1329,114 @@ function stateFor(session, audience = {}) {
       facilitator: session.facilitator,
       lang: session.lang,
       status: session.status,
+      revealed: session.revealed,
+      revealedAt: session.revealedAt,
       createdAt: session.createdAt,
       startedAt: session.startedAt,
       endedAt: session.endedAt,
       settings: session.settings,
       archivedRecordId: session.archivedRecordId,
+      eventCount: session.events.length,
+      teamCount: session.teams.length,
+      playerCount: session.teams.reduce((sum, t) => sum + t.players.length, 0),
+      allTeamsDone: allTeamsDone(session),
     },
-    events: session.events.map((event) => ({
-      ...publicEvent(event),
-      played: eventPlayed(session, event.id),
-      current: Boolean(session.round && session.round.eventId === event.id),
-    })),
-    teams: session.teams.map((team) => {
-      const totals = teamTotals(team);
-      return {
-        id: team.id,
-        name: team.name,
-        online: team.sockets > 0,
-        wins: team.wins,
-        ...totals,
-        answers: role === 'admin' || team.id === teamId ? team.answers : undefined,
-        adjustments: role === 'admin' || team.id === teamId ? team.adjustments : undefined,
-        act1Profile: deck.profileFor(deck.ACT1_PROFILES, totals.act1),
-        act2Profile: deck.profileFor(deck.ACT2_PROFILES, totals.act2),
-      };
-    }),
-    leaderboard: showBoard ? board : board.filter((row) => row.teamId === teamId),
-    leaderboardHidden: !showBoard,
-    round: roundState(session, { role, teamId }),
-    history: session.history.map((h) => ({
+    narrative: deck.NARRATIVE,
+    scoresVisible: canSeeScores,
+  };
+
+  if (role === 'super') {
+    return {
+      ...base,
+      events: session.events.map((event) => ({
+        ...publicEvent(event),
+        playedBy: session.teams.filter((t) => teamPlayed(t, event.id)).length,
+      })),
+      teams: session.teams.map((team) => {
+        const totals = teamTotals(team);
+        return {
+          id: team.id,
+          name: team.name,
+          adminCode: team.adminCode,
+          headcount: team.players.length,
+          online: team.players.filter((p) => p.sockets > 0).length,
+          rolesAssigned: Boolean(team.rolesAssignedAt),
+          players: team.players.map((p) => publicPlayer(p)),
+          progress: teamProgress(session, team),
+          round: roundStateFor(session, team, { canSeeScores: true, playerId: null }),
+          history: team.history,
+          adjustments: team.adjustments,
+          ...totals,
+          wins: team.wins,
+          act1Profile: deck.profileFor(deck.ACT1_PROFILES, totals.act1),
+          act2Profile: deck.profileFor(deck.ACT2_PROFILES, totals.act2),
+        };
+      }),
+      leaderboard: leaderboard(session),
+      rankings: eventRankings(session),
+      roles: deck.ROLES,
+      log: session.log.slice(-140),
+    };
+  }
+
+  const team = teamId ? getTeam(session, teamId) : null;
+  if (!team) return { ...base, team: null };
+
+  const totals = teamTotals(team);
+  const myTeam = {
+    id: team.id,
+    name: team.name,
+    headcount: team.players.length,
+    teamSize: session.settings.teamSize,
+    rolesAssigned: Boolean(team.rolesAssignedAt),
+    players: team.players.map((p) => publicPlayer(p, { self: p.id === playerId })),
+    progress: teamProgress(session, team),
+    // Les points restent masqués jusqu'au dévoilement, y compris pour l'animateur d'équipe.
+    ...(canSeeScores ? totals : {}),
+    ...(canSeeScores ? { wins: team.wins } : {}),
+    ...(canSeeScores
+      ? {
+          act1Profile: deck.profileFor(deck.ACT1_PROFILES, totals.act1),
+          act2Profile: deck.profileFor(deck.ACT2_PROFILES, totals.act2),
+        }
+      : {}),
+  };
+
+  const me = playerId ? team.players.find((p) => p.id === playerId) : null;
+
+  return {
+    ...base,
+    team: myTeam,
+    me: me ? publicPlayer(me, { self: true }) : null,
+    isDg: Boolean(me && (deck.roleById(me.roleId) || {}).dg),
+    round: roundStateFor(session, team, { canSeeScores, playerId }),
+    nextEvent: role === 'teamAdmin' ? (nextEventFor(session, team) || null) : null,
+    events:
+      role === 'teamAdmin'
+        ? session.events.map((event) => ({
+            id: event.id,
+            act: event.act,
+            ref: event.ref,
+            title: event.title,
+            color: event.color,
+            played: teamPlayed(team, event.id),
+            current: Boolean(team.round && team.round.eventId === event.id),
+          }))
+        : [],
+    history: team.history.map((h) => ({
       eventId: h.eventId,
       title: h.eventTitle,
       ref: h.eventRef,
       act: h.act,
       no: h.no,
-      startedAt: h.startedAt,
+      decision: h.decision,
+      decidedBy: h.decidedBy,
+      tally: h.tally,
       closedAt: h.closedAt,
-      winners: h.winners,
-      winnerNames: h.winners.map((wid) => {
-        const t = getTeam(session, wid);
-        return t ? t.name : wid;
-      }),
-      results:
-        role === 'admin' || session.settings.showLeaderboardToTeams
-          ? h.results
-          : h.results.filter((r) => r.teamId === teamId),
+      ...(canSeeScores ? { short: h.short, long: h.long, points: h.points, total: h.total } : {}),
     })),
-    roles: deck.ROLES,
-    log: role === 'admin' ? session.log.slice(-120) : [],
+    leaderboard: canSeeScores ? leaderboard(session) : [],
+    rankings: canSeeScores ? eventRankings(session) : [],
   };
 }
 
@@ -1083,29 +1444,43 @@ module.exports = {
   GameError,
   DEFAULT_SETTINGS,
   MAX_TEAMS,
+  MAX_PLAYERS_PER_TEAM,
   MIN_DURATION,
   createSession,
   getSession,
   requireSession,
   findByCode,
-  assertAdmin,
+  findByTeamCode,
+  assertSuper,
+  authTeamAdmin,
+  authPlayer,
   deleteSession,
   pruneSessions,
   addTeam,
   getTeam,
   requireTeam,
-  authTeam,
   renameTeam,
   removeTeam,
+  regenTeamCode,
+  joinPlayer,
+  assignRoles,
+  renamePlayer,
+  removePlayer,
+  movePlayer,
+  dgPlayer,
   addEvent,
   updateEvent,
   removeEvent,
   moveEvent,
   getEvent,
+  nextEventFor,
+  teamDone,
+  allTeamsDone,
   startRound,
-  submit,
+  vote,
   closeRound,
-  revealRound,
+  arbitrate,
+  autoArbitrate,
   finishRound,
   cancelRound,
   replayEvent,
@@ -1114,9 +1489,11 @@ module.exports = {
   addTime,
   adjustScore,
   removeAdjustment,
-  setAnswer,
+  setDecision,
   updateSettings,
   leaderboard,
+  eventRankings,
+  revealScores,
   finishSession,
   reopenSession,
   buildRecord,

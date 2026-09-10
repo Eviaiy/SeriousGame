@@ -2,9 +2,26 @@
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0a0a0d" />
     <title>Serious Game — Facturation électronique</title>
     <link rel="stylesheet" href="/css/app.css" />
+    <script>
+      /* Thème posé avant le rendu : évite le clignotement au chargement. */
+      (function () {
+        var t;
+        try {
+          t = localStorage.getItem("sg.theme");
+        } catch (e) {}
+        if (t !== "light" && t !== "dark") {
+          t =
+            window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches
+              ? "light"
+              : "dark";
+        }
+        document.documentElement.setAttribute("data-theme", t);
+      })();
+    </script>
   </head>
   <body>
     <header class="topbar">
@@ -20,108 +37,186 @@
       </div>
     </header>
 
-    <main class="shell">
-      <section class="center" style="padding: 26px 0 30px">
+    <main class="shell narrow">
+      <section class="hero">
         <div class="eyebrow" data-i18n="app.name">Serious Game</div>
         <h1 data-i18n="app.title">Facturation électronique</h1>
-        <p class="muted" style="font-family: var(--serif); font-size: 1.1rem" data-i18n="app.tagline">
-          Le vrai match commence après le go-live
-        </p>
-        <p class="small muted" data-i18n="app.acts"></p>
+        <p class="tagline" data-i18n="app.tagline">Le vrai match commence après le go-live</p>
+        <div class="acts" data-i18n="app.acts"></div>
       </section>
 
-      <div class="grid cols-2">
-        <!-- ------------------------------------------------------ animateur -->
-        <section class="panel gold">
-          <div class="stripe"></div>
-          <div class="eyebrow">Acte 1 · Acte 2</div>
-          <h2 data-i18n="home.adminTitle">Animer une session</h2>
-          <p class="muted small" data-i18n="home.adminDesc"></p>
+      <div class="doors">
+        <!-- --------------------------------------------------- joueur (défaut) -->
+        <section class="door player is-open" id="door-player">
+          <button class="door-face" type="button" data-door="player" aria-expanded="true">
+            <span class="door-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor"
+                   stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="6.75" y="2.5" width="10.5" height="19" rx="2.6" />
+                <path d="M10.4 18.6h3.2" />
+              </svg>
+            </span>
+            <span class="door-copy">
+              <span class="door-title" data-i18n="home.playerTitle">Rejoindre la partie</span>
+              <span class="small" data-i18n="home.playerDesc"></span>
+            </span>
+            <span class="badge hidden" id="player-count"></span>
+            <span class="chev">→</span>
+          </button>
 
-          <form id="create-form" autocomplete="off">
-            <label class="field">
-              <span data-i18n="home.sessionName">Nom de la session</span>
-              <input
-                type="text"
-                id="session-name"
-                maxlength="80"
-                data-i18n-placeholder="app.title"
-              />
-            </label>
-            <label class="field">
-              <span data-i18n="home.facilitator">Animateur</span>
-              <input type="text" id="facilitator" maxlength="60" />
-            </label>
-            <button class="btn btn-primary btn-block" type="submit" data-i18n="home.createBtn">
-              Créer la session
-            </button>
-          </form>
+          <div class="door-body">
+            <div>
+              <div class="door-inner">
+                <form id="join-form" autocomplete="off">
+                  <label class="field">
+                    <span data-i18n="home.code">Code de session</span>
+                    <input
+                      type="text"
+                      id="join-code"
+                      class="code-input"
+                      maxlength="6"
+                      inputmode="latin"
+                      autocapitalize="characters"
+                      autocomplete="off"
+                      spellcheck="false"
+                      placeholder="ABC123"
+                    />
+                  </label>
+                  <div class="small muted hidden" id="join-info"></div>
+                  <label class="field">
+                    <span data-i18n="home.playerName">Votre prénom</span>
+                    <input type="text" id="player-name" maxlength="40" placeholder="Camille" />
+                  </label>
+                  <button class="btn btn-primary btn-block" type="submit" data-i18n="home.playerBtn">
+                    Entrer dans la partie
+                  </button>
+                </form>
 
-          <div id="admin-resume" class="hidden">
-            <div class="divider"></div>
-            <div class="label" data-i18n="home.existing">Sessions ouvertes sur ce navigateur</div>
-            <div class="list" id="admin-list"></div>
+                <div id="player-resume" class="hidden">
+                  <div class="divider"></div>
+                  <div class="label" data-i18n="home.resumePlayer">Revenir à mon poste</div>
+                  <div class="list" id="player-list"></div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <!-- --------------------------------------------------------- équipe -->
-        <section class="panel">
-          <div class="stripe blue"></div>
-          <div class="eyebrow" data-i18n="nav.play">Espace équipe</div>
-          <h2 data-i18n="home.joinTitle">Rejoindre une partie</h2>
-          <p class="muted small" data-i18n="home.joinDesc"></p>
+        <!-- ----------------------------------------------- animateur de table -->
+        <section class="door tableadmin" id="door-table">
+          <button class="door-face" type="button" data-door="table" aria-expanded="false">
+            <span class="door-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor"
+                   stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <path d="M9 3.2a3.6 3.6 0 1 0 0 7.2 3.6 3.6 0 0 0 0-7.2z" />
+                <path d="M22 20v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.4a3.6 3.6 0 0 1 0 7" />
+              </svg>
+            </span>
+            <span class="door-copy">
+              <span class="door-title" data-i18n="home.tableTitle">Animer une table</span>
+              <span class="small" data-i18n="home.tableDesc"></span>
+            </span>
+            <span class="badge hidden" id="table-count"></span>
+            <span class="chev">→</span>
+          </button>
 
-          <form id="join-form" autocomplete="off">
-            <label class="field">
-              <span data-i18n="home.code">Code de session</span>
-              <input
-                type="text"
-                id="join-code"
-                class="code-input"
-                maxlength="6"
-                inputmode="latin"
-                autocapitalize="characters"
-                spellcheck="false"
-                placeholder="ABC123"
-              />
-            </label>
-            <label class="field">
-              <span data-i18n="home.teamName">Nom de votre équipe</span>
-              <input type="text" id="team-name" maxlength="40" placeholder="Comex Alpha" />
-            </label>
-            <button class="btn btn-primary btn-block" type="submit" data-i18n="home.joinBtn">
-              Rejoindre la partie
-            </button>
-          </form>
+          <div class="door-body">
+            <div>
+              <div class="door-inner">
+                <form id="table-form" autocomplete="off">
+                  <label class="field">
+                    <span data-i18n="home.tableCode">Code de table</span>
+                    <input
+                      type="text"
+                      id="table-code"
+                      class="code-input"
+                      maxlength="6"
+                      inputmode="latin"
+                      autocapitalize="characters"
+                      autocomplete="off"
+                      spellcheck="false"
+                      placeholder="TBL123"
+                    />
+                  </label>
+                  <button class="btn btn-primary btn-block" type="submit" data-i18n="home.tableBtn">
+                    Ouvrir la console de table
+                  </button>
+                </form>
 
-          <div id="team-resume" class="hidden">
-            <div class="divider"></div>
-            <div class="label" data-i18n="home.resumeTeam">Revenir à ma table</div>
-            <div class="list" id="team-list"></div>
+                <div id="table-resume" class="hidden">
+                  <div class="divider"></div>
+                  <div class="label" data-i18n="home.resumeTable">Revenir à ma table</div>
+                  <div class="list" id="table-list"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ------------------------------------------------- direction de jeu -->
+        <section class="door facilitator" id="door-super">
+          <button class="door-face" type="button" data-door="super" aria-expanded="false">
+            <span class="door-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor"
+                   stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2.75" y="4" width="18.5" height="12.5" rx="2.2" />
+                <path d="M12 16.5v3.5M8.5 20h7M7 12.4l3-3 2.4 2.2 4.4-4.2" />
+              </svg>
+            </span>
+            <span class="door-copy">
+              <span class="door-title" data-i18n="home.superTitle">Direction de jeu</span>
+              <span class="small" data-i18n="home.superDesc"></span>
+            </span>
+            <span class="badge hidden" id="super-count"></span>
+            <span class="chev">→</span>
+          </button>
+
+          <div class="door-body">
+            <div>
+              <div class="door-inner">
+                <form id="create-form" autocomplete="off">
+                  <label class="field">
+                    <span data-i18n="home.sessionName">Nom de la session</span>
+                    <input type="text" id="session-name" maxlength="80" data-i18n-placeholder="app.title" />
+                  </label>
+                  <label class="field">
+                    <span data-i18n="home.facilitator">Votre nom</span>
+                    <input type="text" id="facilitator" maxlength="60" />
+                  </label>
+                  <div class="split tight">
+                    <label class="field">
+                      <span data-i18n="home.teamCount">Nombre de tables</span>
+                      <input type="number" id="team-count" min="1" max="12" step="1" value="4" />
+                    </label>
+                    <label class="field">
+                      <span data-i18n="home.teamSize">Joueurs par table</span>
+                      <input type="number" id="team-size" min="2" max="10" step="1" value="6" />
+                    </label>
+                  </div>
+                  <button class="btn btn-primary btn-block" type="submit" data-i18n="home.createBtn">
+                    Ouvrir la session
+                  </button>
+                </form>
+
+                <div id="super-resume" class="hidden">
+                  <div class="divider"></div>
+                  <div class="label" data-i18n="home.existing">Accès ouverts sur ce navigateur</div>
+                  <div class="list" id="super-list"></div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       </div>
 
-      <section class="grid cols-3" style="margin-top: 18px">
-        <div class="panel tight">
-          <div class="metric">
-            <div class="k">1</div>
-            <div class="small" data-i18n="home.step1"></div>
-          </div>
-        </div>
-        <div class="panel tight">
-          <div class="metric">
-            <div class="k">2</div>
-            <div class="small" data-i18n="home.step2"></div>
-          </div>
-        </div>
-        <div class="panel tight">
-          <div class="metric">
-            <div class="k">3</div>
-            <div class="small" data-i18n="home.step3"></div>
-          </div>
-        </div>
-      </section>
+      <div class="steps">
+        <span><b>1</b><span data-i18n="home.step1"></span></span>
+        <span><b>2</b><span data-i18n="home.step2"></span></span>
+        <span><b>3</b><span data-i18n="home.step3"></span></span>
+        <span><b>4</b><span data-i18n="home.step4"></span></span>
+      </div>
     </main>
 
     <script src="/js/i18n.js"></script>

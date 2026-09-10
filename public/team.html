@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0a0a0d" />
-    <title>Mon poste — Serious Game</title>
+    <title>Console de table — Serious Game</title>
     <link rel="stylesheet" href="/css/app.css" />
     <script>
       /* Thème posé avant le rendu : évite le clignotement au chargement. */
@@ -27,9 +27,9 @@
     <header class="topbar">
       <div class="brand">
         <span class="tag" data-i18n="app.name">Serious Game</span>
-        <span id="player-name">—</span>
+        <span id="team-name">—</span>
       </div>
-      <span class="badge" id="team-badge">—</span>
+      <span class="badge" id="session-status">—</span>
       <div class="spacer"></div>
       <span class="row tight small muted">
         <i class="dot" data-conn-dot></i>
@@ -42,31 +42,55 @@
     </header>
 
     <main class="shell narrow dock-pad">
-      <!-- récit d'ouverture, tant que le premier événement n'a pas commencé -->
-      <section id="narrative-host" style="margin-bottom: 16px"></section>
-
-      <!-- mon rôle -->
-      <section id="role-host"></section>
-
-      <!-- scène de jeu -->
-      <section id="stage" class="stack" style="margin-top: 16px"></section>
-
-      <!-- résultats finaux, après dévoilement -->
-      <section id="final-host" style="margin-top: 16px"></section>
-
-      <!-- autour de la table -->
-      <section class="panel" style="margin-top: 16px">
-        <div class="panel-head">
-          <h2 data-i18n="play.teamRoster">Autour de la table</h2>
-          <span class="badge" id="roster-count">—</span>
+      <!-- entête de table -->
+      <section class="panel tight">
+        <div class="row">
+          <div class="grow">
+            <div class="label" data-i18n="team.myTable">Ma table</div>
+            <div class="team-title" id="team-title">—</div>
+            <div class="small muted" data-i18n="team.facilitatorRole"></div>
+          </div>
+          <div class="center">
+            <div class="label" data-i18n="admin.progress">Avancement</div>
+            <div class="rank-big" id="progress-count">0</div>
+          </div>
         </div>
-        <div id="roster-host"></div>
+        <div class="progress-track" style="margin-top: 12px">
+          <i class="progress-fill" id="progress-fill" style="width: 0%"></i>
+        </div>
+        <div class="row small muted" style="margin-top: 8px">
+          <span id="progress-label">—</span>
+          <div class="spacer"></div>
+          <span id="presence-label">—</span>
+        </div>
       </section>
 
-      <!-- mes décisions -->
+      <!-- scène : ce que l'animateur pilote doit rester au-dessus du pli -->
+      <section id="stage" class="stack" style="margin-top: 16px"></section>
+
+      <!-- composition -->
       <section class="panel" style="margin-top: 16px">
         <div class="panel-head">
-          <h2 data-i18n="play.history">Vos décisions</h2>
+          <h2 data-i18n="team.roster">Composition et rôles</h2>
+          <span class="badge" id="roster-count">—</span>
+        </div>
+        <div class="small muted" data-i18n="team.rosterHint"></div>
+        <div style="margin-top: 12px" id="roster-host"></div>
+        <div id="roles-pending" class="hidden" style="margin-top: 12px">
+          <div class="small muted" data-i18n="team.waitingRoles"></div>
+          <button class="btn btn-sm" id="btn-assign" style="margin-top: 8px" data-i18n="team.assignNow">
+            Distribuer les rôles
+          </button>
+        </div>
+      </section>
+
+      <!-- scores scellés -->
+      <section id="sealed-host" style="margin-top: 16px"></section>
+
+      <!-- historique -->
+      <section class="panel" style="margin-top: 16px">
+        <div class="panel-head">
+          <h2 data-i18n="team.history">Événements joués</h2>
         </div>
         <div id="history-host"></div>
       </section>
@@ -74,19 +98,12 @@
       <div class="row" style="margin-top: 18px">
         <a class="btn btn-sm btn-ghost" href="/" data-i18n="nav.home">Accueil</a>
         <div class="spacer"></div>
-        <button class="btn btn-sm btn-ghost btn-danger" id="btn-leave" data-i18n="play.leave">
-          Quitter
-        </button>
       </div>
     </main>
 
-    <!-- barre de vote -->
-    <div class="vote-dock hidden" id="dock">
+    <!-- commandes de la manche -->
+    <div class="vote-dock is-controls hidden" id="dock">
       <div id="dock-timer"></div>
-      <div class="dock-status">
-        <span class="badge" id="dock-badge">—</span>
-        <span class="small muted" id="dock-hint"></span>
-      </div>
       <div class="dock-actions" id="dock-actions"></div>
     </div>
 
@@ -94,6 +111,6 @@
     <script src="/js/i18n.js"></script>
     <script src="/js/common.js"></script>
     <script src="/js/cards.js"></script>
-    <script src="/js/play.js"></script>
+    <script src="/js/team.js"></script>
   </body>
 </html>

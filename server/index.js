@@ -27,11 +27,12 @@ app.set('trust proxy', 1); // derrière le proxy Render : IP et protocole réels
 app.use(express.json({ limit: '256kb' }));
 app.use(express.static(PUBLIC_DIR, { extensions: ['html'] }));
 
-/* ----------------------------------------------------- accès animateur (opt) */
+/* ------------------------------------------------ accès super animateur (opt) */
 
 /**
  * Quand ADMIN_PASSPHRASE est défini (déploiement public), la création de session
- * et l'historique sont protégés. Les équipes n'ont besoin que du code de session.
+ * et l'historique sont protégés. Joueurs et animateurs d'équipe n'ont besoin que
+ * de leur code.
  */
 function sameSecret(given, expected) {
   const a = crypto.createHash('sha256').update(String(given)).digest();
@@ -46,11 +47,11 @@ function requirePass(req, res, next) {
   return res.status(401).json({ ok: false, error: 'unauthorized' });
 }
 
-/* ------------------------------------------------------- sockets & timers */
+/* ------------------------------------------------------- sockets & minuteurs */
 
 /** sessionId -> Set<socket> */
 const sessionSockets = new Map();
-/** sessionId -> Timeout */
+/** `sessionId:teamId` -> Timeout (une manche par table) */
 const roundTimers = new Map();
 
 function socketsOf(sessionId) {
@@ -66,61 +67,96 @@ function broadcast(session) {
   const set = sessionSockets.get(session.id);
   if (!set || !set.size) return;
   for (const socket of set) {
-    const audience = socket.data.audience || { role: 'team', teamId: null };
+    const audience = socket.data.audience || { role: 'player' };
     socket.emit('state', game.stateFor(session, audience));
   }
 }
 
-function notify(session, payload) {
+/** Message éphémère : soit à toute la session, soit à une seule table. */
+function notify(session, payload, teamId = null) {
   const set = sessionSockets.get(session.id);
   if (!set) return;
-  for (const socket of set) socket.emit('flash', payload);
-}
-
-function clearRoundTimer(sessionId) {
-  const timer = roundTimers.get(sessionId);
-  if (timer) {
-    clearTimeout(timer);
-    roundTimers.delete(sessionId);
+  for (const socket of set) {
+    const audience = socket.data.audience || {};
+    if (teamId && audience.role !== 'super' && audience.teamId !== teamId) continue;
+    socket.emit('flash', payload);
   }
 }
 
-function armRoundTimer(session) {
-  clearRoundTimer(session.id);
-  const round = session.round;
-  if (!round || round.status !== 'open' || round.pausedAt) return;
+function timerKey(sessionId, teamId) {
+  return `${sessionId}:${teamId}`;
+}
 
-  const delay = Math.max(0, round.endsAt - Date.now());
+function clearTeamTimer(sessionId, teamId) {
+  const key = timerKey(sessionId, teamId);
+  const timer = roundTimers.get(key);
+  if (timer) {
+    clearTimeout(timer);
+    roundTimers.delete(key);
+  }
+}
+
+/**
+ * Un seul minuteur par table, qui couvre les deux échéances : la fin du vote
+ * puis, en cas d'égalité, la fin de l'arbitrage du DG.
+ */
+function armTeamTimer(session, teamId) {
+  clearTeamTimer(session.id, teamId);
+  const team = game.getTeam(session, teamId);
+  if (!team || !team.round) return;
+  const round = team.round;
+
+  let deadline = null;
+  if (round.status === 'open' && !round.pausedAt) deadline = round.endsAt;
+  else if (round.status === 'arbitration' && round.arbitrationEndsAt) deadline = round.arbitrationEndsAt;
+  if (deadline == null) return;
+
+  const key = timerKey(session.id, teamId);
   const timer = setTimeout(() => {
-    roundTimers.delete(session.id);
+    roundTimers.delete(key);
     const live = game.getSession(session.id);
-    if (!live || !live.round || live.round.status !== 'open') return;
-    if (live.round.pausedAt) return;
+    if (!live) return;
+    const liveTeam = game.getTeam(live, teamId);
+    if (!liveTeam || !liveTeam.round) return;
+
     try {
-      game.closeRound(live, 'timeout');
-      notify(live, { type: 'round_timeout' });
+      if (liveTeam.round.status === 'open' && !liveTeam.round.pausedAt) {
+        game.closeRound(live, teamId, 'timeout');
+        notify(live, { type: 'round_timeout' }, teamId);
+        if (liveTeam.round && liveTeam.round.status === 'arbitration') {
+          notify(live, { type: 'round_tied' }, teamId);
+          armTeamTimer(live, teamId);
+        }
+      } else if (liveTeam.round.status === 'arbitration') {
+        game.autoArbitrate(live, teamId);
+        notify(live, { type: 'arbitration_draw' }, teamId);
+      }
       broadcast(live);
     } catch (err) {
       console.error('[timer]', err.message);
     }
-  }, delay + 25);
-  roundTimers.set(session.id, timer);
+  }, Math.max(0, deadline - Date.now()) + 25);
+
+  roundTimers.set(key, timer);
 }
 
-/** Au démarrage : réarme les minuteurs, ferme les rounds expirés pendant l'arrêt. */
+/** Au démarrage : réarme les minuteurs, ferme les manches expirées pendant l'arrêt. */
 function resumeAfterRestart() {
   for (const session of Object.values(store.state.sessions)) {
-    const round = session.round;
-    if (!round || round.status !== 'open') continue;
-    if (round.pausedAt) continue;
-    if (round.endsAt <= Date.now()) {
+    for (const team of session.teams) {
+      const round = team.round;
+      if (!round) continue;
       try {
-        game.closeRound(session, 'timeout');
+        if (round.status === 'open' && !round.pausedAt && round.endsAt <= Date.now()) {
+          game.closeRound(session, team.id, 'timeout');
+        }
+        if (team.round && team.round.status === 'arbitration' && team.round.arbitrationEndsAt <= Date.now()) {
+          game.autoArbitrate(session, team.id);
+        }
+        if (team.round) armTeamTimer(session, team.id);
       } catch (err) {
         console.error('[restart]', err.message);
       }
-    } else {
-      armRoundTimer(session);
     }
   }
 }
@@ -162,14 +198,16 @@ app.post('/api/sessions', requirePass, (req, res) => {
       ok: true,
       sessionId: session.id,
       code: session.code,
-      adminKey: session.adminKey,
+      superKey: session.superKey,
       name: session.name,
+      teams: session.teams.map((t) => ({ id: t.id, name: t.name, adminCode: t.adminCode })),
     });
   } catch (err) {
     sendError(res, err);
   }
 });
 
+/** Écran d'accueil joueur : le code existe-t-il, et les inscriptions sont-elles ouvertes ? */
 app.get('/api/sessions/:code', (req, res) => {
   const session = game.findByCode(req.params.code);
   if (!session) return res.status(404).json({ ok: false, error: 'session_not_found' });
@@ -180,24 +218,50 @@ app.get('/api/sessions/:code', (req, res) => {
     name: session.name,
     lang: session.lang,
     status: session.status,
-    joinOpen: session.status !== 'finished' && (session.settings.allowLateJoin || session.status === 'lobby'),
-    teams: session.teams.map((t) => ({ id: t.id, name: t.name, online: t.sockets > 0 })),
+    joinOpen:
+      session.status !== 'finished' && (session.settings.allowLateJoin || session.status === 'lobby'),
+    teamCount: session.teams.length,
+    playerCount: session.teams.reduce((sum, t) => sum + t.players.length, 0),
+    teamSize: session.settings.teamSize,
   });
 });
 
-app.post('/api/sessions/:code/teams', (req, res) => {
+/** Inscription d'un joueur : le serveur choisit la table la moins remplie. */
+app.post('/api/sessions/:code/players', (req, res) => {
   try {
     const session = game.findByCode(req.params.code);
     if (!session) throw new game.GameError('session_not_found', 'Session introuvable');
-    const team = game.addTeam(session, (req.body || {}).name);
+    const { team, player } = game.joinPlayer(session, (req.body || {}).name);
     broadcast(session);
+    notify(session, { type: 'player_joined', name: player.name, team: team.name }, team.id);
     res.json({
       ok: true,
       sessionId: session.id,
       code: session.code,
       teamId: team.id,
-      teamToken: team.token,
       teamName: team.name,
+      playerId: player.id,
+      playerToken: player.token,
+      playerName: player.name,
+    });
+  } catch (err) {
+    sendError(res, err);
+  }
+});
+
+/** Un animateur d'équipe échange son code de table contre un jeton d'accès. */
+app.post('/api/team-admin', (req, res) => {
+  try {
+    const found = game.findByTeamCode((req.body || {}).code);
+    if (!found) throw new game.GameError('team_not_found', 'Code de table inconnu');
+    res.json({
+      ok: true,
+      sessionId: found.session.id,
+      code: found.session.code,
+      sessionName: found.session.name,
+      teamId: found.team.id,
+      teamName: found.team.name,
+      adminToken: found.team.adminToken,
     });
   } catch (err) {
     sendError(res, err);
@@ -215,6 +279,7 @@ app.get('/api/records', requirePass, (req, res) => {
       createdAt: r.createdAt,
       endedAt: r.endedAt,
       teamCount: r.teamCount,
+      playerCount: r.playerCount,
       eventCount: r.eventCount,
       winner: r.winner,
     })),
@@ -244,12 +309,14 @@ function csvCell(value) {
 
 function recordToCsv(record) {
   const lines = [];
-  const push = (cells) => lines.push(cells.map(csvCell).join(';'));
+  const push = (cells) => lines.push((cells || []).map(csvCell).join(';'));
 
   push([record.name]);
   push(['Code', record.code]);
   push(['Animateur / Facilitator', record.facilitator || '']);
   push(['Fin / Ended', new Date(record.endedAt).toLocaleString('fr-FR')]);
+  push(['Équipes / Teams', record.teamCount]);
+  push(['Joueurs / Players', record.playerCount]);
   push([]);
   push(['CLASSEMENT FINAL / FINAL STANDINGS']);
   push([
@@ -261,7 +328,7 @@ function recordToCsv(record) {
     'Acte 2',
     'Ajustements',
     'Total',
-    'Victoires',
+    'Événements gagnés',
     'Profil Acte 1',
     'Profil Acte 2',
   ]);
@@ -280,23 +347,36 @@ function recordToCsv(record) {
       row.act2Profile ? row.act2Profile.label.fr : '',
     ]);
   }
+
   push([]);
-  push(['DÉTAIL PAR ÉVÉNEMENT / EVENT DETAIL']);
-  push(['#', 'Événement', 'Acte', 'Équipe', 'Choix', 'Points', 'Secondes', 'Gagnant']);
+  push(['COMPOSITION DES ÉQUIPES / TEAM ROSTERS']);
+  push(['Équipe', 'Joueur', 'Rôle']);
+  for (const team of record.teams || []) {
+    for (const member of team.roster || []) {
+      push([team.name, member.name, member.role ? member.role.fr : '']);
+    }
+  }
+
+  push([]);
+  push(['CLASSEMENT PAR ÉVÉNEMENT / PER-EVENT RANKING']);
+  push(['Événement', 'Acte', 'Rang', 'Équipe', 'Décision', 'Arbitrage', 'Votes A/B/C', 'Points', 'Secondes']);
   for (const event of record.events) {
     for (const row of event.results) {
+      const tally = row.tally || {};
       push([
-        event.no,
         event.title.fr,
         event.act,
+        row.rank,
         row.team,
         row.choice || '—',
+        row.decidedBy || '',
+        `${tally.A || 0}/${tally.B || 0}/${tally.C || 0}`,
         row.total,
         row.seconds == null ? '' : row.seconds,
-        event.winners.includes(row.team) ? 'OUI' : '',
       ]);
     }
   }
+
   if (record.adjustments.length) {
     push([]);
     push(['AJUSTEMENTS MANUELS / MANUAL ADJUSTMENTS']);
@@ -323,8 +403,11 @@ app.get('/api/records/:id/csv', requirePass, (req, res) => {
 });
 
 app.get('/join/:code', (req, res) => {
-  const code = encodeURIComponent(String(req.params.code || '').toUpperCase());
-  res.redirect(`/play.html?code=${code}`);
+  res.redirect(`/play.html?code=${encodeURIComponent(String(req.params.code || '').toUpperCase())}`);
+});
+
+app.get('/table/:code', (req, res) => {
+  res.redirect(`/team.html?code=${encodeURIComponent(String(req.params.code || '').toUpperCase())}`);
 });
 
 /* ------------------------------------------------------------- Socket API */
@@ -342,11 +425,12 @@ function detach(socket) {
     if (!set.size) sessionSockets.delete(sessionId);
   }
   const session = game.getSession(sessionId);
-  const teamId = socket.data.audience && socket.data.audience.teamId;
-  if (session && teamId) {
-    const team = game.getTeam(session, teamId);
-    if (team) {
-      team.sockets = Math.max(0, team.sockets - 1);
+  const audience = socket.data.audience || {};
+  if (session && audience.playerId) {
+    const team = game.getTeam(session, audience.teamId);
+    const player = team && team.players.find((p) => p.id === audience.playerId);
+    if (player) {
+      player.sockets = Math.max(0, player.sockets - 1);
       broadcast(session);
     }
   }
@@ -358,38 +442,31 @@ io.on('connection', (socket) => {
   socket.data.audience = null;
   socket.data.sessionId = null;
 
-  socket.on('admin:join', (payload = {}, cb) => {
-    try {
-      const session = payload.code
-        ? game.findByCode(payload.code)
-        : game.getSession(payload.sessionId);
-      if (!session) throw new game.GameError('session_not_found', 'Session introuvable');
-      game.assertAdmin(session, payload.adminKey);
+  function attach(session, audience) {
+    detach(socket);
+    socket.data.sessionId = session.id;
+    socket.data.audience = audience;
+    socketsOf(session.id).add(socket);
+  }
 
-      detach(socket);
-      socket.data.sessionId = session.id;
-      socket.data.audience = { role: 'admin', teamId: null };
-      socketsOf(session.id).add(socket);
+  socket.on('super:join', (payload = {}, cb) => {
+    try {
+      const session = payload.code ? game.findByCode(payload.code) : game.getSession(payload.sessionId);
+      if (!session) throw new game.GameError('session_not_found', 'Session introuvable');
+      game.assertSuper(session, payload.superKey);
+      attach(session, { role: 'super' });
       ack(cb, { ok: true, state: game.stateFor(session, socket.data.audience) });
     } catch (err) {
       ack(cb, { ok: false, error: err.code || 'error', message: err.message });
     }
   });
 
-  socket.on('team:join', (payload = {}, cb) => {
+  socket.on('teamAdmin:join', (payload = {}, cb) => {
     try {
-      const session = payload.code
-        ? game.findByCode(payload.code)
-        : game.getSession(payload.sessionId);
+      const session = game.getSession(payload.sessionId);
       if (!session) throw new game.GameError('session_not_found', 'Session introuvable');
-      const team = game.authTeam(session, payload.teamId, payload.teamToken);
-
-      detach(socket);
-      socket.data.sessionId = session.id;
-      socket.data.audience = { role: 'team', teamId: team.id };
-      socketsOf(session.id).add(socket);
-      team.sockets += 1;
-
+      const team = game.authTeamAdmin(session, payload.teamId, payload.adminToken);
+      attach(session, { role: 'teamAdmin', teamId: team.id });
       ack(cb, {
         ok: true,
         team: { id: team.id, name: team.name },
@@ -401,18 +478,50 @@ io.on('connection', (socket) => {
     }
   });
 
-  /** Enveloppe commune : vérifie la session + les droits puis diffuse l'état. */
-  function handle(name, { admin = true, run }) {
+  socket.on('player:join', (payload = {}, cb) => {
+    try {
+      const session = payload.code ? game.findByCode(payload.code) : game.getSession(payload.sessionId);
+      if (!session) throw new game.GameError('session_not_found', 'Session introuvable');
+      const { team, player } = game.authPlayer(session, payload.playerId, payload.playerToken);
+      attach(session, { role: 'player', teamId: team.id, playerId: player.id });
+      player.sockets += 1;
+      ack(cb, {
+        ok: true,
+        team: { id: team.id, name: team.name },
+        player: { id: player.id, name: player.name },
+        state: game.stateFor(session, socket.data.audience),
+      });
+      broadcast(session);
+    } catch (err) {
+      ack(cb, { ok: false, error: err.code || 'error', message: err.message });
+    }
+  });
+
+  /**
+   * Enveloppe commune : vérifie la session, le rôle, puis diffuse l'état.
+   * `scope: 'super' | 'admin' | 'any'` — `admin` autorise aussi l'animateur de
+   * la table concernée.
+   */
+  function handle(name, { scope = 'super', run }) {
     socket.on(name, (payload = {}, cb) => {
       try {
         const sessionId = socket.data.sessionId;
         if (!sessionId) throw new game.GameError('not_joined', 'Non connecté à une session');
         const session = game.requireSession(sessionId);
         const audience = socket.data.audience || {};
-        if (admin && audience.role !== 'admin') {
-          throw new game.GameError('forbidden', 'Action réservée à l’animateur');
+
+        if (scope === 'super' && audience.role !== 'super') {
+          throw new game.GameError('forbidden', 'Action réservée au super animateur');
         }
-        const result = run(session, payload, audience) || {};
+        if (scope === 'admin' && audience.role !== 'super' && audience.role !== 'teamAdmin') {
+          throw new game.GameError('forbidden', 'Action réservée aux animateurs');
+        }
+
+        // Un animateur d'équipe n'agit que sur sa table.
+        let teamId = payload.teamId || audience.teamId || null;
+        if (audience.role === 'teamAdmin') teamId = audience.teamId;
+
+        const result = run(session, payload, audience, teamId) || {};
         broadcast(session);
         ack(cb, { ok: true, ...result });
       } catch (err) {
@@ -422,181 +531,266 @@ io.on('connection', (socket) => {
     });
   }
 
-  /* ------------------------------------------------------------- animateur */
+  /* -------------------------------------------------- manche (les deux rôles) */
 
-  handle('admin:startRound', {
+  handle('round:start', {
+    scope: 'admin',
+    run: (session, p, a, teamId) => {
+      game.startRound(session, teamId, p.eventId, p.durationSec);
+      armTeamTimer(session, teamId);
+      notify(session, { type: 'round_started' }, teamId);
+    },
+  });
+
+  handle('round:addTime', {
+    scope: 'admin',
+    run: (session, p, a, teamId) => {
+      game.addTime(session, teamId, p.seconds);
+      armTeamTimer(session, teamId);
+      notify(session, { type: 'time_added', seconds: p.seconds }, teamId);
+    },
+  });
+
+  handle('round:pause', {
+    scope: 'admin',
+    run: (session, p, a, teamId) => {
+      game.pauseRound(session, teamId);
+      clearTeamTimer(session.id, teamId);
+      notify(session, { type: 'round_paused' }, teamId);
+    },
+  });
+
+  handle('round:resume', {
+    scope: 'admin',
+    run: (session, p, a, teamId) => {
+      game.resumeRound(session, teamId);
+      armTeamTimer(session, teamId);
+      notify(session, { type: 'round_resumed' }, teamId);
+    },
+  });
+
+  handle('round:close', {
+    scope: 'admin',
+    run: (session, p, a, teamId) => {
+      game.closeRound(session, teamId, 'manual');
+      clearTeamTimer(session.id, teamId);
+      const team = game.getTeam(session, teamId);
+      if (team && team.round && team.round.status === 'arbitration') {
+        notify(session, { type: 'round_tied' }, teamId);
+        armTeamTimer(session, teamId);
+      } else {
+        notify(session, { type: 'round_closed' }, teamId);
+      }
+    },
+  });
+
+  handle('round:finish', {
+    scope: 'admin',
+    run: (session, p, a, teamId) => {
+      const done = game.finishRound(session, teamId);
+      clearTeamTimer(session.id, teamId);
+      if (done) notify(session, { type: 'team_done' }, teamId);
+      return { done };
+    },
+  });
+
+  handle('round:cancel', {
+    scope: 'admin',
+    run: (session, p, a, teamId) => {
+      game.cancelRound(session, teamId);
+      clearTeamTimer(session.id, teamId);
+    },
+  });
+
+  handle('round:replay', {
+    scope: 'admin',
+    run: (session, p, a, teamId) => {
+      game.replayEvent(session, teamId, p.eventId, p.durationSec);
+      armTeamTimer(session, teamId);
+      notify(session, { type: 'round_started' }, teamId);
+    },
+  });
+
+  /** Arbitrage de l'animateur d'équipe quand le DG est absent. */
+  handle('round:arbitrate', {
+    scope: 'admin',
+    run: (session, p, a, teamId) => {
+      game.arbitrate(session, teamId, p.choice, 'admin');
+      clearTeamTimer(session.id, teamId);
+      notify(session, { type: 'arbitrated' }, teamId);
+    },
+  });
+
+  handle('team:assignRoles', {
+    scope: 'admin',
+    run: (session, p, a, teamId) => {
+      game.assignRoles(session, teamId);
+      notify(session, { type: 'roles_assigned' }, teamId);
+    },
+  });
+
+  handle('team:rename', {
+    scope: 'admin',
+    run: (session, p, a, teamId) => {
+      game.renameTeam(session, teamId, p.name);
+    },
+  });
+
+  /* ------------------------------------------------------- super animateur */
+
+  handle('super:addTeam', {
+    run: (session, p) => ({ teamId: game.addTeam(session, p.name).id }),
+  });
+
+  handle('super:removeTeam', {
     run: (session, p) => {
-      game.startRound(session, p.eventId, p.durationSec);
-      armRoundTimer(session);
-      notify(session, { type: 'round_started' });
-    },
-  });
-
-  handle('admin:replayEvent', {
-    run: (session, p) => {
-      game.replayEvent(session, p.eventId, p.durationSec);
-      armRoundTimer(session);
-      notify(session, { type: 'round_started' });
-    },
-  });
-
-  handle('admin:closeRound', {
-    run: (session) => {
-      game.closeRound(session, 'manual');
-      clearRoundTimer(session.id);
-      notify(session, { type: 'round_closed' });
-    },
-  });
-
-  handle('admin:reveal', {
-    run: (session) => {
-      game.revealRound(session);
-      clearRoundTimer(session.id);
-      notify(session, { type: 'round_revealed' });
-    },
-  });
-
-  handle('admin:finishRound', {
-    run: (session) => {
-      game.finishRound(session);
-      clearRoundTimer(session.id);
-    },
-  });
-
-  handle('admin:cancelRound', {
-    run: (session) => {
-      game.cancelRound(session);
-      clearRoundTimer(session.id);
-    },
-  });
-
-  handle('admin:pauseRound', {
-    run: (session) => {
-      game.pauseRound(session);
-      clearRoundTimer(session.id);
-      notify(session, { type: 'round_paused' });
-    },
-  });
-
-  handle('admin:resumeRound', {
-    run: (session) => {
-      game.resumeRound(session);
-      armRoundTimer(session);
-      notify(session, { type: 'round_resumed' });
-    },
-  });
-
-  handle('admin:addTime', {
-    run: (session, p) => {
-      game.addTime(session, p.seconds);
-      armRoundTimer(session);
-    },
-  });
-
-  handle('admin:adjustScore', {
-    run: (session, p) => {
-      game.adjustScore(session, p.teamId, p.delta, p.reason);
-      notify(session, { type: 'score_adjusted' });
-    },
-  });
-
-  handle('admin:removeAdjustment', {
-    run: (session, p) => game.removeAdjustment(session, p.teamId, p.adjustmentId) && {},
-  });
-
-  handle('admin:setAnswer', {
-    run: (session, p) => {
-      game.setAnswer(session, p.teamId, p.eventId, p.choice);
-    },
-  });
-
-  handle('admin:renameTeam', {
-    run: (session, p) => {
-      game.renameTeam(session, p.teamId, p.name);
-    },
-  });
-
-  handle('admin:removeTeam', {
-    run: (session, p) => {
+      clearTeamTimer(session.id, p.teamId);
       game.removeTeam(session, p.teamId);
     },
   });
 
-  handle('admin:addTeam', {
+  handle('super:regenTeamCode', {
+    run: (session, p) => ({ adminCode: game.regenTeamCode(session, p.teamId).adminCode }),
+  });
+
+  handle('super:movePlayer', {
     run: (session, p) => {
-      const team = game.addTeam(session, p.name);
-      return { teamId: team.id };
+      game.movePlayer(session, p.playerId, p.teamId);
     },
   });
 
-  handle('admin:addEvent', {
+  handle('super:removePlayer', {
     run: (session, p) => {
-      const event = game.addEvent(session, p.event || p);
-      return { eventId: event.id };
+      game.removePlayer(session, p.playerId);
     },
   });
 
-  handle('admin:updateEvent', {
+  handle('super:renamePlayer', {
+    run: (session, p) => {
+      game.renamePlayer(session, p.playerId, p.name);
+    },
+  });
+
+  handle('super:adjustScore', {
+    run: (session, p) => {
+      game.adjustScore(session, p.teamId, p.delta, p.reason);
+    },
+  });
+
+  handle('super:removeAdjustment', {
+    run: (session, p) => {
+      game.removeAdjustment(session, p.teamId, p.adjustmentId);
+    },
+  });
+
+  handle('super:setDecision', {
+    run: (session, p) => {
+      game.setDecision(session, p.teamId, p.eventId, p.choice);
+    },
+  });
+
+  handle('super:addEvent', {
+    run: (session, p) => ({ eventId: game.addEvent(session, p.event || p).id }),
+  });
+
+  handle('super:updateEvent', {
     run: (session, p) => {
       game.updateEvent(session, p.eventId, p.event || p);
     },
   });
 
-  handle('admin:removeEvent', {
+  handle('super:removeEvent', {
     run: (session, p) => {
       game.removeEvent(session, p.eventId);
     },
   });
 
-  handle('admin:moveEvent', {
+  handle('super:moveEvent', {
     run: (session, p) => {
       game.moveEvent(session, p.eventId, p.direction);
     },
   });
 
-  handle('admin:updateSettings', {
+  handle('super:updateSettings', {
     run: (session, p) => {
       game.updateSettings(session, p.settings || p);
     },
   });
 
-  handle('admin:endSession', {
+  handle('super:reveal', {
     run: (session) => {
+      game.revealScores(session);
+      notify(session, { type: 'scores_revealed' });
+    },
+  });
+
+  handle('super:endSession', {
+    run: (session) => {
+      for (const team of session.teams) clearTeamTimer(session.id, team.id);
       const record = game.finishSession(session);
-      clearRoundTimer(session.id);
       notify(session, { type: 'session_ended' });
       return { recordId: record.id };
     },
   });
 
-  handle('admin:reopenSession', {
+  handle('super:reopenSession', {
     run: (session) => {
       game.reopenSession(session);
     },
   });
 
-  /* ----------------------------------------------------------------- équipe */
+  /* ------------------------------------------------------------------ joueur */
 
-  handle('team:submit', {
-    admin: false,
-    run: (session, p, audience) => {
-      if (audience.role !== 'team' || !audience.teamId) {
-        throw new game.GameError('forbidden', 'Réservé aux équipes');
+  socket.on('player:vote', (payload = {}, cb) => {
+    try {
+      const sessionId = socket.data.sessionId;
+      if (!sessionId) throw new game.GameError('not_joined', 'Non connecté à une session');
+      const session = game.requireSession(sessionId);
+      const audience = socket.data.audience || {};
+      if (audience.role !== 'player') throw new game.GameError('forbidden', 'Réservé aux joueurs');
+
+      const out = game.vote(session, audience.teamId, audience.playerId, payload.choice);
+      if (out.closed) {
+        clearTeamTimer(session.id, audience.teamId);
+        const team = game.getTeam(session, audience.teamId);
+        if (team && team.round && team.round.status === 'arbitration') {
+          notify(session, { type: 'round_tied' }, audience.teamId);
+          armTeamTimer(session, audience.teamId);
+        } else {
+          notify(session, { type: 'round_closed' }, audience.teamId);
+        }
       }
-      const out = game.submit(session, audience.teamId, p.choice);
-      if (out.closed) clearRoundTimer(session.id);
-      return { choice: p.choice };
-    },
+      broadcast(session);
+      ack(cb, { ok: true, choice: out.vote.choice });
+    } catch (err) {
+      if (!(err instanceof game.GameError)) console.error('[socket:player:vote]', err);
+      ack(cb, { ok: false, error: err.code || 'error', message: err.message });
+    }
   });
 
-  handle('team:rename', {
-    admin: false,
-    run: (session, p, audience) => {
-      if (audience.role !== 'team' || !audience.teamId) {
-        throw new game.GameError('forbidden', 'Réservé aux équipes');
+  /** Arbitrage du DG en cas d'égalité : sa voix vaut décision d'équipe. */
+  socket.on('player:arbitrate', (payload = {}, cb) => {
+    try {
+      const sessionId = socket.data.sessionId;
+      if (!sessionId) throw new game.GameError('not_joined', 'Non connecté à une session');
+      const session = game.requireSession(sessionId);
+      const audience = socket.data.audience || {};
+      if (audience.role !== 'player') throw new game.GameError('forbidden', 'Réservé aux joueurs');
+
+      const team = game.requireTeam(session, audience.teamId);
+      const dg = game.dgPlayer(team);
+      if (!dg || dg.id !== audience.playerId) {
+        throw new game.GameError('not_dg', 'Seule la direction générale peut trancher');
       }
-      game.renameTeam(session, audience.teamId, p.name);
-    },
+      game.arbitrate(session, team.id, payload.choice, 'dg');
+      clearTeamTimer(session.id, team.id);
+      notify(session, { type: 'arbitrated' }, team.id);
+      broadcast(session);
+      ack(cb, { ok: true });
+    } catch (err) {
+      if (!(err instanceof game.GameError)) console.error('[socket:player:arbitrate]', err);
+      ack(cb, { ok: false, error: err.code || 'error', message: err.message });
+    }
   });
 
   socket.on('state:refresh', (payload = {}, cb) => {
@@ -628,7 +822,7 @@ server.listen(PORT, HOST, () => {
     console.log(`  Public            : ${PUBLIC_URL}`);
     console.log(`  Port              : ${PORT}`);
   } else {
-    console.log(`  Animateur / Admin : http://localhost:${PORT}`);
+    console.log(`  Super animateur   : http://localhost:${PORT}`);
     for (const ip of lan) console.log(`  Joueurs / Players : http://${ip}:${PORT}`);
   }
   console.log(`  Données / Data    : ${store.DATA_DIR}${store.writable ? '' : ' (lecture seule !)'}`);

@@ -1,9 +1,10 @@
 'use strict';
 
 /**
- * Test de bout en bout : un animateur, trois équipes, deux événements joués,
- * un événement annulé, un ajustement manuel, une correction de réponse,
- * puis archivage et export.
+ * Test de bout en bout du nouveau modèle : un super animateur, trois tables
+ * avec leur animateur, neuf joueurs répartis automatiquement, rôles tirés au
+ * sort, votes individuels, arbitrage du DG en cas d'égalité, scores masqués
+ * jusqu'au dévoilement final, puis archivage et export.
  *
  *   npm run smoke
  */
@@ -71,6 +72,17 @@ function call(socket, event, payload) {
   });
 }
 
+function expectFail(socket, event, payload) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`timeout on ${event}`)), 8000);
+    socket.emit(event, payload || {}, (res) => {
+      clearTimeout(timer);
+      if (res && res.ok) reject(new Error(`${event} aurait dû échouer`));
+      else resolve(res);
+    });
+  });
+}
+
 /** Attend un état satisfaisant le prédicat (les états arrivent par socket). */
 function waitForState(tracker, predicate, label, timeoutMs = 9000) {
   if (tracker.state && predicate(tracker.state)) return Promise.resolve(tracker.state);
@@ -98,287 +110,356 @@ function track(socket) {
   return tracker;
 }
 
-function totals(state) {
-  const out = {};
-  for (const team of state.teams) out[team.name] = team.total;
-  return out;
-}
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function main() {
   /* --------------------------------------------------------------- session */
-  const created = await post('/api/sessions', { name: 'Smoke test', facilitator: 'QA', lang: 'fr' });
+  const created = await post('/api/sessions', {
+    name: 'Smoke test',
+    facilitator: 'QA',
+    lang: 'fr',
+    teamCount: 3,
+    teamSize: 3,
+  });
   assert.ok(created.code && created.code.length === 6, 'code de session sur 6 caractères');
-  assert.ok(created.adminKey, 'clé animateur générée');
-  step(`session créée (${created.code})`);
+  assert.ok(created.superKey, 'clé super animateur générée');
+  assert.strictEqual(created.teams.length, 3, '3 tables créées d’avance');
+  assert.strictEqual(new Set(created.teams.map((t) => t.adminCode)).size, 3, 'codes de table distincts');
+  step(`session créée (${created.code}) avec 3 tables et leurs codes animateur`);
 
-  const teamNames = ['Alpha', 'Beta', 'Gamma'];
-  const teams = {};
-  for (const name of teamNames) {
-    teams[name] = await post(`/api/sessions/${created.code}/teams`, { name });
+  /* --------------------------------------------------------------- joueurs */
+  const names = ['Ana', 'Bob', 'Cleo', 'Dan', 'Eve', 'Finn', 'Gaia', 'Hugo', 'Iris'];
+  const players = [];
+  for (const name of names) {
+    players.push(await post(`/api/sessions/${created.code}/players`, { name }));
   }
-  step('3 équipes inscrites');
+  const perTeam = {};
+  for (const p of players) perTeam[p.teamId] = (perTeam[p.teamId] || 0) + 1;
+  assert.deepStrictEqual(Object.values(perTeam).sort(), [3, 3, 3], 'répartition équilibrée 3/3/3');
+  step('9 joueurs répartis automatiquement, 3 par table');
 
   await assert.rejects(
-    () => post(`/api/sessions/${created.code}/teams`, { name: 'alpha' }),
-    /name_taken|409|400/,
+    () => post(`/api/sessions/${created.code}/players`, { name: 'ana' }),
+    /name_taken|400/,
     'nom en doublon refusé'
   );
-  step('doublon de nom d’équipe refusé');
+  step('doublon de nom de joueur refusé');
 
-  /* --------------------------------------------------------------- sockets */
-  const adminSocket = await connect();
-  const adminTracker = track(adminSocket);
-  const joined = await call(adminSocket, 'admin:join', {
+  /* ------------------------------------------------------- super animateur */
+  const superSocket = await connect();
+  const superTracker = track(superSocket);
+  const superJoined = await call(superSocket, 'super:join', {
     sessionId: created.sessionId,
-    adminKey: created.adminKey,
+    superKey: created.superKey,
   });
-  adminTracker.state = joined.state;
-  assert.strictEqual(joined.state.role, 'admin');
-  assert.strictEqual(joined.state.events.length, 10, '10 événements par défaut');
-  step('animateur connecté, deck par défaut chargé (10 événements)');
+  superTracker.state = superJoined.state;
+  assert.strictEqual(superJoined.state.role, 'super');
+  assert.strictEqual(superJoined.state.events.length, 10, '10 événements par défaut');
+  assert.strictEqual(superJoined.state.teams.length, 3);
+  step('super animateur connecté, deck par défaut chargé (10 événements)');
 
-  await assert.rejects(
-    () => call(adminSocket, 'admin:join', { sessionId: created.sessionId, adminKey: 'faux' }),
-    /forbidden/,
-    'clé animateur invalide rejetée'
-  );
-  step('clé animateur invalide rejetée');
+  await expectFail(superSocket, 'super:join', { sessionId: created.sessionId, superKey: 'nope' });
+  step('clé super animateur invalide rejetée');
 
-  const teamSockets = {};
-  const teamTrackers = {};
-  for (const name of teamNames) {
-    const socket = await connect();
-    teamSockets[name] = socket;
-    teamTrackers[name] = track(socket);
-    const res = await call(socket, 'team:join', {
-      sessionId: created.sessionId,
-      teamId: teams[name].teamId,
-      teamToken: teams[name].teamToken,
-    });
-    teamTrackers[name].state = res.state;
+  const teamsById = {};
+  for (const team of superJoined.state.teams) teamsById[team.id] = team;
+  for (const team of superJoined.state.teams) {
+    assert.ok(team.rolesAssigned, `rôles distribués pour ${team.name}`);
+    const dgs = team.players.filter((p) => p.role && p.role.dg);
+    assert.strictEqual(dgs.length, 1, `exactement un DG dans ${team.name}`);
+    const distinct = new Set(team.players.map((p) => p.roleId));
+    assert.strictEqual(distinct.size, team.players.length, `rôles distincts dans ${team.name}`);
   }
-  step('3 équipes connectées en temps réel');
+  step('rôles tirés au sort : un seul DG par table, aucun doublon');
 
-  /* ------------------------------------------------------ acte 1 : carte 1 */
-  await call(adminSocket, 'admin:updateSettings', {
-    settings: { defaultDuration: 5, autoReveal: true },
-  });
+  /* --------------------------------------------------- animateurs de table */
+  const teamIds = superJoined.state.teams.map((t) => t.id);
+  const admins = {};
+  for (const entry of created.teams) {
+    const resolved = await post('/api/team-admin', { code: entry.adminCode });
+    assert.strictEqual(resolved.teamId, entry.id, 'le code de table pointe la bonne table');
+    const socket = await connect();
+    const tracker = track(socket);
+    const joined = await call(socket, 'teamAdmin:join', {
+      sessionId: resolved.sessionId,
+      teamId: resolved.teamId,
+      adminToken: resolved.adminToken,
+    });
+    tracker.state = joined.state;
+    assert.strictEqual(joined.state.role, 'teamAdmin');
+    admins[entry.id] = { socket, tracker };
+  }
+  step('3 animateurs de table connectés avec leur code');
 
-  await call(adminSocket, 'admin:startRound', { eventId: 'act1-card1', durationSec: 5 });
-  await waitForState(teamTrackers.Alpha, (s) => s.round && s.round.status === 'open', 'round ouvert');
-  step('événement 1 lancé (5 s)');
+  await assert.rejects(() => post('/api/team-admin', { code: 'ZZZZZZ' }), /team_not_found|400/);
+  step('code de table inconnu rejeté');
 
-  const teamStateBeforeVote = teamTrackers.Alpha.state;
-  assert.strictEqual(teamStateBeforeVote.round.myChoice, null);
-  assert.ok(
-    teamStateBeforeVote.round.answers.every((a) => a.choice === null),
-    'les équipes ne voient pas les choix des autres avant la révélation'
+  /* ------------------------------------------------------------- joueurs UI */
+  const playerConns = {};
+  for (const p of players) {
+    const socket = await connect();
+    const tracker = track(socket);
+    const joined = await call(socket, 'player:join', {
+      sessionId: p.sessionId,
+      playerId: p.playerId,
+      playerToken: p.playerToken,
+    });
+    tracker.state = joined.state;
+    playerConns[p.playerId] = { socket, tracker, info: p };
+  }
+  step('9 joueurs connectés en temps réel');
+
+  const firstPlayer = playerConns[players[0].playerId];
+  assert.strictEqual(firstPlayer.tracker.state.scoresVisible, false, 'scores masqués côté joueur');
+  assert.strictEqual(firstPlayer.tracker.state.team.total, undefined, 'aucun total exposé au joueur');
+  assert.ok(firstPlayer.tracker.state.me.role, 'le joueur connaît son rôle');
+  assert.ok(firstPlayer.tracker.state.narrative.punch.fr, 'récit d’ouverture transmis');
+  step('côté joueur : rôle et récit reçus, scores masqués');
+
+  const teamA = teamIds[0];
+  const teamB = teamIds[1];
+  const playersOf = (teamId) => players.filter((p) => p.teamId === teamId);
+
+  /* ---------------------------------------- table A : majorité simple (B/B/A) */
+  const evt1 = superJoined.state.events[0];
+  await call(admins[teamA].socket, 'round:start', { eventId: evt1.id, durationSec: 120 });
+  await waitForState(admins[teamA].tracker, (s) => s.round && s.round.status === 'open', 'A ouvert');
+  step('table A : événement 1 lancé par son animateur');
+
+  const stateB0 = admins[teamB].tracker.state;
+  assert.strictEqual(stateB0.round, null, 'la table B n’est pas affectée');
+  step('les autres tables avancent à leur rythme (aucune manche ouverte)');
+
+  const aPlayers = playersOf(teamA);
+  await call(playerConns[aPlayers[0].playerId].socket, 'player:vote', { choice: 'B' });
+  const midVote = await waitForState(
+    playerConns[aPlayers[1].playerId].tracker,
+    (s) => s.round && s.round.votedCount === 1,
+    'un vote enregistré'
   );
-  step('choix des autres équipes masqués pendant le vote');
+  assert.strictEqual(midVote.round.tally, null, 'le décompte reste caché pendant le vote');
+  assert.strictEqual(midVote.round.myVote, null, 'le vote des autres reste privé');
+  step('vote en cours : décompte et votes des coéquipiers invisibles');
 
-  await call(teamSockets.Alpha, 'team:submit', { choice: 'A' });
-  await new Promise((r) => setTimeout(r, 120));
-  await call(teamSockets.Beta, 'team:submit', { choice: 'B' });
-  await new Promise((r) => setTimeout(r, 120));
-  await call(teamSockets.Gamma, 'team:submit', { choice: 'C' });
-
-  await assert.rejects(
-    () => call(teamSockets.Alpha, 'team:submit', { choice: 'C' }),
-    /already_submitted/,
-    'double vote refusé'
-  );
-  step('3 votes enregistrés, double vote refusé');
-
-  const closed1 = await waitForState(
-    adminTracker,
+  await call(playerConns[aPlayers[1].playerId].socket, 'player:vote', { choice: 'B' });
+  await call(playerConns[aPlayers[2].playerId].socket, 'player:vote', { choice: 'A' });
+  const closedA = await waitForState(
+    admins[teamA].tracker,
     (s) => s.round && s.round.status === 'closed',
-    'fermeture automatique par le chrono',
-    15000
+    'A clos'
   );
-  assert.strictEqual(closed1.round.closeReason, 'timeout', 'fermeture déclenchée par le chrono');
-  assert.strictEqual(closed1.round.revealed, true, 'révélation automatique');
-  assert.deepStrictEqual(closed1.round.winnerNames, ['Beta'], 'B (+1/+1) remporte l’événement');
-  step('chrono écoulé → clôture + révélation automatiques, gagnant Beta');
+  assert.strictEqual(closedA.round.decision, 'B', 'majorité B/B/A → B');
+  assert.strictEqual(closedA.round.decidedBy, 'majority');
+  assert.deepStrictEqual(closedA.round.tally, { A: 1, B: 2, C: 0 });
+  step('table A : clôture automatique au dernier vote, majorité B appliquée');
 
-  assert.deepStrictEqual(totals(closed1), { Alpha: -1, Beta: 2, Gamma: 1 }, 'barème acte 1 appliqué');
-  step('barème acte 1 appliqué (A = −1, B = +2, C = +1)');
+  const playerAfter = playerConns[aPlayers[0].playerId].tracker.state;
+  assert.strictEqual(playerAfter.round.score, null, 'aucun point montré au joueur');
+  step('décision annoncée aux joueurs, points toujours masqués');
 
-  await call(adminSocket, 'admin:finishRound');
-  await waitForState(adminTracker, (s) => !s.round, 'événement archivé');
-  assert.strictEqual(adminTracker.state.history.length, 1);
-  step('événement 1 archivé dans l’historique');
+  await call(admins[teamA].socket, 'round:finish', {});
+  await waitForState(admins[teamA].tracker, (s) => !s.round, 'plateau A libéré');
+  step('table A : carte rangée, plateau prêt');
 
-  /* ---------------------------------------------- acte 2 : étape 1 (points) */
-  await call(adminSocket, 'admin:startRound', { eventId: 'act2-step1', durationSec: 60 });
-  await waitForState(teamTrackers.Beta, (s) => s.round && s.round.status === 'open', 'round 2 ouvert');
+  /* ------------------------------- table B : égalité 1/1/1 puis arbitrage DG */
+  await call(admins[teamB].socket, 'round:start', { eventId: evt1.id, durationSec: 120 });
+  const bPlayers = playersOf(teamB);
+  await call(playerConns[bPlayers[0].playerId].socket, 'player:vote', { choice: 'A' });
+  await call(playerConns[bPlayers[1].playerId].socket, 'player:vote', { choice: 'B' });
+  await call(playerConns[bPlayers[2].playerId].socket, 'player:vote', { choice: 'C' });
 
-  await call(teamSockets.Alpha, 'team:submit', { choice: 'C' });
-  await call(teamSockets.Beta, 'team:submit', { choice: 'A' });
-  await call(teamSockets.Gamma, 'team:submit', { choice: 'B' });
-  await call(adminSocket, 'admin:closeRound');
+  const tied = await waitForState(
+    admins[teamB].tracker,
+    (s) => s.round && s.round.status === 'arbitration',
+    'B en arbitrage'
+  );
+  assert.deepStrictEqual(tied.round.tied, ['A', 'B', 'C'], 'trois options à égalité');
+  assert.ok(tied.round.dgPlayerId, 'le DG est identifié');
+  step('table B : égalité 1/1/1 → passage en arbitrage');
 
-  const closed2 = await waitForState(
-    adminTracker,
+  const dgId = tied.round.dgPlayerId;
+  const notDg = bPlayers.find((p) => p.playerId !== dgId);
+  await expectFail(playerConns[notDg.playerId].socket, 'player:arbitrate', { choice: 'C' });
+  step('un joueur non-DG ne peut pas trancher');
+
+  await expectFail(playerConns[dgId].socket, 'player:arbitrate', { choice: 'Z' });
+  step('arbitrage hors options à égalité refusé');
+
+  await call(playerConns[dgId].socket, 'player:arbitrate', { choice: 'C' });
+  const arbitrated = await waitForState(
+    admins[teamB].tracker,
     (s) => s.round && s.round.status === 'closed',
-    'clôture manuelle'
+    'B tranché'
   );
-  assert.deepStrictEqual(closed2.round.winnerNames, ['Alpha'], 'C (+4) remporte l’étape');
-  assert.deepStrictEqual(totals(closed2), { Alpha: 3, Beta: 2, Gamma: 3 }, 'points acte 2 cumulés');
-  step('clôture manuelle, barème acte 2 appliqué (0 / +2 / +4)');
+  assert.strictEqual(arbitrated.round.decision, 'C');
+  assert.strictEqual(arbitrated.round.decidedBy, 'dg');
+  step('le DG tranche : décision C au nom de l’équipe');
 
-  const board = closed2.leaderboard;
-  assert.deepStrictEqual(
-    board.map((r) => `${r.name}:${r.rank}`),
-    ['Alpha:1', 'Gamma:2', 'Beta:3'],
-    'égalité arbitrée par le nombre de victoires'
+  await call(admins[teamB].socket, 'round:finish', {});
+
+  /* ------------------------------------------- table C : chrono et prolongation */
+  const teamC = teamIds[2];
+  await call(admins[teamC].socket, 'round:start', { eventId: evt1.id, durationSec: 5 });
+  const openC = await waitForState(
+    admins[teamC].tracker,
+    (s) => s.round && s.round.status === 'open',
+    'C ouvert'
   );
-  step('classement trié (total, puis victoires)');
+  const firstDeadline = openC.round.endsAt;
+  await call(admins[teamC].socket, 'round:addTime', { seconds: 60 });
+  const extended = await waitForState(
+    admins[teamC].tracker,
+    (s) => s.round && s.round.endsAt > firstDeadline,
+    'C prolongé'
+  );
+  assert.ok(extended.round.endsAt - firstDeadline >= 55000, 'une minute ajoutée');
+  step('table C : animateur prolonge le vote de 60 s');
 
-  await call(adminSocket, 'admin:finishRound');
-
-  /* ------------------------------------- événement sans réponse, puis annulé */
-  await call(adminSocket, 'admin:startRound', { eventId: 'act1-card2', durationSec: 5 });
-  const closed3 = await waitForState(
-    adminTracker,
+  await call(admins[teamC].socket, 'round:close', {});
+  const emptyC = await waitForState(
+    admins[teamC].tracker,
     (s) => s.round && s.round.status === 'closed',
-    'clôture sans réponse',
-    15000
+    'C clos sans vote'
   );
-  assert.deepStrictEqual(closed3.round.winnerNames, [], 'aucun gagnant sans réponse');
-  assert.deepStrictEqual(totals(closed3), { Alpha: 3, Beta: 2, Gamma: 3 }, 'scores inchangés');
-  step('événement sans réponse : aucun gagnant, scores inchangés');
+  assert.strictEqual(emptyC.round.decision, null, 'aucun vote → aucune décision');
+  assert.strictEqual(emptyC.round.decidedBy, 'none');
+  step('table C : clôture sans vote, aucune décision et aucun point');
 
-  await call(adminSocket, 'admin:cancelRound');
-  const cancelled = await waitForState(adminTracker, (s) => !s.round, 'événement annulé');
-  assert.strictEqual(cancelled.history.length, 2, 'l’événement annulé n’est pas archivé');
-  step('événement annulé, hors historique');
+  await call(admins[teamC].socket, 'round:cancel', {});
+  await waitForState(admins[teamC].tracker, (s) => !s.round && s.history.length === 0, 'C annulé');
+  step('table C : événement annulé, hors historique');
 
-  /* ------------------------------------------------- ajustement et correction */
-  await call(adminSocket, 'admin:adjustScore', {
-    teamId: teams.Beta.teamId,
-    delta: 5,
-    reason: 'Argumentation remarquable',
-  });
-  const adjusted = await waitForState(
-    adminTracker,
-    (s) => totals(s).Beta === 7,
-    'ajustement manuel'
+  /* ------------------------------ chrono qui expire tout seul (table C, 5 s) */
+  await call(admins[teamC].socket, 'round:start', { eventId: evt1.id, durationSec: 5 });
+  const cPlayers = playersOf(teamC);
+  await call(playerConns[cPlayers[0].playerId].socket, 'player:vote', { choice: 'C' });
+  const timedOut = await waitForState(
+    admins[teamC].tracker,
+    (s) => s.round && s.round.status === 'closed',
+    'C expiré',
+    12000
   );
-  assert.strictEqual(adjusted.leaderboard[0].name, 'Beta', 'Beta passe premier');
-  step('ajustement manuel +5 pris en compte dans le classement');
+  assert.strictEqual(timedOut.round.closeReason, 'timeout');
+  assert.strictEqual(timedOut.round.decision, 'C', 'le seul vote exprimé fait la décision');
+  step('chrono écoulé → clôture automatique, vote unique retenu');
+  await call(admins[teamC].socket, 'round:finish', {});
 
-  await call(adminSocket, 'admin:setAnswer', {
-    teamId: teams.Beta.teamId,
-    eventId: 'act1-card1',
-    choice: 'C',
-  });
-  const overridden = await waitForState(adminTracker, (s) => totals(s).Beta === 6, 'réponse corrigée');
-  const betaHistory = overridden.history.find((h) => h.eventId === 'act1-card1');
-  assert.strictEqual(
-    betaHistory.results.find((r) => r.teamName === 'Beta').choice,
-    'C',
-    'historique mis à jour'
-  );
-  step('correction de réponse par l’animateur, historique recalculé');
+  /* ----------------------------------------- barèmes acte 1 et acte 2 (super) */
+  const superState = superTracker.state;
+  const byName = {};
+  for (const t of superState.teams) byName[t.id] = t;
+  assert.strictEqual(byName[teamA].total, 2, 'acte 1, choix B = +1 / +1 = 2');
+  assert.strictEqual(byName[teamB].total, 1, 'acte 1, choix C = −2 / +3 = 1');
+  assert.strictEqual(byName[teamC].total, 1, 'acte 1, choix C = 1');
+  step('barème acte 1 appliqué (B = +2, C = +1)');
 
-  await call(adminSocket, 'admin:adjustScore', {
-    teamId: teams.Beta.teamId,
-    delta: -2,
-    reason: 'Retard',
-  });
-  await waitForState(adminTracker, (s) => totals(s).Beta === 4, 'ajustement négatif');
+  const act2 = superState.events.find((e) => e.act === 2);
+  await call(admins[teamA].socket, 'round:start', { eventId: act2.id, durationSec: 120 });
+  for (const p of aPlayers) {
+    await call(playerConns[p.playerId].socket, 'player:vote', { choice: 'C' });
+  }
+  await waitForState(admins[teamA].tracker, (s) => s.round && s.round.status === 'closed', 'A acte 2');
+  await call(admins[teamA].socket, 'round:finish', {});
+  await waitForState(superTracker, (s) => s.teams.find((t) => t.id === teamA).total === 6, 'A à 6');
+  step('barème acte 2 appliqué (C = +4, total 6)');
+
+  /* ------------------------------------------------- classement par événement */
+  const rankings = superTracker.state.rankings;
+  const evt1Ranking = rankings.find((r) => r.eventId === evt1.id);
+  assert.strictEqual(evt1Ranking.rows.length, 3, 'les trois tables ont joué l’événement 1');
+  assert.strictEqual(evt1Ranking.rows[0].teamId, teamA, 'table A gagne l’événement 1 (+2)');
+  assert.strictEqual(evt1Ranking.rows[0].rank, 1);
+  step('classement par événement calculé et conservé en interne');
+
+  /* ------------------------------------- les scores restent invisibles aux tables */
+  const playerMid = playerConns[aPlayers[0].playerId].tracker.state;
+  assert.strictEqual(playerMid.scoresVisible, false);
+  assert.deepStrictEqual(playerMid.leaderboard, [], 'aucun classement côté joueur');
+  assert.deepStrictEqual(playerMid.rankings, [], 'aucun classement par événement côté joueur');
+  assert.strictEqual(playerMid.history[0].total, undefined, 'aucun point dans l’historique du joueur');
+  const adminMid = admins[teamA].tracker.state;
+  assert.strictEqual(adminMid.scoresVisible, false, 'l’animateur de table ne voit pas les points');
+  step('scores invisibles pour les joueurs et les animateurs de table');
+
+  /* --------------------------------------------------------- ajustement manuel */
+  await call(superSocket, 'super:adjustScore', { teamId: teamB, delta: 5, reason: 'Fair play' });
+  await waitForState(superTracker, (s) => s.teams.find((t) => t.id === teamB).adjust === 5, 'ajout +5');
+  step('ajustement manuel +5 pris en compte');
+
+  await call(superSocket, 'super:adjustScore', { teamId: teamB, delta: -2, reason: 'Hors délai' });
+  await waitForState(superTracker, (s) => s.teams.find((t) => t.id === teamB).adjust === 3, 'retrait −2');
   step('retrait de points (−2) pris en compte');
 
-  /* --------------------------------------------------- classement masqué côté équipe */
-  await call(adminSocket, 'admin:updateSettings', {
-    settings: { showLeaderboardToTeams: false },
-  });
-  const hidden = await waitForState(
-    teamTrackers.Gamma,
-    (s) => s.leaderboardHidden === true,
-    'classement masqué'
+  /* ------------------------------------------ correction d'une décision (super) */
+  await call(superSocket, 'super:setDecision', { teamId: teamC, eventId: evt1.id, choice: 'B' });
+  await waitForState(superTracker, (s) => s.teams.find((t) => t.id === teamC).total === 2, 'C corrigé');
+  step('correction de décision par le super animateur, scores recalculés');
+
+  /* --------------------------------------------------------------- dévoilement */
+  await call(superSocket, 'super:reveal', {});
+  const revealed = await waitForState(
+    playerConns[aPlayers[0].playerId].tracker,
+    (s) => s.scoresVisible === true,
+    'dévoilement joueur'
   );
-  assert.strictEqual(hidden.leaderboard.length, 1, 'l’équipe ne voit que sa ligne');
-  assert.strictEqual(hidden.leaderboard[0].name, 'Gamma');
-  step('classement masquable pour les équipes');
+  assert.ok(revealed.leaderboard.length === 3, 'classement général visible après dévoilement');
+  assert.strictEqual(revealed.leaderboard[0].name, byName[teamA].name, 'table A première');
+  assert.ok(revealed.team.total !== undefined, 'le joueur voit enfin le total de son équipe');
+  assert.ok(revealed.team.act1Profile, 'profil acte 1 révélé');
+  step('dévoilement simultané : classement et profils visibles par tous');
 
-  /* ------------------------------------------------- événement personnalisé */
-  const customRes = await call(adminSocket, 'admin:addEvent', {
-    event: {
-      act: 2,
-      round: 5,
-      color: 'gold',
-      title: { fr: 'Carte maison', en: 'Custom card' },
-      situation: { fr: 'Situation locale', en: 'Local situation' },
-      motif: [],
-      impact: [],
-      options: [
-        { key: 'A', label: { fr: 'Rien', en: 'Nothing' }, points: 0 },
-        { key: 'B', label: { fr: 'Un peu', en: 'A bit' }, points: 3 },
-        { key: 'C', label: { fr: 'Beaucoup', en: 'A lot' }, points: 7 },
-      ],
-    },
-  });
-  const withCustom = await waitForState(
-    adminTracker,
-    (s) => s.events.some((e) => e.id === customRes.eventId),
-    'événement personnalisé'
-  );
-  const custom = withCustom.events.find((e) => e.id === customRes.eventId);
-  assert.strictEqual(custom.options.find((o) => o.key === 'C').points, 7, 'barème personnalisé');
-  step('événement personnalisé créé avec son propre barème');
+  /* --------------------------------------- aucune statistique individuelle nulle part */
+  const playerFinal = playerConns[aPlayers[0].playerId].tracker.state;
+  const serialized = JSON.stringify(playerFinal.team.players);
+  assert.ok(!/"total"|"score"|"rank"|"points"/.test(serialized), 'aucun score individuel exposé');
+  step('aucune statistique individuelle dans l’état des joueurs');
 
-  await call(adminSocket, 'admin:removeEvent', { eventId: customRes.eventId });
-  step('événement personnalisé supprimé');
-
-  /* -------------------------------------------------------------- archivage */
-  const ended = await call(adminSocket, 'admin:endSession');
-  assert.ok(ended.recordId, 'identifiant d’enregistrement retourné');
-  await waitForState(adminTracker, (s) => s.session.status === 'finished', 'session terminée');
+  /* ------------------------------------------------------------------ archive */
+  const ended = await call(superSocket, 'super:endSession', {});
+  assert.ok(ended.recordId, 'enregistrement créé');
   step('session terminée et archivée');
 
   const list = await rest('/api/records');
-  assert.strictEqual(list.records.length, 1);
-  // Beta : acte 1 corrigé en C (+1) + acte 2 A (0) + ajustements (+5 −2) = 4.
-  assert.strictEqual(list.records[0].winner.name, 'Beta', 'vainqueur = total le plus élevé');
-  assert.strictEqual(list.records[0].winner.total, 4);
-  step(`historique : vainqueur ${list.records[0].winner.name} (${list.records[0].winner.total} pts)`);
+  const entry = list.records.find((r) => r.id === ended.recordId);
+  assert.ok(entry, 'archive listée');
+  assert.strictEqual(entry.playerCount, 9, '9 joueurs archivés');
+  assert.strictEqual(entry.winner.name, byName[teamA].name, 'vainqueur archivé');
+  step(`historique : vainqueur ${entry.winner.name} (${entry.winner.total} pts)`);
 
-  const detail = await rest(`/api/records/${list.records[0].id}`);
-  assert.strictEqual(detail.record.events.length, 2, '2 événements dans l’enregistrement');
-  assert.strictEqual(detail.record.adjustments.length, 2, '2 ajustements tracés');
-  step('détail de l’enregistrement complet (événements + ajustements)');
+  const detail = await rest(`/api/records/${ended.recordId}`);
+  assert.strictEqual(detail.record.teams.length, 3, 'composition des trois tables archivée');
+  assert.ok(detail.record.teams[0].roster[0].role, 'rôles archivés dans la composition');
+  assert.ok(detail.record.events.length >= 1, 'classements par événement archivés');
+  assert.ok(detail.record.events[0].results[0].tally, 'décompte des votes archivé');
+  step('détail de l’archive complet (rosters, rôles, votes, classements)');
 
-  const csvRes = await fetch(`${BASE}/api/records/${list.records[0].id}/csv`);
-  const csv = await csvRes.text();
-  assert.ok(csv.includes('CLASSEMENT FINAL'), 'export CSV avec le classement');
-  assert.ok(csv.includes('Gamma'), 'export CSV avec les équipes');
-  step('export CSV généré');
+  const csv = await fetch(`${BASE}/api/records/${ended.recordId}/csv`);
+  const csvText = await csv.text();
+  assert.ok(csvText.includes('CLASSEMENT FINAL'), 'CSV : classement final');
+  assert.ok(csvText.includes('COMPOSITION DES ÉQUIPES'), 'CSV : composition des équipes');
+  assert.ok(csvText.includes('CLASSEMENT PAR ÉVÉNEMENT'), 'CSV : classement par événement');
+  step('export CSV généré (classement, rosters, événements)');
 
-  /* --------------------------------------------------------- reprise animateur */
-  await call(adminSocket, 'admin:reopenSession');
-  await waitForState(adminTracker, (s) => s.session.status !== 'finished', 'session reprise');
-  step('session réouverte par l’animateur');
+  await call(superSocket, 'super:reopenSession', {});
+  await waitForState(superTracker, (s) => s.session.status !== 'finished', 'session réouverte');
+  step('session réouverte par le super animateur');
 
-  for (const socket of Object.values(teamSockets)) socket.close();
-  adminSocket.close();
+  /* ------------------------------------------------------------------- fin */
+  superSocket.close();
+  for (const key of Object.keys(admins)) admins[key].socket.close();
+  for (const key of Object.keys(playerConns)) playerConns[key].socket.close();
+  await sleep(100);
 }
 
 main()
   .then(() => {
     console.log(`\n${steps.length} vérifications passées.\n`);
-    server.close(() => {
-      fs.rmSync(DATA_DIR, { recursive: true, force: true });
-      process.exit(0);
-    });
-    setTimeout(() => process.exit(0), 1200).unref();
+    server.close(() => process.exit(0));
+    setTimeout(() => process.exit(0), 500).unref();
   })
   .catch((err) => {
-    console.error('\n✗ ÉCHEC :', err.message);
+    console.error('\n✗ échec :', err.message);
     console.error(err.stack);
-    server.close(() => {
-      fs.rmSync(DATA_DIR, { recursive: true, force: true });
-      process.exit(1);
-    });
-    setTimeout(() => process.exit(1), 1200).unref();
+    server.close(() => process.exit(1));
+    setTimeout(() => process.exit(1), 500).unref();
   });
