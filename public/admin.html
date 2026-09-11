@@ -60,10 +60,14 @@
                   </button>
                 </div>
               </div>
-              <div>
-                <div class="label" data-i18n="admin.joinUrl">Lien joueurs</div>
-                <div class="join-url" id="join-link">—</div>
-                <p class="small muted" style="margin: 8px 0 0" data-i18n="admin.projectHint"></p>
+              <div class="qr-block qr-stack">
+                <button
+                  class="qr-tile"
+                  id="qr-tile"
+                  type="button"
+                  data-i18n-title="admin.qrEnlarge"
+                ></button>
+                <p class="small muted" style="margin: 0" data-i18n="admin.qrHint"></p>
               </div>
             </div>
             <div class="divider"></div>
@@ -146,12 +150,12 @@
               <h2 data-i18n="admin.settings">Réglages de la session</h2>
             </div>
             <label class="field">
-              <span data-i18n="admin.duration">Durée du vote (secondes)</span>
-              <input type="number" id="set-duration" min="5" max="3600" step="10" />
+              <span data-i18n="admin.duration">Durée du vote (minutes)</span>
+              <input type="number" id="set-duration" min="1" max="60" step="1" />
             </label>
             <label class="field">
-              <span data-i18n="admin.arbitration">Temps d’arbitrage (secondes)</span>
-              <input type="number" id="set-arbitration" min="5" max="600" step="5" />
+              <span data-i18n="admin.arbitration">Temps d’arbitrage (minutes)</span>
+              <input type="number" id="set-arbitration" min="0.5" max="10" step="0.5" />
             </label>
             <label class="field">
               <span data-i18n="admin.teamSizeSetting">Joueurs par table</span>
@@ -207,6 +211,7 @@
     <script src="/js/i18n.js"></script>
     <script src="/js/common.js"></script>
     <script src="/js/cards.js"></script>
+    <script src="/js/qr.js"></script>
     <script src="/js/admin.js"></script>
   </body>
 </html>

@@ -60,7 +60,6 @@
               <span class="door-title" data-i18n="home.playerTitle">Rejoindre la partie</span>
               <span class="small" data-i18n="home.playerDesc"></span>
             </span>
-            <span class="badge hidden" id="player-count"></span>
             <span class="chev">→</span>
           </button>
 
@@ -82,7 +81,7 @@
                       placeholder="ABC123"
                     />
                   </label>
-                  <div class="small muted hidden" id="join-info"></div>
+                  <div class="small muted hidden" id="join-info" style="margin: -4px 0 14px"></div>
                   <label class="field">
                     <span data-i18n="home.playerName">Votre prénom</span>
                     <input type="text" id="player-name" maxlength="40" placeholder="Camille" />
@@ -118,7 +117,6 @@
               <span class="door-title" data-i18n="home.tableTitle">Animer une table</span>
               <span class="small" data-i18n="home.tableDesc"></span>
             </span>
-            <span class="badge hidden" id="table-count"></span>
             <span class="chev">→</span>
           </button>
 
@@ -127,7 +125,7 @@
               <div class="door-inner">
                 <form id="table-form" autocomplete="off">
                   <label class="field">
-                    <span data-i18n="home.tableCode">Code de table</span>
+                    <span data-i18n="home.tableCode">Code de session</span>
                     <input
                       type="text"
                       id="table-code"
@@ -137,9 +135,10 @@
                       autocapitalize="characters"
                       autocomplete="off"
                       spellcheck="false"
-                      placeholder="TBL123"
+                      placeholder="ABC123"
                     />
                   </label>
+                  <div class="small muted" style="margin: -4px 0 14px" data-i18n="home.tableHint"></div>
                   <button class="btn btn-primary btn-block" type="submit" data-i18n="home.tableBtn">
                     Ouvrir la console de table
                   </button>
@@ -169,7 +168,6 @@
               <span class="door-title" data-i18n="home.superTitle">Direction de jeu</span>
               <span class="small" data-i18n="home.superDesc"></span>
             </span>
-            <span class="badge hidden" id="super-count"></span>
             <span class="chev">→</span>
           </button>
 
@@ -188,7 +186,7 @@
                   <div class="split tight">
                     <label class="field">
                       <span data-i18n="home.teamCount">Nombre de tables</span>
-                      <input type="number" id="team-count" min="1" max="12" step="1" value="4" />
+                      <input type="number" id="team-count" min="1" max="12" step="1" value="3" />
                     </label>
                     <label class="field">
                       <span data-i18n="home.teamSize">Joueurs par table</span>

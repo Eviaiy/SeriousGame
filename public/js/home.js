@@ -25,6 +25,8 @@
 
   const prefill = (qs('code') || '').toUpperCase().slice(0, 6);
   if (prefill) joinCode.value = prefill;
+  /* Table scannée sur place : le joueur y sera assis au lieu d'être réparti. */
+  const wantedTable = (qs('t') || '').slice(0, 40);
 
   /* ------------------------------------------------- portes (une à la fois) */
 
@@ -56,25 +58,38 @@
 
   /* ------------------------------------------------------- listes mémorisées */
 
-  /* Compteur discret sur la porte : « 2 » n'a de sens qu'avec son libellé,
-     donné en infobulle et aux lecteurs d'écran. */
-  function setCount(id, n, labelKey) {
-    const badge = $(id);
-    badge.textContent = n;
-    badge.title = n ? t(labelKey) : '';
-    badge.setAttribute('aria-label', n ? `${n} · ${t(labelKey)}` : '');
-    badge.classList.toggle('hidden', !n);
+  /**
+   * Supprimer une session la supprime pour de bon : le serveur efface ses
+   * tables, leurs codes et les postes de ses joueurs, puis cet appareil oublie
+   * les accès qu'il en gardait.
+   */
+  async function deleteSession(entry) {
+    if (!window.confirm(t('home.deleteSessionConfirm', { code: entry.code || '' }))) return;
+    try {
+      await api(`/api/sessions/${encodeURIComponent(entry.sessionId)}`, {
+        method: 'DELETE',
+        body: { superKey: entry.superKey },
+      });
+    } catch (err) {
+      /* Déjà disparue du serveur : il ne reste qu'à ranger cet appareil. */
+      if (err.code !== 'session_not_found') return toast(err.message, 'error');
+    }
+    const mine = (list) => list.filter((e) => e.sessionId === entry.sessionId);
+    mine(tableStore.all()).forEach((e) => tableStore.remove(e.teamId));
+    mine(playerStore.all()).forEach((e) => playerStore.remove(e.playerId));
+    superStore.remove(entry.sessionId);
+    renderAll();
+    return toast(t('home.sessionDeleted'));
   }
 
   /**
    * Rend une liste d'accès mémorisés.
-   * cfg : { store, idField, boxId, listId, countId, countKey, title, sub, href, cta }
+   * cfg : { store, idField, boxId, listId, title, sub, href, cta, onRemove }
    */
   function renderList(cfg) {
     const list = cfg.store.all();
     const box = $(cfg.boxId);
     const host = clear($(cfg.listId));
-    setCount(cfg.countId, list.length, cfg.countKey);
     if (!list.length) {
       box.classList.add('hidden');
       return;
@@ -93,8 +108,9 @@
             text: '×',
             title: t('btn.delete'),
             onClick: () => {
+              if (cfg.onRemove) return cfg.onRemove(entry);
               cfg.store.remove(entry[cfg.idField]);
-              renderAll();
+              return renderAll();
             },
           }),
         ])
@@ -108,8 +124,6 @@
       idField: 'playerId',
       boxId: '#player-resume',
       listId: '#player-list',
-      countId: '#player-count',
-      countKey: 'home.resumePlayer',
       title: (e) => e.playerName || t('nav.play'),
       sub: (e) => `${e.teamName || ''} · ${e.code} · ${fmtDateTime(e.ts)}`,
       href: (e) => `/play.html?p=${encodeURIComponent(e.playerId)}`,
@@ -120,8 +134,6 @@
       idField: 'teamId',
       boxId: '#table-resume',
       listId: '#table-list',
-      countId: '#table-count',
-      countKey: 'home.resumeTable',
       title: (e) => e.teamName || t('nav.team'),
       sub: (e) => `${e.adminCode} · ${fmtDateTime(e.ts)}`,
       href: (e) => `/team.html?tid=${encodeURIComponent(e.teamId)}`,
@@ -132,12 +144,11 @@
       idField: 'sessionId',
       boxId: '#super-resume',
       listId: '#super-list',
-      countId: '#super-count',
-      countKey: 'home.existing',
       title: (e) => e.name || t('app.title'),
       sub: (e) => `${e.code} · ${fmtDateTime(e.ts)}`,
       href: (e) => `/admin.html?s=${encodeURIComponent(e.sessionId)}`,
       cta: 'nav.admin',
+      onRemove: deleteSession,
     });
   }
 
@@ -163,9 +174,12 @@
     try {
       const res = await api(`/api/sessions/${encodeURIComponent(code)}`);
       const seats = Math.max(0, res.teamCount * res.teamSize - res.playerCount);
-      joinInfo.textContent = res.joinOpen
-        ? `${res.name} — ${t('home.seats', { n: seats })}`
-        : `${res.name} — ${t('err.join_closed')}`;
+      const table = wantedTable ? (res.tables || []).find((x) => x.id === wantedTable) : null;
+      joinInfo.textContent = !res.joinOpen
+        ? `${res.name} — ${t('err.join_closed')}`
+        : table
+          ? `${res.name} — ${t('home.joiningTable', { name: table.name })}`
+          : `${res.name} — ${t('home.seats', { n: seats })}`;
       joinInfo.classList.remove('hidden');
     } catch (err) {
       joinInfo.textContent = err.message;
@@ -193,7 +207,7 @@
     try {
       const res = await api(`/api/sessions/${encodeURIComponent(code)}/players`, {
         method: 'POST',
-        body: { name },
+        body: wantedTable ? { name, teamId: wantedTable } : { name },
       });
       playerStore.save({
         sessionId: res.sessionId,
@@ -214,19 +228,16 @@
 
   /* --------------------------------------------------- animateur de table */
 
-  $('#table-form').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const code = tableCode.value.trim().toUpperCase();
+  async function openTable(code, button) {
     if (code.length !== 6) return toast(t('err.team_not_found'), 'error');
-
-    const button = event.target.querySelector('button[type="submit"]');
-    button.disabled = true;
+    if (button) button.disabled = true;
     try {
       const res = await api('/api/team-admin', { method: 'POST', body: { code } });
       tableStore.save({
         sessionId: res.sessionId,
         code: res.code,
-        adminCode: code,
+        /* Le serveur renvoie le code de la table attribuée, pas celui saisi. */
+        adminCode: res.adminCode || code,
         teamId: res.teamId,
         teamName: res.teamName,
         adminToken: res.adminToken,
@@ -235,10 +246,24 @@
       window.location.href = `/team.html?tid=${encodeURIComponent(res.teamId)}`;
     } catch (err) {
       toast(err.message, 'error');
-      button.disabled = false;
+      if (button) button.disabled = false;
     }
     return undefined;
+  }
+
+  $('#table-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    openTable(tableCode.value.trim().toUpperCase(), event.target.querySelector('button[type="submit"]'));
   });
+
+  /* Le code de session déjà connu de ce navigateur est prérempli : l'animateur
+     n'a plus qu'à ouvrir sa console. On garde l'accès le plus récent, sinon une
+     session tout juste créée serait masquée par un atelier précédent. */
+  const lastAccess = [tableStore.latest(), superStore.latest()]
+    .filter(Boolean)
+    .sort((a, b) => (b.ts || 0) - (a.ts || 0))[0];
+  const knownCode = (lastAccess || {}).code || prefill;
+  if (knownCode && !tableCode.value) tableCode.value = knownCode;
 
   /* ----------------------------------------------------- direction de jeu */
 
@@ -253,7 +278,7 @@
           name: $('#session-name').value.trim(),
           facilitator: $('#facilitator').value.trim(),
           lang: window.I18N.getLang(),
-          teamCount: Number($('#team-count').value) || 4,
+          teamCount: Number($('#team-count').value) || 3,
           teamSize: Number($('#team-size').value) || 6,
         },
       });

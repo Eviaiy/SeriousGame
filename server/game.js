@@ -23,9 +23,11 @@ const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const MAX_TEAMS = 12;
 const MAX_EVENTS = 60;
 const MAX_PLAYERS_PER_TEAM = 10;
+/* 5 min par round ; l'animateur de table peut prolonger minute par minute. */
 const DEFAULT_DURATION = 300;
 const MIN_DURATION = 5;
 const DEFAULT_TEAM_SIZE = 6;
+const DEFAULT_TEAM_COUNT = 3;
 const DEFAULT_ARBITRATION = 90;
 
 const DEFAULT_SETTINGS = {
@@ -146,7 +148,7 @@ function createSession({ name, lang, facilitator, teamCount, teamSize } = {}) {
     archivedRecordId: null,
   };
 
-  const count = clamp(toInt(teamCount, 4), 1, MAX_TEAMS);
+  const count = clamp(toInt(teamCount, DEFAULT_TEAM_COUNT), 1, MAX_TEAMS);
   for (let i = 0; i < count; i += 1) createTeam(session, null, taken);
 
   addLog(session, 'session_created', { name: session.name, teams: count });
@@ -240,13 +242,22 @@ function addLog(session, type, params = {}) {
 
 /* ------------------------------------------------------------------ teams */
 
+/** Nom d'une table : celui de la session, suivi de son numéro d'ordre. */
+function defaultTeamName(session, index) {
+  const base = (session.name || '').trim();
+  return base ? `${base} · Table ${index}` : `Table ${index}`;
+}
+
 function createTeam(session, name, taken) {
   const index = session.teams.length + 1;
   const team = {
     id: id('team'),
-    name: cleanText(name, 40) || `Table ${index}`,
+    name: cleanText(name, 40) || defaultTeamName(session, index),
     adminToken: token(),
     adminCode: uniqueCode(taken || usedCodes()),
+    /* Horodatage de la prise en charge : sert à attribuer une table libre à
+       l'animateur suivant qui se présente avec le code de session. */
+    hostClaimedAt: null,
     createdAt: Date.now(),
     players: [],
     rolesAssignedAt: null,
@@ -254,9 +265,8 @@ function createTeam(session, name, taken) {
     answers: {},
     history: [],
     adjustments: [],
-    short: 0,
-    long: 0,
-    points: 0,
+    act1: 0,
+    act2: 0,
     adjust: 0,
     wins: 0,
   };
@@ -272,6 +282,32 @@ function addTeam(session, name) {
   }
   const team = createTeam(session, clean);
   addLog(session, 'team_added', { team: team.name });
+  store.persistSessions();
+  return team;
+}
+
+/**
+ * Un animateur ouvre sa console avec le code de session : il reçoit la première
+ * table sans animateur, et s'il n'en reste aucune une table est créée. Le nombre
+ * de tables suit donc le nombre d'animateurs qui se présentent.
+ */
+function claimTeamForHost(session) {
+  if (session.status === 'finished') throw new GameError('session_finished', 'Session terminée');
+  /* Le nombre de tables est arrêté à la création de la session : aucune table
+     n'apparaît parce qu'un animateur de plus se présente. En ajouter une reste
+     une décision de la direction de jeu, depuis sa console. */
+  const free = session.teams.find((t) => !t.hostClaimedAt);
+  if (!free) {
+    throw new GameError('tables_all_hosted', 'Toutes les tables de la session sont déjà animées');
+  }
+  return markTeamHosted(session, free);
+}
+
+/** Une table est « animée » dès qu'une console s'y ouvre, quel que soit le code. */
+function markTeamHosted(session, team) {
+  if (team.hostClaimedAt) return team;
+  team.hostClaimedAt = Date.now();
+  addLog(session, 'table_claimed', { team: team.name });
   store.persistSessions();
   return team;
 }
@@ -330,16 +366,31 @@ function findPlayerByName(session, name) {
   return null;
 }
 
-/** Répartition automatique : la table la moins remplie accueille le joueur. */
+/**
+ * Répartition automatique : la table la moins remplie accueille le joueur. Le
+ * nombre de joueurs par table annoncé à la création est une capacité, pas une
+ * indication : une fois toutes les tables pleines, la session est complète.
+ */
 function pickTeamForJoin(session) {
   const size = session.settings.teamSize;
   const open = session.teams.filter((t) => t.players.length < size);
-  const pool = open.length ? open : session.teams.filter((t) => t.players.length < MAX_PLAYERS_PER_TEAM);
-  if (!pool.length) throw new GameError('session_full', 'Toutes les tables sont complètes');
-  return pool.reduce((best, t) => (t.players.length < best.players.length ? t : best), pool[0]);
+  if (!open.length) throw new GameError('session_full', 'Toutes les tables sont complètes');
+  return open.reduce((best, t) => (t.players.length < best.players.length ? t : best), open[0]);
 }
 
-function joinPlayer(session, name) {
+/**
+ * Table demandée par le QR posé sur la table : le joueur est physiquement assis
+ * là, sa demande passe donc avant la répartition automatique. Si elle a atteint
+ * sa capacité, on retombe sur la table la moins remplie.
+ */
+function teamForJoin(session, wantedId) {
+  if (!wantedId) return pickTeamForJoin(session);
+  const wanted = session.teams.find((t) => t.id === wantedId);
+  if (wanted && wanted.players.length < session.settings.teamSize) return wanted;
+  return pickTeamForJoin(session);
+}
+
+function joinPlayer(session, name, prefs = {}) {
   if (session.status === 'finished') throw new GameError('session_finished', 'Session terminée');
   const clean = cleanText(name, 40);
   if (clean.length < 2) throw new GameError('bad_name', 'Nom trop court');
@@ -348,7 +399,7 @@ function joinPlayer(session, name) {
     throw new GameError('join_closed', 'Les inscriptions sont fermées');
   }
 
-  const team = pickTeamForJoin(session);
+  const team = teamForJoin(session, prefs.teamId);
   const player = {
     id: id('pl'),
     token: token(),
@@ -476,17 +527,6 @@ function requireEvent(session, eventId) {
   return event;
 }
 
-function normalizeOptionScores(act, opt) {
-  if (act === 2) {
-    return { short: null, long: null, points: clamp(toInt(opt.points, 0), -50, 50) };
-  }
-  return {
-    short: clamp(toInt(opt.short, 0), -50, 50),
-    long: clamp(toInt(opt.long, 0), -50, 50),
-    points: null,
-  };
-}
-
 function buildEvent(input, existing) {
   const act = toInt(input.act, existing ? existing.act : 1) === 2 ? 2 : 1;
   const source = Array.isArray(input.options) && input.options.length ? input.options : null;
@@ -494,15 +534,11 @@ function buildEvent(input, existing) {
 
   const options = ['A', 'B', 'C'].map((key) => {
     const raw = rawOptions.find((o) => o && o.key === key) || {};
-    const scores = normalizeOptionScores(act, {
-      short: raw.short != null ? raw.short : deck.ACT1_MATRIX[key].short,
-      long: raw.long != null ? raw.long : deck.ACT1_MATRIX[key].long,
-      points: raw.points != null ? raw.points : deck.ACT2_MATRIX[key],
-    });
+    const points = raw.points != null ? raw.points : deck.OPTION_POINTS[key];
     return {
       key,
       label: bilingual(raw.label, key),
-      ...scores,
+      points: clamp(toInt(points, 0), -50, 50),
       reveal: raw.reveal ? bilingual(raw.reveal) : null,
     };
   });
@@ -799,16 +835,15 @@ function autoArbitrate(session, teamId) {
   return team.round;
 }
 
+/**
+ * Barème unique aux deux actes : A = 0, B = +2, C = +4 par défaut, ajustable
+ * carte par carte depuis la direction de jeu.
+ */
 function optionScore(event, key) {
   const option = event.options.find((o) => o.key === key);
-  if (!option) return { short: 0, long: 0, points: 0, total: 0 };
-  if (event.act === 2) {
-    const points = toInt(option.points, 0);
-    return { short: 0, long: 0, points, total: points };
-  }
-  const short = toInt(option.short, 0);
-  const long = toInt(option.long, 0);
-  return { short, long, points: 0, total: short + long };
+  if (!option) return { points: 0, total: 0 };
+  const points = toInt(option.points, 0);
+  return { points, total: points };
 }
 
 /** Fige la décision de la table, l'archive et libère le plateau. */
@@ -823,7 +858,7 @@ function finalizeRound(session, team, decision, decidedBy) {
   round.decidedBy = decidedBy;
   round.arbitrationEndsAt = null;
 
-  const score = decision ? optionScore(event, decision) : { short: 0, long: 0, points: 0, total: 0 };
+  const score = decision ? optionScore(event, decision) : { points: 0, total: 0 };
   const entry = {
     eventId: event.id,
     eventTitle: event.title,
@@ -896,17 +931,17 @@ function replayEvent(session, teamId, eventId, durationSec) {
 /* ----------------------------------------------------------------- scores */
 
 function recomputeTeamScore(team) {
-  let short = 0;
-  let long = 0;
-  let points = 0;
+  let act1 = 0;
+  let act2 = 0;
   for (const answer of Object.values(team.answers)) {
-    short += toInt(answer.short, 0);
-    long += toInt(answer.long, 0);
-    points += toInt(answer.points, 0);
+    /* Les archives d'avant le barème unique portent short/long : leur `total`
+       reste la seule valeur juste pour ces parties. */
+    const value = toInt(answer.total != null ? answer.total : answer.points, 0);
+    if (toInt(answer.act, 1) === 2) act2 += value;
+    else act1 += value;
   }
-  team.short = short;
-  team.long = long;
-  team.points = points;
+  team.act1 = act1;
+  team.act2 = act2;
   team.adjust = team.adjustments.reduce((sum, a) => sum + toInt(a.delta, 0), 0);
   return team;
 }
@@ -917,16 +952,10 @@ function recomputeAllScores(session) {
 }
 
 function teamTotals(team) {
-  const act1 = team.short + team.long;
-  const act2 = team.points;
-  return {
-    short: team.short,
-    long: team.long,
-    act1,
-    act2,
-    adjust: team.adjust,
-    total: act1 + act2 + team.adjust,
-  };
+  const act1 = toInt(team.act1, 0);
+  const act2 = toInt(team.act2, 0);
+  const adjust = toInt(team.adjust, 0);
+  return { act1, act2, adjust, total: act1 + act2 + adjust };
 }
 
 function adjustScore(session, teamId, delta, reason) {
@@ -1047,8 +1076,6 @@ function eventRankings(session) {
             decision: answer.decision,
             decidedBy: answer.decidedBy,
             tally: answer.tally,
-            short: answer.short,
-            long: answer.long,
             points: answer.points,
             total: answer.total,
             seconds: answer.decisionMs == null ? null : Math.round(answer.decisionMs / 100) / 10,
@@ -1197,8 +1224,6 @@ function buildRecord(session) {
         decidedBy: r.decidedBy,
         tally: r.tally,
         total: r.total,
-        short: r.short,
-        long: r.long,
         points: r.points,
         seconds: r.seconds,
       })),
@@ -1229,8 +1254,6 @@ function publicEvent(event) {
     options: event.options.map((o) => ({
       key: o.key,
       label: o.label,
-      short: o.short,
-      long: o.long,
       points: o.points,
       reveal: o.reveal,
     })),
@@ -1433,7 +1456,7 @@ function stateFor(session, audience = {}) {
       decidedBy: h.decidedBy,
       tally: h.tally,
       closedAt: h.closedAt,
-      ...(canSeeScores ? { short: h.short, long: h.long, points: h.points, total: h.total } : {}),
+      ...(canSeeScores ? { points: h.points, total: h.total } : {}),
     })),
     leaderboard: canSeeScores ? leaderboard(session) : [],
     rankings: canSeeScores ? eventRankings(session) : [],
@@ -1457,6 +1480,8 @@ module.exports = {
   deleteSession,
   pruneSessions,
   addTeam,
+  claimTeamForHost,
+  markTeamHosted,
   getTeam,
   requireTeam,
   renameTeam,

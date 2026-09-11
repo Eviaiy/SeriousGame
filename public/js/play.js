@@ -13,6 +13,24 @@
   $('#dock-timer').appendChild(timer.node);
 
   const NARRATIVE_SEEN = 'sg.narrative.seen';
+  const NARRATIVE_KEEP = 40;
+
+  /* L'acquittement du récit se retient joueur par joueur : deux joueurs peuvent
+     partager un navigateur (téléphone prêté, poste de démonstration) et chacun
+     doit lire la mise en situation avant de jouer. */
+  function seenKey() {
+    return `${creds.sessionId}:${creds.playerId}`;
+  }
+
+  function seenList() {
+    const saved = LS.get(NARRATIVE_SEEN, []);
+    return Array.isArray(saved) ? saved.filter((k) => typeof k === 'string') : [];
+  }
+
+  function markSeen() {
+    const key = seenKey();
+    LS.set(NARRATIVE_SEEN, [key, ...seenList().filter((k) => k !== key)].slice(0, NARRATIVE_KEEP));
+  }
 
   let socket = null;
   let state = null;
@@ -46,14 +64,15 @@
 
   function renderNarrative() {
     const host = clear($('#narrative-host'));
-    /* Le récit s'efface dès que la table a commencé à jouer. */
-    const played = state.team.progress.played > 0 || Boolean(state.round);
-    if (played || narrativeDone) return;
+    /* Chaque joueur referme le récit lui-même : il reste affiché jusqu'à son
+       clic, même si la table a déjà lancé un événement — sinon un joueur arrivé
+       après le lancement n'aurait jamais lu la mise en situation. */
+    if (narrativeDone || state.session.status === 'finished') return;
     host.appendChild(
       C.narrativeBlock(state.narrative, {
         onReady: () => {
           narrativeDone = true;
-          LS.set(NARRATIVE_SEEN, state.session.id);
+          markSeen();
           renderNarrative();
         },
       })
@@ -391,15 +410,29 @@
     creds = resolveCreds();
     if (!creds) {
       const code = (qs('code') || '').toUpperCase();
-      window.location.href = code ? `/?code=${encodeURIComponent(code)}` : '/';
+      /* Le QR d'une table ajoute ?t= : on le passe au formulaire d'inscription. */
+      const table = qs('t');
+      const query = code
+        ? `?code=${encodeURIComponent(code)}${table ? `&t=${encodeURIComponent(table)}` : ''}`
+        : '';
+      window.location.href = `/${query}`;
       return;
     }
-    narrativeDone = LS.get(NARRATIVE_SEEN, null) === creds.sessionId;
+    narrativeDone = seenList().includes(seenKey());
 
     socket = connect(applyState, (payload) => {
       if (!payload || !payload.type) return;
       const message = t(`flash.${payload.type}`);
       if (message) toast(message, payload.type === 'round_tied' ? 'warn' : '');
+    });
+
+    /* La direction a supprimé la session : la partie n'existe plus. */
+    socket.on('session:deleted', () => {
+      toast(t('err.session_deleted'), 'error');
+      playerStore.remove(creds.playerId);
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1800);
     });
 
     socket.on('connect', async () => {
@@ -411,8 +444,11 @@
         });
         applyState(res.state);
       } catch (err) {
-        toast(err.message, 'error');
-        if (err.code === 'session_not_found' || err.code === 'player_not_found') {
+        /* Une session effacée n'est pas un code mal tapé : le joueur mérite de
+           savoir que la partie n'existe plus. */
+        const gone = err.code === 'session_not_found';
+        toast(gone ? t('err.session_deleted') : err.message, 'error');
+        if (gone || err.code === 'player_not_found') {
           playerStore.remove(creds.playerId);
           setTimeout(() => {
             window.location.href = '/';

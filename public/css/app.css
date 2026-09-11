@@ -707,6 +707,49 @@ input::placeholder {
   min-width: 0;
 }
 
+/* Lancement d'un événement : durée et bouton sur une seule ligne. Tous les
+   contrôles font 44 px de haut, sinon le bouton flotte à côté du champ. */
+.launch-row {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+}
+.launch-row > .btn {
+  min-height: 44px;
+}
+
+/* Minuterie : les flèches natives sont trop petites pour un doigt, on met des
+   boutons + et − de part et d'autre du nombre. */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.stepper > input[type='number'] {
+  width: 72px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.stepper > input[type='number']::-webkit-outer-spin-button,
+.stepper > input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.stepper > .btn {
+  --btn-line: var(--line-2);
+  --btn-fg: var(--text);
+  width: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
 /* saisie du code : gros caractères espacés */
 .code-input {
   font-family: var(--mono);
@@ -733,6 +776,67 @@ input::placeholder {
   font-size: 0.86rem;
   color: var(--accent);
   overflow-wrap: anywhere;
+}
+
+/* Accès des joueurs : le QR et sa consigne.
+   Le code reste noir sur blanc dans les deux thèmes — un QR inversé n'est pas
+   lu par tous les téléphones, et il est aussi souvent imprimé que projeté. */
+.qr-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+/* Il est scanné depuis l'autre bout de la table : il prend toute sa colonne et
+   la consigne passe dessous. */
+.qr-block.qr-stack {
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+}
+.qr-block.qr-stack > .qr-tile {
+  width: min(100%, 260px);
+  height: auto;
+  aspect-ratio: 1;
+  padding: 10px;
+}
+.qr-tile {
+  flex: none;
+  width: 108px;
+  height: 108px;
+  padding: 6px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line-2);
+  background: #fff;
+  cursor: zoom-in;
+  transition: border-color var(--t-fast), transform var(--t-fast);
+}
+.qr-tile:hover {
+  border-color: var(--gold);
+  transform: scale(1.02);
+}
+.qr-tile:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.qr-tile > svg {
+  display: block;
+}
+
+/* Vue projetée : le code lisible du fond de la salle, le QR pour les téléphones. */
+.qr-full {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  text-align: center;
+}
+.qr-full > .row {
+  width: 100%;
+}
+.qr-canvas {
+  width: min(58vh, 100%);
+  padding: 14px;
+  border-radius: var(--r-sm);
+  background: #fff;
 }
 
 /* ------------------------------------------------------------------- listes */
@@ -771,11 +875,22 @@ input::placeholder {
   gap: 6px;
   flex: 0 0 auto;
 }
-/* Déroulé : les actions occupent toujours leur propre ligne, sinon la hauteur
-   des lignes varie selon la longueur du titre. */
-.deck-row > .row-actions {
+/* Déroulé : les icônes de gestion restent sur la ligne du titre, « Lancer »
+   descend seul en dessous — c'est l'action principale, elle ne se noie pas
+   dans une file de boutons. */
+.deck-row > .row-icons {
+  margin-left: auto;
+}
+.deck-row > .row-main {
   flex: 1 0 100%;
   justify-content: flex-end;
+}
+/* Les quatre boutons de gestion sont carrés et de même taille : une rangée
+   d'icônes se lit d'un coup d'œil, contrairement à des largeurs inégales. */
+.deck-row .row-icons > .btn {
+  width: 32px;
+  min-width: 32px;
+  padding: 0;
 }
 
 /* -------------------------------------------------------------- indicateurs */
@@ -2141,6 +2256,9 @@ input::placeholder {
 }
 .team-tile {
   display: grid;
+  /* Le nom d'une table porte celui de la session : sans colonne rétrécissable,
+     ce titre insécable élargirait la tuile au-delà de sa case. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
   padding: 14px;
   border: 1px solid var(--line);
@@ -2159,21 +2277,12 @@ input::placeholder {
   align-items: baseline;
   gap: 8px;
 }
+/* Le nom d'une table commence par celui de la session : tronquer masquerait
+   justement son numéro, on le laisse donc passer à la ligne. */
 .tile-head .team-title {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.code-pill {
-  padding: 2px 8px;
-  border-radius: var(--r-xs);
-  background: var(--surface-3);
-  color: var(--text-2);
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
+  overflow-wrap: anywhere;
 }
 .progress-track {
   height: 6px;

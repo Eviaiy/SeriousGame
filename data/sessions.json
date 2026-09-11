@@ -1,5 +1,5 @@
 {
-  "savedAt": 1789038215041,
+  "savedAt": 1789118353481,
   "sessions": {
     "sess_3a20002942ee5574": {
       "id": "sess_3a20002942ee5574",
@@ -47,7 +47,9 @@
           "long": -3,
           "points": 0,
           "adjust": 0,
-          "wins": 1
+          "wins": 1,
+          "act1": -1,
+          "act2": 0
         }
       ],
       "events": [
@@ -978,7 +980,9 @@
           "long": 1,
           "points": 0,
           "adjust": 1,
-          "wins": 1
+          "wins": 1,
+          "act1": 2,
+          "act2": 0
         },
         {
           "id": "team_9b9cae03c0dd4c79",
@@ -1017,7 +1021,9 @@
           "long": -3,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": -1,
+          "act2": 0
         }
       ],
       "events": [
@@ -2033,7 +2039,9 @@
           "long": 1,
           "points": 0,
           "adjust": 1,
-          "wins": 1
+          "wins": 1,
+          "act1": 2,
+          "act2": 0
         },
         {
           "id": "team_df9f29f390a30883",
@@ -2072,7 +2080,9 @@
           "long": -3,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": -1,
+          "act2": 0
         }
       ],
       "events": [
@@ -3088,7 +3098,9 @@
           "long": 1,
           "points": 0,
           "adjust": 1,
-          "wins": 1
+          "wins": 1,
+          "act1": 2,
+          "act2": 0
         },
         {
           "id": "team_1833209863c9772a",
@@ -3127,7 +3139,9 @@
           "long": -3,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": -1,
+          "act2": 0
         }
       ],
       "events": [
@@ -4111,7 +4125,9 @@
           "long": 0,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 0,
+          "act2": 0
         }
       ],
       "events": [
@@ -4942,7 +4958,9 @@
           "long": 2,
           "points": 0,
           "adjust": 0,
-          "wins": 2
+          "wins": 2,
+          "act1": 4,
+          "act2": 0
         },
         {
           "id": "team_82b1b1aa94a81d17",
@@ -4981,7 +4999,9 @@
           "long": 0,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 0,
+          "act2": 0
         },
         {
           "id": "team_237bab224cd2fd9e",
@@ -5020,7 +5040,9 @@
           "long": -3,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": -1,
+          "act2": 0
         },
         {
           "id": "team_e34218c578306956",
@@ -5059,7 +5081,9 @@
           "long": 1,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 2,
+          "act2": 0
         }
       ],
       "events": [
@@ -6177,7 +6201,9 @@
           "long": 2,
           "points": 0,
           "adjust": 0,
-          "wins": 2
+          "wins": 2,
+          "act1": 4,
+          "act2": 0
         },
         {
           "id": "team_b94a0ffbb523e0b6",
@@ -6216,7 +6242,9 @@
           "long": 0,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 0,
+          "act2": 0
         },
         {
           "id": "team_8aab424f8e669dd5",
@@ -6255,7 +6283,9 @@
           "long": -3,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": -1,
+          "act2": 0
         },
         {
           "id": "team_163b0837a47cc719",
@@ -6294,7 +6324,9 @@
           "long": 1,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 2,
+          "act2": 0
         }
       ],
       "events": [
@@ -7412,7 +7444,9 @@
           "long": 2,
           "points": 0,
           "adjust": 0,
-          "wins": 2
+          "wins": 2,
+          "act1": 4,
+          "act2": 0
         },
         {
           "id": "team_961757b0189c7a57",
@@ -7451,7 +7485,9 @@
           "long": 0,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 0,
+          "act2": 0
         },
         {
           "id": "team_14812fc493e91b35",
@@ -7490,7 +7526,9 @@
           "long": -3,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": -1,
+          "act2": 0
         },
         {
           "id": "team_a3416a4de6d9ffdb",
@@ -7529,7 +7567,9 @@
           "long": 1,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 2,
+          "act2": 0
         }
       ],
       "events": [
@@ -8647,7 +8687,9 @@
           "long": 2,
           "points": 0,
           "adjust": 0,
-          "wins": 2
+          "wins": 2,
+          "act1": 4,
+          "act2": 0
         },
         {
           "id": "team_a8efa5e63143d793",
@@ -8686,7 +8728,9 @@
           "long": 0,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 0,
+          "act2": 0
         },
         {
           "id": "team_f9584d8bd9053742",
@@ -8725,7 +8769,9 @@
           "long": -3,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": -1,
+          "act2": 0
         },
         {
           "id": "team_8fdc78c41a186e3b",
@@ -8764,7 +8810,9 @@
           "long": 1,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 2,
+          "act2": 0
         }
       ],
       "events": [
@@ -9882,7 +9930,9 @@
           "long": 2,
           "points": 0,
           "adjust": 0,
-          "wins": 2
+          "wins": 2,
+          "act1": 4,
+          "act2": 0
         },
         {
           "id": "team_35db8aa4d70d4929",
@@ -9921,7 +9971,9 @@
           "long": 0,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 0,
+          "act2": 0
         },
         {
           "id": "team_853ff042e48a146f",
@@ -9960,7 +10012,9 @@
           "long": -3,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": -1,
+          "act2": 0
         },
         {
           "id": "team_4c7a9c745cd8f6ff",
@@ -9999,7 +10053,9 @@
           "long": 1,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 2,
+          "act2": 0
         }
       ],
       "events": [
@@ -11121,7 +11177,9 @@
           "long": 2,
           "points": 0,
           "adjust": 0,
-          "wins": 2
+          "wins": 2,
+          "act1": 4,
+          "act2": 0
         },
         {
           "id": "team_5588a2e563e9ed04",
@@ -11160,7 +11218,9 @@
           "long": 0,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 0,
+          "act2": 0
         },
         {
           "id": "team_33cb8388a8e53a4c",
@@ -11199,7 +11259,9 @@
           "long": -3,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": -1,
+          "act2": 0
         },
         {
           "id": "team_b34da5826cc09d5c",
@@ -11238,7 +11300,9 @@
           "long": 1,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 2,
+          "act2": 0
         }
       ],
       "events": [
@@ -12360,7 +12424,9 @@
           "long": 2,
           "points": 0,
           "adjust": 0,
-          "wins": 2
+          "wins": 2,
+          "act1": 4,
+          "act2": 0
         },
         {
           "id": "team_f2a219726f20d85c",
@@ -12399,7 +12465,9 @@
           "long": 0,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 0,
+          "act2": 0
         },
         {
           "id": "team_c5f3930c3f9bee34",
@@ -12438,7 +12506,9 @@
           "long": -3,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": -1,
+          "act2": 0
         },
         {
           "id": "team_a3813bd2ea140e04",
@@ -12477,7 +12547,9 @@
           "long": 1,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 2,
+          "act2": 0
         }
       ],
       "events": [
@@ -13599,7 +13671,9 @@
           "long": 2,
           "points": 0,
           "adjust": 0,
-          "wins": 2
+          "wins": 2,
+          "act1": 4,
+          "act2": 0
         },
         {
           "id": "team_457b2791c796841a",
@@ -13638,7 +13712,9 @@
           "long": 0,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 0,
+          "act2": 0
         },
         {
           "id": "team_944692acfccbb98d",
@@ -13677,7 +13753,9 @@
           "long": -3,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": -1,
+          "act2": 0
         },
         {
           "id": "team_b19d547d56a674f5",
@@ -13716,7 +13794,9 @@
           "long": 1,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 2,
+          "act2": 0
         }
       ],
       "events": [
@@ -14838,7 +14918,9 @@
           "long": 2,
           "points": 0,
           "adjust": 0,
-          "wins": 2
+          "wins": 2,
+          "act1": 4,
+          "act2": 0
         },
         {
           "id": "team_c3e55de6077afd56",
@@ -14877,7 +14959,9 @@
           "long": 0,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 0,
+          "act2": 0
         },
         {
           "id": "team_b7b04dea7604ad11",
@@ -14916,7 +15000,9 @@
           "long": -3,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": -1,
+          "act2": 0
         },
         {
           "id": "team_5d8fd8e1f3c362f4",
@@ -14955,7 +15041,9 @@
           "long": 1,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 2,
+          "act2": 0
         }
       ],
       "events": [
@@ -16054,7 +16142,7 @@
               "token": "5a9b44c84df0bdd1c1604b809f0c2dda",
               "name": "meriem",
               "roleId": null,
-              "sockets": 1,
+              "sockets": 0,
               "joinedAt": 1789038214789
             }
           ],
@@ -16067,7 +16155,9 @@
           "long": 0,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 0,
+          "act2": 0
         },
         {
           "id": "team_b651f525eca28359",
@@ -16085,7 +16175,9 @@
           "long": 0,
           "points": 0,
           "adjust": 0,
-          "wins": 0
+          "wins": 0,
+          "act1": 0,
+          "act2": 0
         }
       ],
       "events": [
@@ -16853,6 +16945,5522 @@
           "params": {
             "player": "meriem",
             "team": "Table 1"
+          }
+        }
+      ],
+      "archivedRecordId": null
+    },
+    "sess_24a30be5436613ef": {
+      "id": "sess_24a30be5436613ef",
+      "code": "FR7GJP",
+      "superKey": "6d756d9b18a9bdb94c4782c00862c3df",
+      "name": "test1",
+      "facilitator": "meriem",
+      "lang": "fr",
+      "status": "lobby",
+      "revealed": false,
+      "revealedAt": null,
+      "createdAt": 1789051818885,
+      "startedAt": null,
+      "endedAt": null,
+      "settings": {
+        "defaultDuration": 300,
+        "teamSize": 6,
+        "arbitrationSeconds": 90,
+        "autoAssignRoles": true,
+        "autoCloseOnAllVotes": true,
+        "allowLateJoin": true,
+        "allowChangeVote": true
+      },
+      "teams": [
+        {
+          "id": "team_53790eefab3b7a72",
+          "name": "Table 1",
+          "adminToken": "58c26ad696c19aee89b3347d8acb2fc2",
+          "adminCode": "BMSM4T",
+          "createdAt": 1789051818887,
+          "players": [],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "short": 0,
+          "long": 0,
+          "points": 0,
+          "adjust": 0,
+          "wins": 0,
+          "act1": 0,
+          "act2": 0
+        },
+        {
+          "id": "team_55a8869a709b9d3d",
+          "name": "Table 2",
+          "adminToken": "e479dc0e718b9f24194682de1678bfcd",
+          "adminCode": "KGBE45",
+          "createdAt": 1789051818887,
+          "players": [],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "short": 0,
+          "long": 0,
+          "points": 0,
+          "adjust": 0,
+          "wins": 0,
+          "act1": 0,
+          "act2": 0
+        }
+      ],
+      "events": [
+        {
+          "id": "act1-card1",
+          "act": 1,
+          "round": 1,
+          "ref": {
+            "fr": "Carte 1",
+            "en": "Card 1"
+          },
+          "tag": {
+            "fr": "Incident opérationnel · Round 1",
+            "en": "Operational incident · Round 1"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Factures rejetées",
+            "en": "Rejected invoices"
+          },
+          "situation": {
+            "fr": "8 % de vos factures sont rejetées par les plateformes de vos clients.",
+            "en": "8% of your invoices are rejected by your customers’ platforms."
+          },
+          "motif": [
+            {
+              "fr": "SIREN manquant",
+              "en": "Missing company ID (SIREN)"
+            },
+            {
+              "fr": "Nature d’opération incohérente",
+              "en": "Inconsistent transaction type"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Retards de paiement",
+              "en": "Payment delays"
+            },
+            {
+              "fr": "Saturation des équipes",
+              "en": "Teams overloaded"
+            },
+            {
+              "fr": "Perte de crédibilité client",
+              "en": "Loss of customer credibility"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Correction manuelle rapide",
+                "en": "Quick manual fix"
+              },
+              "short": 2,
+              "long": -3,
+              "points": null,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Patch IT ciblé",
+                "en": "Targeted IT patch"
+              },
+              "short": 1,
+              "long": 1,
+              "points": null,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Audit global des données",
+                "en": "Full data audit"
+              },
+              "short": -2,
+              "long": 3,
+              "points": null,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card2",
+          "act": 1,
+          "round": 1,
+          "ref": {
+            "fr": "Carte 2",
+            "en": "Card 2"
+          },
+          "tag": {
+            "fr": "Incident client · Round 1",
+            "en": "Customer incident · Round 1"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Blocage de paiement",
+            "en": "Payment freeze"
+          },
+          "situation": {
+            "fr": "Un client stratégique (plus de 15 % du CA) bloque tous ses paiements.",
+            "en": "A strategic customer (over 15% of revenue) has frozen all payments."
+          },
+          "motif": [
+            {
+              "fr": "Incohérences entre facture et données de livraison",
+              "en": "Mismatch between invoice and delivery data"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Tension commerciale forte",
+              "en": "Severe commercial tension"
+            },
+            {
+              "fr": "Risque cash immédiat",
+              "en": "Immediate cash risk"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Gérer au cas par cas",
+                "en": "Handle case by case"
+              },
+              "short": 2,
+              "long": -3,
+              "points": null,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Task force dédiée",
+                "en": "Dedicated task force"
+              },
+              "short": 1,
+              "long": 1,
+              "points": null,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Revue complète du process O2C",
+                "en": "Full order-to-cash review"
+              },
+              "short": -2,
+              "long": 3,
+              "points": null,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card3",
+          "act": 1,
+          "round": 2,
+          "ref": {
+            "fr": "Carte 3",
+            "en": "Card 3"
+          },
+          "tag": {
+            "fr": "Alerte fiscale · Round 2",
+            "en": "Tax alert · Round 2"
+          },
+          "color": "orange",
+          "title": {
+            "fr": "DGFIP — incohérences",
+            "en": "Tax authority — inconsistencies"
+          },
+          "situation": {
+            "fr": "L’administration détecte des anomalies et demande une explication formelle.",
+            "en": "The tax authority detects anomalies and requests a formal explanation."
+          },
+          "motif": [
+            {
+              "fr": "Écarts de TVA",
+              "en": "VAT discrepancies"
+            },
+            {
+              "fr": "Anomalies d’e-reporting",
+              "en": "E-reporting anomalies"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Risque de contrôle fiscal",
+              "en": "Tax audit risk"
+            },
+            {
+              "fr": "Exposition financière",
+              "en": "Financial exposure"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Justification a posteriori",
+                "en": "After-the-fact justification"
+              },
+              "short": 2,
+              "long": -3,
+              "points": null,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Correction ciblée",
+                "en": "Targeted correction"
+              },
+              "short": 1,
+              "long": 1,
+              "points": null,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Revue complète des règles fiscales",
+                "en": "Full review of tax rules"
+              },
+              "short": -2,
+              "long": 3,
+              "points": null,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card4",
+          "act": 1,
+          "round": 2,
+          "ref": {
+            "fr": "Carte 4",
+            "en": "Card 4"
+          },
+          "tag": {
+            "fr": "Audit interne · Round 2",
+            "en": "Internal audit · Round 2"
+          },
+          "color": "orange",
+          "title": {
+            "fr": "Alerte sur les contrôles",
+            "en": "Controls alert"
+          },
+          "situation": {
+            "fr": "L’audit interne alerte le comité sur la fragilité du dispositif.",
+            "en": "Internal audit warns the committee that the setup is fragile."
+          },
+          "motif": [
+            {
+              "fr": "Absence de contrôle data",
+              "en": "No data controls"
+            },
+            {
+              "fr": "Dépendance excessive à la PDP",
+              "en": "Excessive dependency on the platform provider"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Fragilité du dispositif",
+              "en": "Fragile setup"
+            },
+            {
+              "fr": "Risque non maîtrisé",
+              "en": "Unmanaged risk"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Minimiser : normal en post go-live",
+                "en": "Play it down: normal after go-live"
+              },
+              "short": 2,
+              "long": -3,
+              "points": null,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Plan de remédiation léger",
+                "en": "Light remediation plan"
+              },
+              "short": 1,
+              "long": 1,
+              "points": null,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Refonte du dispositif de contrôle",
+                "en": "Redesign the control framework"
+              },
+              "short": -2,
+              "long": 3,
+              "points": null,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card5",
+          "act": 1,
+          "round": 3,
+          "ref": {
+            "fr": "Carte 5",
+            "en": "Card 5"
+          },
+          "tag": {
+            "fr": "Crise réputation · Round 3",
+            "en": "Reputation crisis · Round 3"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Article de presse",
+            "en": "Press article"
+          },
+          "situation": {
+            "fr": "Un article paraît : « Grand groupe X en difficulté sur la facturation électronique ».",
+            "en": "An article is published: “Major group X struggling with e-invoicing”."
+          },
+          "motif": [],
+          "impact": [
+            {
+              "fr": "Image dégradée",
+              "en": "Damaged image"
+            },
+            {
+              "fr": "Pression interne et externe",
+              "en": "Internal and external pressure"
+            },
+            {
+              "fr": "Mobilisation de la direction générale",
+              "en": "Executive committee mobilised"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Communication + correctifs rapides",
+                "en": "Communication + quick fixes"
+              },
+              "short": 2,
+              "long": -3,
+              "points": null,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Programme de stabilisation",
+                "en": "Stabilisation programme"
+              },
+              "short": 1,
+              "long": 1,
+              "points": null,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Repositionnement stratégique data et fiscal",
+                "en": "Strategic data and tax repositioning"
+              },
+              "short": -2,
+              "long": 3,
+              "points": null,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card6",
+          "act": 1,
+          "round": 3,
+          "ref": {
+            "fr": "Carte 6",
+            "en": "Card 6"
+          },
+          "tag": {
+            "fr": "Crise financière · Round 3",
+            "en": "Financial crisis · Round 3"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Tension cash",
+            "en": "Cash squeeze"
+          },
+          "situation": {
+            "fr": "12 % du cash client est retardé, à cause d’anomalies sur les factures.",
+            "en": "12% of customer cash is delayed because of invoice anomalies."
+          },
+          "motif": [],
+          "impact": [
+            {
+              "fr": "Pression sur le CFO",
+              "en": "Pressure on the CFO"
+            },
+            {
+              "fr": "Impact direct sur le résultat",
+              "en": "Direct impact on earnings"
+            },
+            {
+              "fr": "Arbitrages urgents",
+              "en": "Urgent trade-offs"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Traitement manuel",
+                "en": "Manual processing"
+              },
+              "short": 2,
+              "long": -3,
+              "points": null,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Optimisation ciblée",
+                "en": "Targeted optimisation"
+              },
+              "short": 1,
+              "long": 1,
+              "points": null,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Refonte complète du modèle",
+                "en": "Full model redesign"
+              },
+              "short": -2,
+              "long": 3,
+              "points": null,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act2-step1",
+          "act": 2,
+          "round": 1,
+          "ref": {
+            "fr": "Étape 1/4",
+            "en": "Step 1/4"
+          },
+          "tag": {
+            "fr": "Transformation · Stabilisation",
+            "en": "Transformation · Stabilisation"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Stabiliser ou investir ?",
+            "en": "Stabilise or invest?"
+          },
+          "situation": {
+            "fr": "Votre solution fonctionne, mais elle génère 7 % d’erreurs et un volume élevé de corrections manuelles.",
+            "en": "Your solution works, but it generates 7% errors and a high volume of manual corrections."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Pression forte des équipes",
+            "en": "Strong pressure from the teams"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Corriger au fil de l’eau",
+                "en": "Fix as you go"
+              },
+              "short": null,
+              "long": null,
+              "points": 0,
+              "reveal": {
+                "fr": "Rapide, mais dette cachée",
+                "en": "Fast, but hidden debt"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Corriger les cas critiques",
+                "en": "Fix the critical cases"
+              },
+              "short": null,
+              "long": null,
+              "points": 2,
+              "reveal": {
+                "fr": "Amélioration partielle",
+                "en": "Partial improvement"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Lancer un diagnostic complet de la data",
+                "en": "Launch a full data diagnostic"
+              },
+              "short": null,
+              "long": null,
+              "points": 4,
+              "reveal": {
+                "fr": "Effort élevé, base saine",
+                "en": "High effort, healthy foundation"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step2",
+          "act": 2,
+          "round": 2,
+          "ref": {
+            "fr": "Étape 2/4",
+            "en": "Step 2/4"
+          },
+          "tag": {
+            "fr": "Transformation · Risque fiscal",
+            "en": "Transformation · Tax risk"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Maîtrise ou réaction ?",
+            "en": "Control or reaction?"
+          },
+          "situation": {
+            "fr": "Les premières incohérences sont détectées dans les données de TVA.",
+            "en": "The first inconsistencies are detected in the VAT data."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Risque de contrôle fiscal ciblé",
+            "en": "Risk of a targeted tax audit"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Gérer les anomalies au cas par cas",
+                "en": "Handle anomalies case by case"
+              },
+              "short": null,
+              "long": null,
+              "points": 0,
+              "reveal": {
+                "fr": "Effet pansement",
+                "en": "Sticking-plaster effect"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Renforcer les contrôles existants",
+                "en": "Strengthen existing controls"
+              },
+              "short": null,
+              "long": null,
+              "points": 2,
+              "reveal": {
+                "fr": "Contrôle mais incomplet",
+                "en": "Some control, but incomplete"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Repenser la logique fiscale",
+                "en": "Rethink the tax logic"
+              },
+              "short": null,
+              "long": null,
+              "points": 4,
+              "reveal": {
+                "fr": "Sécurisation durable",
+                "en": "Lasting protection"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step3",
+          "act": 2,
+          "round": 3,
+          "ref": {
+            "fr": "Étape 3/4",
+            "en": "Step 3/4"
+          },
+          "tag": {
+            "fr": "Transformation · Data vs IT",
+            "en": "Transformation · Data vs IT"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Qui pilote ?",
+            "en": "Who is in charge?"
+          },
+          "situation": {
+            "fr": "Les problèmes viennent des données, des référentiels et du mapping. L’IT propose une solution technique rapide.",
+            "en": "The problems come from data, master data and mapping. IT proposes a quick technical fix."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Arbitrage de gouvernance",
+            "en": "Governance trade-off"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Laisser l’IT gérer",
+                "en": "Let IT handle it"
+              },
+              "short": null,
+              "long": null,
+              "points": 0,
+              "reveal": {
+                "fr": "Solution technique limitée",
+                "en": "Limited technical fix"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Co-pilotage IT / fiscal",
+                "en": "Joint IT / tax steering"
+              },
+              "short": null,
+              "long": null,
+              "points": 2,
+              "reveal": {
+                "fr": "Compromis efficace",
+                "en": "Effective compromise"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Gouvernance data transverse",
+                "en": "Cross-functional data governance"
+              },
+              "short": null,
+              "long": null,
+              "points": 4,
+              "reveal": {
+                "fr": "Transformation en profondeur",
+                "en": "Deep transformation"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step4",
+          "act": 2,
+          "round": 4,
+          "ref": {
+            "fr": "Étape 4/4",
+            "en": "Step 4/4"
+          },
+          "tag": {
+            "fr": "Transformation · Vision",
+            "en": "Transformation · Vision"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Ambitieux ou minimaliste ?",
+            "en": "Ambitious or minimalist?"
+          },
+          "situation": {
+            "fr": "Trois trajectoires s’offrent à vous : stabiliser, optimiser ou transformer.",
+            "en": "Three trajectories are open to you: stabilise, optimise or transform."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Budget limité + pression de la direction générale",
+            "en": "Limited budget + pressure from the CEO"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Stabilisation minimale",
+                "en": "Minimal stabilisation"
+              },
+              "short": null,
+              "long": null,
+              "points": 0,
+              "reveal": {
+                "fr": "Conformité fragile",
+                "en": "Fragile compliance"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Optimisation progressive",
+                "en": "Progressive optimisation"
+              },
+              "short": null,
+              "long": null,
+              "points": 2,
+              "reveal": {
+                "fr": "Trajectoire solide",
+                "en": "Solid trajectory"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Transformation data-driven",
+                "en": "Data-driven transformation"
+              },
+              "short": null,
+              "long": null,
+              "points": 4,
+              "reveal": {
+                "fr": "Avantage compétitif",
+                "en": "Competitive advantage"
+              }
+            }
+          ]
+        }
+      ],
+      "log": [
+        {
+          "id": "log_43f8a4ef4207e5f8",
+          "ts": 1789051818887,
+          "type": "session_created",
+          "params": {
+            "name": "test1",
+            "teams": 2
+          }
+        }
+      ],
+      "archivedRecordId": null
+    },
+    "sess_ea564bff338decc3": {
+      "id": "sess_ea564bff338decc3",
+      "code": "8SZZJS",
+      "superKey": "744ad539930783d0d87ce6cc41afdac8",
+      "name": "test1",
+      "facilitator": "meriem",
+      "lang": "fr",
+      "status": "lobby",
+      "revealed": false,
+      "revealedAt": null,
+      "createdAt": 1789066561919,
+      "startedAt": null,
+      "endedAt": null,
+      "settings": {
+        "defaultDuration": 360,
+        "teamSize": 6,
+        "arbitrationSeconds": 90,
+        "autoAssignRoles": true,
+        "autoCloseOnAllVotes": true,
+        "allowLateJoin": true,
+        "allowChangeVote": true
+      },
+      "teams": [
+        {
+          "id": "team_081d707477cbef44",
+          "name": "Table 1",
+          "adminToken": "19ac5ae67e49257c96ceb0fc8b5a54d9",
+          "adminCode": "W4MHMX",
+          "createdAt": 1789066561919,
+          "players": [
+            {
+              "id": "pl_b5b1f01f8d52cc2b",
+              "token": "542fa40a8f345038a7d0bdc53e987cda",
+              "name": "ms",
+              "roleId": "role-dg",
+              "sockets": 0,
+              "joinedAt": 1789070867691
+            }
+          ],
+          "rolesAssignedAt": 1789071068204,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "wins": 0
+        },
+        {
+          "id": "team_258019044759091f",
+          "name": "Table 2",
+          "adminToken": "c6d621d2dbdea26184f7c4aa1bd2f020",
+          "adminCode": "KGHLUX",
+          "createdAt": 1789066561919,
+          "players": [
+            {
+              "id": "pl_daa91cd42f226cea",
+              "token": "383251d78e68fde1becf9f30560e66e3",
+              "name": "mmm",
+              "roleId": null,
+              "sockets": 0,
+              "joinedAt": 1789070928015
+            }
+          ],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "wins": 0
+        }
+      ],
+      "events": [
+        {
+          "id": "act1-card1",
+          "act": 1,
+          "round": 1,
+          "ref": {
+            "fr": "Carte 1",
+            "en": "Card 1"
+          },
+          "tag": {
+            "fr": "Incident opérationnel · Round 1",
+            "en": "Operational incident · Round 1"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Factures rejetées",
+            "en": "Rejected invoices"
+          },
+          "situation": {
+            "fr": "8 % de vos factures sont rejetées par les plateformes de vos clients.",
+            "en": "8% of your invoices are rejected by your customers’ platforms."
+          },
+          "motif": [
+            {
+              "fr": "SIREN erroné (adresse de facturation incorrecte)",
+              "en": "Incorrect company ID (wrong billing address)"
+            },
+            {
+              "fr": "Prix unitaire des biens livrés incohérent avec les négociations commerciales",
+              "en": "Unit price of the delivered goods inconsistent with the commercial terms"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Retards de paiement",
+              "en": "Payment delays"
+            },
+            {
+              "fr": "Saturation des équipes",
+              "en": "Teams overloaded"
+            },
+            {
+              "fr": "Perte de crédibilité client",
+              "en": "Loss of customer credibility"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Correction manuelle rapide",
+                "en": "Quick manual fix"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Patch IT ciblé",
+                "en": "Targeted IT patch"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Audit global des données",
+                "en": "Full data audit"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card2",
+          "act": 1,
+          "round": 2,
+          "ref": {
+            "fr": "Carte 2",
+            "en": "Card 2"
+          },
+          "tag": {
+            "fr": "Escalade fiscale · Round 2",
+            "en": "Tax escalation · Round 2"
+          },
+          "color": "red",
+          "title": {
+            "fr": "DGFIP — incohérences",
+            "en": "Tax authority — inconsistencies"
+          },
+          "situation": {
+            "fr": "L’administration détecte des anomalies et demande une explication formelle.",
+            "en": "The tax authority detects anomalies and requests a formal explanation."
+          },
+          "motif": [
+            {
+              "fr": "Écarts de TVA (montants sur factures v. CA3)",
+              "en": "VAT discrepancies (invoice amounts vs. VAT return)"
+            },
+            {
+              "fr": "Anomalies sur les codes VATEX v. détail à la ligne des opérations",
+              "en": "VATEX code anomalies vs. the line-level detail of the transactions"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Risque de redressement fiscal",
+              "en": "Risk of a tax reassessment"
+            },
+            {
+              "fr": "Exposition financière",
+              "en": "Financial exposure"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Justification a posteriori",
+                "en": "After-the-fact justification"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Correction ciblée",
+                "en": "Targeted correction"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Revue complète du paramétrage de l’ERP et des applicatifs amont",
+                "en": "Full review of the ERP and upstream application settings"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card3",
+          "act": 1,
+          "round": 2,
+          "ref": {
+            "fr": "Carte 3",
+            "en": "Card 3"
+          },
+          "tag": {
+            "fr": "Audit interne · Round 2",
+            "en": "Internal audit · Round 2"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Alerte sur les contrôles",
+            "en": "Controls alert"
+          },
+          "situation": {
+            "fr": "L’audit interne alerte le comité sur la fragilité du dispositif.",
+            "en": "Internal audit warns the committee that the setup is fragile."
+          },
+          "motif": [
+            {
+              "fr": "Absence de contrôle de la data (exhaustivité, qualité)",
+              "en": "No data controls (completeness, quality)"
+            },
+            {
+              "fr": "Dépendance excessive à la PA",
+              "en": "Excessive dependency on the accredited platform"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Fragilité du dispositif",
+              "en": "Fragile setup"
+            },
+            {
+              "fr": "Risque non maîtrisé",
+              "en": "Unmanaged risk"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Minimiser : normal en post go-live",
+                "en": "Play it down: normal after go-live"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Plan de remédiation léger",
+                "en": "Light remediation plan"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Refonte du dispositif de contrôle",
+                "en": "Redesign the control framework"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card4",
+          "act": 1,
+          "round": 3,
+          "ref": {
+            "fr": "Carte 4",
+            "en": "Card 4"
+          },
+          "tag": {
+            "fr": "Crise réputation · Round 3",
+            "en": "Reputation crisis · Round 3"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Article de presse",
+            "en": "Press article"
+          },
+          "situation": {
+            "fr": "Un article paraît : « Grand groupe X en difficulté sur la facturation électronique ».",
+            "en": "An article is published: “Major group X struggling with e-invoicing”."
+          },
+          "motif": [],
+          "impact": [
+            {
+              "fr": "Image dégradée",
+              "en": "Damaged image"
+            },
+            {
+              "fr": "Pression interne et externe",
+              "en": "Internal and external pressure"
+            },
+            {
+              "fr": "Mobilisation de la direction générale",
+              "en": "Executive committee mobilised"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Communication + correctifs rapides",
+                "en": "Communication + quick fixes"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Programme de stabilisation",
+                "en": "Stabilisation programme"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Repositionnement stratégique data et fiscal",
+                "en": "Strategic data and tax repositioning"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act2-step1",
+          "act": 2,
+          "round": 1,
+          "ref": {
+            "fr": "Étape 1/4",
+            "en": "Step 1/4"
+          },
+          "tag": {
+            "fr": "Transformation · Stabilisation",
+            "en": "Transformation · Stabilisation"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Stabiliser ou investir ?",
+            "en": "Stabilise or invest?"
+          },
+          "situation": {
+            "fr": "Votre solution fonctionne, mais elle génère 7 % d’erreurs et un volume élevé de corrections manuelles.",
+            "en": "Your solution works, but it generates 7% errors and a high volume of manual corrections."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Pression forte des équipes",
+            "en": "Strong pressure from the teams"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Corriger au fil de l’eau",
+                "en": "Fix as you go"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Rapide, mais dette cachée",
+                "en": "Fast, but hidden debt"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Corriger les cas critiques",
+                "en": "Fix the critical cases"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Amélioration partielle",
+                "en": "Partial improvement"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Lancer un diagnostic complet de la data",
+                "en": "Launch a full data diagnostic"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Effort élevé, base saine",
+                "en": "High effort, healthy foundation"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step2",
+          "act": 2,
+          "round": 2,
+          "ref": {
+            "fr": "Étape 2/4",
+            "en": "Step 2/4"
+          },
+          "tag": {
+            "fr": "Transformation · Risque fiscal",
+            "en": "Transformation · Tax risk"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Maîtrise ou réaction ?",
+            "en": "Control or reaction?"
+          },
+          "situation": {
+            "fr": "Les premières incohérences sont détectées dans les données de TVA.",
+            "en": "The first inconsistencies are detected in the VAT data."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Risque de contrôle fiscal ciblé",
+            "en": "Risk of a targeted tax audit"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Gérer les anomalies au cas par cas",
+                "en": "Handle anomalies case by case"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Effet pansement",
+                "en": "Sticking-plaster effect"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Renforcer les contrôles existants",
+                "en": "Strengthen existing controls"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Contrôle mais incomplet",
+                "en": "Some control, but incomplete"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Repenser la logique fiscale",
+                "en": "Rethink the tax logic"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Sécurisation durable",
+                "en": "Lasting protection"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step3",
+          "act": 2,
+          "round": 3,
+          "ref": {
+            "fr": "Étape 3/4",
+            "en": "Step 3/4"
+          },
+          "tag": {
+            "fr": "Transformation · Data vs IT",
+            "en": "Transformation · Data vs IT"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Qui pilote ?",
+            "en": "Who is in charge?"
+          },
+          "situation": {
+            "fr": "Les problèmes viennent des données, des référentiels et du mapping. L’IT propose une solution technique rapide.",
+            "en": "The problems come from data, master data and mapping. IT proposes a quick technical fix."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Arbitrage de gouvernance",
+            "en": "Governance trade-off"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Laisser l’IT gérer",
+                "en": "Let IT handle it"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Solution technique limitée",
+                "en": "Limited technical fix"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Co-pilotage IT / fiscal",
+                "en": "Joint IT / tax steering"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Compromis efficace",
+                "en": "Effective compromise"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Gouvernance data transverse",
+                "en": "Cross-functional data governance"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Transformation en profondeur",
+                "en": "Deep transformation"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step4",
+          "act": 2,
+          "round": 4,
+          "ref": {
+            "fr": "Étape 4/4",
+            "en": "Step 4/4"
+          },
+          "tag": {
+            "fr": "Transformation · Vision",
+            "en": "Transformation · Vision"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Ambitieux ou minimaliste ?",
+            "en": "Ambitious or minimalist?"
+          },
+          "situation": {
+            "fr": "Trois trajectoires s’offrent à vous : stabiliser, optimiser ou transformer.",
+            "en": "Three trajectories are open to you: stabilise, optimise or transform."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Budget limité + pression de la direction générale",
+            "en": "Limited budget + pressure from the CEO"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Stabilisation minimale",
+                "en": "Minimal stabilisation"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Conformité fragile",
+                "en": "Fragile compliance"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Optimisation progressive",
+                "en": "Progressive optimisation"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Trajectoire solide",
+                "en": "Solid trajectory"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Transformation data-driven",
+                "en": "Data-driven transformation"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Avantage compétitif",
+                "en": "Competitive advantage"
+              }
+            }
+          ]
+        }
+      ],
+      "log": [
+        {
+          "id": "log_cdef2c5ca1649ce3",
+          "ts": 1789066561919,
+          "type": "session_created",
+          "params": {
+            "name": "test1",
+            "teams": 2
+          }
+        },
+        {
+          "id": "log_f641cbea768ea93d",
+          "ts": 1789070867691,
+          "type": "player_joined",
+          "params": {
+            "player": "ms",
+            "team": "Table 1"
+          }
+        },
+        {
+          "id": "log_4ac4f09ae3d4fb51",
+          "ts": 1789070928015,
+          "type": "player_joined",
+          "params": {
+            "player": "mmm",
+            "team": "Table 2"
+          }
+        },
+        {
+          "id": "log_abe757622dccc3ab",
+          "ts": 1789071068204,
+          "type": "roles_assigned",
+          "params": {
+            "team": "Table 1",
+            "players": 1
+          }
+        }
+      ],
+      "archivedRecordId": null
+    },
+    "sess_6c3bd8931fa498c9": {
+      "id": "sess_6c3bd8931fa498c9",
+      "code": "KZ8N97",
+      "superKey": "f16b2a33b51b60811de07c2795fdb910",
+      "name": "test",
+      "facilitator": "",
+      "lang": "fr",
+      "status": "lobby",
+      "revealed": false,
+      "revealedAt": null,
+      "createdAt": 1789073578410,
+      "startedAt": null,
+      "endedAt": null,
+      "settings": {
+        "defaultDuration": 300,
+        "teamSize": 2,
+        "arbitrationSeconds": 90,
+        "autoAssignRoles": true,
+        "autoCloseOnAllVotes": true,
+        "allowLateJoin": true,
+        "allowChangeVote": true
+      },
+      "teams": [
+        {
+          "id": "team_c9fb27a54b3ee409",
+          "name": "Table 1",
+          "adminToken": "5c47209cb6d5dfedb8f71dc0e4be5f35",
+          "adminCode": "QL38A6",
+          "hostClaimedAt": null,
+          "createdAt": 1789073578410,
+          "players": [],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "wins": 0
+        },
+        {
+          "id": "team_eef88ccd1a0e3a52",
+          "name": "Table 2",
+          "adminToken": "5d3cddc4e455902d422fc513d308415c",
+          "adminCode": "HJ7MLL",
+          "hostClaimedAt": null,
+          "createdAt": 1789073578410,
+          "players": [],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "wins": 0
+        }
+      ],
+      "events": [
+        {
+          "id": "act1-card1",
+          "act": 1,
+          "round": 1,
+          "ref": {
+            "fr": "Carte 1",
+            "en": "Card 1"
+          },
+          "tag": {
+            "fr": "Incident opérationnel · Round 1",
+            "en": "Operational incident · Round 1"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Factures rejetées",
+            "en": "Rejected invoices"
+          },
+          "situation": {
+            "fr": "8 % de vos factures sont rejetées par les plateformes de vos clients.",
+            "en": "8% of your invoices are rejected by your customers’ platforms."
+          },
+          "motif": [
+            {
+              "fr": "SIREN erroné (adresse de facturation incorrecte)",
+              "en": "Incorrect company ID (wrong billing address)"
+            },
+            {
+              "fr": "Prix unitaire des biens livrés incohérent avec les négociations commerciales",
+              "en": "Unit price of the delivered goods inconsistent with the commercial terms"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Retards de paiement",
+              "en": "Payment delays"
+            },
+            {
+              "fr": "Saturation des équipes",
+              "en": "Teams overloaded"
+            },
+            {
+              "fr": "Perte de crédibilité client",
+              "en": "Loss of customer credibility"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Correction manuelle rapide",
+                "en": "Quick manual fix"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Patch IT ciblé",
+                "en": "Targeted IT patch"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Audit global des données",
+                "en": "Full data audit"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card2",
+          "act": 1,
+          "round": 2,
+          "ref": {
+            "fr": "Carte 2",
+            "en": "Card 2"
+          },
+          "tag": {
+            "fr": "Escalade fiscale · Round 2",
+            "en": "Tax escalation · Round 2"
+          },
+          "color": "red",
+          "title": {
+            "fr": "DGFIP — incohérences",
+            "en": "Tax authority — inconsistencies"
+          },
+          "situation": {
+            "fr": "L’administration détecte des anomalies et demande une explication formelle.",
+            "en": "The tax authority detects anomalies and requests a formal explanation."
+          },
+          "motif": [
+            {
+              "fr": "Écarts de TVA (montants sur factures v. CA3)",
+              "en": "VAT discrepancies (invoice amounts vs. VAT return)"
+            },
+            {
+              "fr": "Anomalies sur les codes VATEX v. détail à la ligne des opérations",
+              "en": "VATEX code anomalies vs. the line-level detail of the transactions"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Risque de redressement fiscal",
+              "en": "Risk of a tax reassessment"
+            },
+            {
+              "fr": "Exposition financière",
+              "en": "Financial exposure"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Justification a posteriori",
+                "en": "After-the-fact justification"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Correction ciblée",
+                "en": "Targeted correction"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Revue complète du paramétrage de l’ERP et des applicatifs amont",
+                "en": "Full review of the ERP and upstream application settings"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card3",
+          "act": 1,
+          "round": 2,
+          "ref": {
+            "fr": "Carte 3",
+            "en": "Card 3"
+          },
+          "tag": {
+            "fr": "Audit interne · Round 2",
+            "en": "Internal audit · Round 2"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Alerte sur les contrôles",
+            "en": "Controls alert"
+          },
+          "situation": {
+            "fr": "L’audit interne alerte le comité sur la fragilité du dispositif.",
+            "en": "Internal audit warns the committee that the setup is fragile."
+          },
+          "motif": [
+            {
+              "fr": "Absence de contrôle de la data (exhaustivité, qualité)",
+              "en": "No data controls (completeness, quality)"
+            },
+            {
+              "fr": "Dépendance excessive à la PA",
+              "en": "Excessive dependency on the accredited platform"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Fragilité du dispositif",
+              "en": "Fragile setup"
+            },
+            {
+              "fr": "Risque non maîtrisé",
+              "en": "Unmanaged risk"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Minimiser : normal en post go-live",
+                "en": "Play it down: normal after go-live"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Plan de remédiation léger",
+                "en": "Light remediation plan"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Refonte du dispositif de contrôle",
+                "en": "Redesign the control framework"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card4",
+          "act": 1,
+          "round": 3,
+          "ref": {
+            "fr": "Carte 4",
+            "en": "Card 4"
+          },
+          "tag": {
+            "fr": "Crise réputation · Round 3",
+            "en": "Reputation crisis · Round 3"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Article de presse",
+            "en": "Press article"
+          },
+          "situation": {
+            "fr": "Un article paraît : « Grand groupe X en difficulté sur la facturation électronique ».",
+            "en": "An article is published: “Major group X struggling with e-invoicing”."
+          },
+          "motif": [],
+          "impact": [
+            {
+              "fr": "Image dégradée",
+              "en": "Damaged image"
+            },
+            {
+              "fr": "Pression interne et externe",
+              "en": "Internal and external pressure"
+            },
+            {
+              "fr": "Mobilisation de la direction générale",
+              "en": "Executive committee mobilised"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Communication + correctifs rapides",
+                "en": "Communication + quick fixes"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Programme de stabilisation",
+                "en": "Stabilisation programme"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Repositionnement stratégique data et fiscal",
+                "en": "Strategic data and tax repositioning"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act2-step1",
+          "act": 2,
+          "round": 1,
+          "ref": {
+            "fr": "Étape 1/4",
+            "en": "Step 1/4"
+          },
+          "tag": {
+            "fr": "Transformation · Stabilisation",
+            "en": "Transformation · Stabilisation"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Stabiliser ou investir ?",
+            "en": "Stabilise or invest?"
+          },
+          "situation": {
+            "fr": "Votre solution fonctionne, mais elle génère 7 % d’erreurs et un volume élevé de corrections manuelles.",
+            "en": "Your solution works, but it generates 7% errors and a high volume of manual corrections."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Pression forte des équipes",
+            "en": "Strong pressure from the teams"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Corriger au fil de l’eau",
+                "en": "Fix as you go"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Rapide, mais dette cachée",
+                "en": "Fast, but hidden debt"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Corriger les cas critiques",
+                "en": "Fix the critical cases"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Amélioration partielle",
+                "en": "Partial improvement"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Lancer un diagnostic complet de la data",
+                "en": "Launch a full data diagnostic"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Effort élevé, base saine",
+                "en": "High effort, healthy foundation"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step2",
+          "act": 2,
+          "round": 2,
+          "ref": {
+            "fr": "Étape 2/4",
+            "en": "Step 2/4"
+          },
+          "tag": {
+            "fr": "Transformation · Risque fiscal",
+            "en": "Transformation · Tax risk"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Maîtrise ou réaction ?",
+            "en": "Control or reaction?"
+          },
+          "situation": {
+            "fr": "Les premières incohérences sont détectées dans les données de TVA.",
+            "en": "The first inconsistencies are detected in the VAT data."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Risque de contrôle fiscal ciblé",
+            "en": "Risk of a targeted tax audit"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Gérer les anomalies au cas par cas",
+                "en": "Handle anomalies case by case"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Effet pansement",
+                "en": "Sticking-plaster effect"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Renforcer les contrôles existants",
+                "en": "Strengthen existing controls"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Contrôle mais incomplet",
+                "en": "Some control, but incomplete"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Repenser la logique fiscale",
+                "en": "Rethink the tax logic"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Sécurisation durable",
+                "en": "Lasting protection"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step3",
+          "act": 2,
+          "round": 3,
+          "ref": {
+            "fr": "Étape 3/4",
+            "en": "Step 3/4"
+          },
+          "tag": {
+            "fr": "Transformation · Data vs IT",
+            "en": "Transformation · Data vs IT"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Qui pilote ?",
+            "en": "Who is in charge?"
+          },
+          "situation": {
+            "fr": "Les problèmes viennent des données, des référentiels et du mapping. L’IT propose une solution technique rapide.",
+            "en": "The problems come from data, master data and mapping. IT proposes a quick technical fix."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Arbitrage de gouvernance",
+            "en": "Governance trade-off"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Laisser l’IT gérer",
+                "en": "Let IT handle it"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Solution technique limitée",
+                "en": "Limited technical fix"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Co-pilotage IT / fiscal",
+                "en": "Joint IT / tax steering"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Compromis efficace",
+                "en": "Effective compromise"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Gouvernance data transverse",
+                "en": "Cross-functional data governance"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Transformation en profondeur",
+                "en": "Deep transformation"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step4",
+          "act": 2,
+          "round": 4,
+          "ref": {
+            "fr": "Étape 4/4",
+            "en": "Step 4/4"
+          },
+          "tag": {
+            "fr": "Transformation · Vision",
+            "en": "Transformation · Vision"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Ambitieux ou minimaliste ?",
+            "en": "Ambitious or minimalist?"
+          },
+          "situation": {
+            "fr": "Trois trajectoires s’offrent à vous : stabiliser, optimiser ou transformer.",
+            "en": "Three trajectories are open to you: stabilise, optimise or transform."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Budget limité + pression de la direction générale",
+            "en": "Limited budget + pressure from the CEO"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Stabilisation minimale",
+                "en": "Minimal stabilisation"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Conformité fragile",
+                "en": "Fragile compliance"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Optimisation progressive",
+                "en": "Progressive optimisation"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Trajectoire solide",
+                "en": "Solid trajectory"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Transformation data-driven",
+                "en": "Data-driven transformation"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Avantage compétitif",
+                "en": "Competitive advantage"
+              }
+            }
+          ]
+        }
+      ],
+      "log": [
+        {
+          "id": "log_ca08b06995069ef6",
+          "ts": 1789073578410,
+          "type": "session_created",
+          "params": {
+            "name": "test",
+            "teams": 2
+          }
+        }
+      ],
+      "archivedRecordId": null
+    },
+    "sess_7df427f9a7f53a06": {
+      "id": "sess_7df427f9a7f53a06",
+      "code": "8GQQ99",
+      "superKey": "e2ce84150b99d1f27a0cb87252285808",
+      "name": "test",
+      "facilitator": "",
+      "lang": "fr",
+      "status": "lobby",
+      "revealed": false,
+      "revealedAt": null,
+      "createdAt": 1789074271005,
+      "startedAt": null,
+      "endedAt": null,
+      "settings": {
+        "defaultDuration": 300,
+        "teamSize": 6,
+        "arbitrationSeconds": 90,
+        "autoAssignRoles": true,
+        "autoCloseOnAllVotes": true,
+        "allowLateJoin": true,
+        "allowChangeVote": true
+      },
+      "teams": [
+        {
+          "id": "team_067b7f44567a9e46",
+          "name": "Table 1",
+          "adminToken": "676777975aa48c3f2f9ff29254490d8e",
+          "adminCode": "7QZEBL",
+          "hostClaimedAt": 1789074298763,
+          "createdAt": 1789074271006,
+          "players": [],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "wins": 0
+        },
+        {
+          "id": "team_ca086fa2413bb0d5",
+          "name": "Table 2",
+          "adminToken": "771b0e5c08426e418210eb549382f842",
+          "adminCode": "LWG39Q",
+          "hostClaimedAt": null,
+          "createdAt": 1789074271006,
+          "players": [],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "wins": 0
+        }
+      ],
+      "events": [
+        {
+          "id": "act1-card1",
+          "act": 1,
+          "round": 1,
+          "ref": {
+            "fr": "Carte 1",
+            "en": "Card 1"
+          },
+          "tag": {
+            "fr": "Incident opérationnel · Round 1",
+            "en": "Operational incident · Round 1"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Factures rejetées",
+            "en": "Rejected invoices"
+          },
+          "situation": {
+            "fr": "8 % de vos factures sont rejetées par les plateformes de vos clients.",
+            "en": "8% of your invoices are rejected by your customers’ platforms."
+          },
+          "motif": [
+            {
+              "fr": "SIREN erroné (adresse de facturation incorrecte)",
+              "en": "Incorrect company ID (wrong billing address)"
+            },
+            {
+              "fr": "Prix unitaire des biens livrés incohérent avec les négociations commerciales",
+              "en": "Unit price of the delivered goods inconsistent with the commercial terms"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Retards de paiement",
+              "en": "Payment delays"
+            },
+            {
+              "fr": "Saturation des équipes",
+              "en": "Teams overloaded"
+            },
+            {
+              "fr": "Perte de crédibilité client",
+              "en": "Loss of customer credibility"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Correction manuelle rapide",
+                "en": "Quick manual fix"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Patch IT ciblé",
+                "en": "Targeted IT patch"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Audit global des données",
+                "en": "Full data audit"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card2",
+          "act": 1,
+          "round": 2,
+          "ref": {
+            "fr": "Carte 2",
+            "en": "Card 2"
+          },
+          "tag": {
+            "fr": "Escalade fiscale · Round 2",
+            "en": "Tax escalation · Round 2"
+          },
+          "color": "red",
+          "title": {
+            "fr": "DGFIP — incohérences",
+            "en": "Tax authority — inconsistencies"
+          },
+          "situation": {
+            "fr": "L’administration détecte des anomalies et demande une explication formelle.",
+            "en": "The tax authority detects anomalies and requests a formal explanation."
+          },
+          "motif": [
+            {
+              "fr": "Écarts de TVA (montants sur factures v. CA3)",
+              "en": "VAT discrepancies (invoice amounts vs. VAT return)"
+            },
+            {
+              "fr": "Anomalies sur les codes VATEX v. détail à la ligne des opérations",
+              "en": "VATEX code anomalies vs. the line-level detail of the transactions"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Risque de redressement fiscal",
+              "en": "Risk of a tax reassessment"
+            },
+            {
+              "fr": "Exposition financière",
+              "en": "Financial exposure"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Justification a posteriori",
+                "en": "After-the-fact justification"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Correction ciblée",
+                "en": "Targeted correction"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Revue complète du paramétrage de l’ERP et des applicatifs amont",
+                "en": "Full review of the ERP and upstream application settings"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card3",
+          "act": 1,
+          "round": 2,
+          "ref": {
+            "fr": "Carte 3",
+            "en": "Card 3"
+          },
+          "tag": {
+            "fr": "Audit interne · Round 2",
+            "en": "Internal audit · Round 2"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Alerte sur les contrôles",
+            "en": "Controls alert"
+          },
+          "situation": {
+            "fr": "L’audit interne alerte le comité sur la fragilité du dispositif.",
+            "en": "Internal audit warns the committee that the setup is fragile."
+          },
+          "motif": [
+            {
+              "fr": "Absence de contrôle de la data (exhaustivité, qualité)",
+              "en": "No data controls (completeness, quality)"
+            },
+            {
+              "fr": "Dépendance excessive à la PA",
+              "en": "Excessive dependency on the accredited platform"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Fragilité du dispositif",
+              "en": "Fragile setup"
+            },
+            {
+              "fr": "Risque non maîtrisé",
+              "en": "Unmanaged risk"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Minimiser : normal en post go-live",
+                "en": "Play it down: normal after go-live"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Plan de remédiation léger",
+                "en": "Light remediation plan"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Refonte du dispositif de contrôle",
+                "en": "Redesign the control framework"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card4",
+          "act": 1,
+          "round": 3,
+          "ref": {
+            "fr": "Carte 4",
+            "en": "Card 4"
+          },
+          "tag": {
+            "fr": "Crise réputation · Round 3",
+            "en": "Reputation crisis · Round 3"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Article de presse",
+            "en": "Press article"
+          },
+          "situation": {
+            "fr": "Un article paraît : « Grand groupe X en difficulté sur la facturation électronique ».",
+            "en": "An article is published: “Major group X struggling with e-invoicing”."
+          },
+          "motif": [],
+          "impact": [
+            {
+              "fr": "Image dégradée",
+              "en": "Damaged image"
+            },
+            {
+              "fr": "Pression interne et externe",
+              "en": "Internal and external pressure"
+            },
+            {
+              "fr": "Mobilisation de la direction générale",
+              "en": "Executive committee mobilised"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Communication + correctifs rapides",
+                "en": "Communication + quick fixes"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Programme de stabilisation",
+                "en": "Stabilisation programme"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Repositionnement stratégique data et fiscal",
+                "en": "Strategic data and tax repositioning"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act2-step1",
+          "act": 2,
+          "round": 1,
+          "ref": {
+            "fr": "Étape 1/4",
+            "en": "Step 1/4"
+          },
+          "tag": {
+            "fr": "Transformation · Stabilisation",
+            "en": "Transformation · Stabilisation"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Stabiliser ou investir ?",
+            "en": "Stabilise or invest?"
+          },
+          "situation": {
+            "fr": "Votre solution fonctionne, mais elle génère 7 % d’erreurs et un volume élevé de corrections manuelles.",
+            "en": "Your solution works, but it generates 7% errors and a high volume of manual corrections."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Pression forte des équipes",
+            "en": "Strong pressure from the teams"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Corriger au fil de l’eau",
+                "en": "Fix as you go"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Rapide, mais dette cachée",
+                "en": "Fast, but hidden debt"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Corriger les cas critiques",
+                "en": "Fix the critical cases"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Amélioration partielle",
+                "en": "Partial improvement"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Lancer un diagnostic complet de la data",
+                "en": "Launch a full data diagnostic"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Effort élevé, base saine",
+                "en": "High effort, healthy foundation"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step2",
+          "act": 2,
+          "round": 2,
+          "ref": {
+            "fr": "Étape 2/4",
+            "en": "Step 2/4"
+          },
+          "tag": {
+            "fr": "Transformation · Risque fiscal",
+            "en": "Transformation · Tax risk"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Maîtrise ou réaction ?",
+            "en": "Control or reaction?"
+          },
+          "situation": {
+            "fr": "Les premières incohérences sont détectées dans les données de TVA.",
+            "en": "The first inconsistencies are detected in the VAT data."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Risque de contrôle fiscal ciblé",
+            "en": "Risk of a targeted tax audit"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Gérer les anomalies au cas par cas",
+                "en": "Handle anomalies case by case"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Effet pansement",
+                "en": "Sticking-plaster effect"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Renforcer les contrôles existants",
+                "en": "Strengthen existing controls"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Contrôle mais incomplet",
+                "en": "Some control, but incomplete"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Repenser la logique fiscale",
+                "en": "Rethink the tax logic"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Sécurisation durable",
+                "en": "Lasting protection"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step3",
+          "act": 2,
+          "round": 3,
+          "ref": {
+            "fr": "Étape 3/4",
+            "en": "Step 3/4"
+          },
+          "tag": {
+            "fr": "Transformation · Data vs IT",
+            "en": "Transformation · Data vs IT"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Qui pilote ?",
+            "en": "Who is in charge?"
+          },
+          "situation": {
+            "fr": "Les problèmes viennent des données, des référentiels et du mapping. L’IT propose une solution technique rapide.",
+            "en": "The problems come from data, master data and mapping. IT proposes a quick technical fix."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Arbitrage de gouvernance",
+            "en": "Governance trade-off"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Laisser l’IT gérer",
+                "en": "Let IT handle it"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Solution technique limitée",
+                "en": "Limited technical fix"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Co-pilotage IT / fiscal",
+                "en": "Joint IT / tax steering"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Compromis efficace",
+                "en": "Effective compromise"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Gouvernance data transverse",
+                "en": "Cross-functional data governance"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Transformation en profondeur",
+                "en": "Deep transformation"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step4",
+          "act": 2,
+          "round": 4,
+          "ref": {
+            "fr": "Étape 4/4",
+            "en": "Step 4/4"
+          },
+          "tag": {
+            "fr": "Transformation · Vision",
+            "en": "Transformation · Vision"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Ambitieux ou minimaliste ?",
+            "en": "Ambitious or minimalist?"
+          },
+          "situation": {
+            "fr": "Trois trajectoires s’offrent à vous : stabiliser, optimiser ou transformer.",
+            "en": "Three trajectories are open to you: stabilise, optimise or transform."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Budget limité + pression de la direction générale",
+            "en": "Limited budget + pressure from the CEO"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Stabilisation minimale",
+                "en": "Minimal stabilisation"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Conformité fragile",
+                "en": "Fragile compliance"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Optimisation progressive",
+                "en": "Progressive optimisation"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Trajectoire solide",
+                "en": "Solid trajectory"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Transformation data-driven",
+                "en": "Data-driven transformation"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Avantage compétitif",
+                "en": "Competitive advantage"
+              }
+            }
+          ]
+        }
+      ],
+      "log": [
+        {
+          "id": "log_4a7c140708827621",
+          "ts": 1789074271006,
+          "type": "session_created",
+          "params": {
+            "name": "test",
+            "teams": 2
+          }
+        },
+        {
+          "id": "log_a0f88b8ea72f9b4a",
+          "ts": 1789074298763,
+          "type": "table_claimed",
+          "params": {
+            "team": "Table 1"
+          }
+        }
+      ],
+      "archivedRecordId": null
+    },
+    "sess_2805956f0dfce13f": {
+      "id": "sess_2805956f0dfce13f",
+      "code": "365HFF",
+      "superKey": "54977e06d8a146167f7e853c95d2636f",
+      "name": "test",
+      "facilitator": "",
+      "lang": "fr",
+      "status": "lobby",
+      "revealed": false,
+      "revealedAt": null,
+      "createdAt": 1789075137621,
+      "startedAt": null,
+      "endedAt": null,
+      "settings": {
+        "defaultDuration": 300,
+        "teamSize": 2,
+        "arbitrationSeconds": 90,
+        "autoAssignRoles": true,
+        "autoCloseOnAllVotes": true,
+        "allowLateJoin": true,
+        "allowChangeVote": true
+      },
+      "teams": [
+        {
+          "id": "team_da5a668b9bededc7",
+          "name": "Table 1",
+          "adminToken": "2b6cd9954d5b93fb82001c05e0cba87a",
+          "adminCode": "3WSCLH",
+          "hostClaimedAt": null,
+          "createdAt": 1789075137621,
+          "players": [],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "wins": 0
+        },
+        {
+          "id": "team_8fedca28241ca55d",
+          "name": "Table 2",
+          "adminToken": "d0c5bda38f920833aaf4fe1bae7f77ad",
+          "adminCode": "4D2JFH",
+          "hostClaimedAt": null,
+          "createdAt": 1789075137621,
+          "players": [],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "wins": 0
+        }
+      ],
+      "events": [
+        {
+          "id": "act1-card1",
+          "act": 1,
+          "round": 1,
+          "ref": {
+            "fr": "Carte 1",
+            "en": "Card 1"
+          },
+          "tag": {
+            "fr": "Incident opérationnel · Round 1",
+            "en": "Operational incident · Round 1"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Factures rejetées",
+            "en": "Rejected invoices"
+          },
+          "situation": {
+            "fr": "8 % de vos factures sont rejetées par les plateformes de vos clients.",
+            "en": "8% of your invoices are rejected by your customers’ platforms."
+          },
+          "motif": [
+            {
+              "fr": "SIREN erroné (adresse de facturation incorrecte)",
+              "en": "Incorrect company ID (wrong billing address)"
+            },
+            {
+              "fr": "Prix unitaire des biens livrés incohérent avec les négociations commerciales",
+              "en": "Unit price of the delivered goods inconsistent with the commercial terms"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Retards de paiement",
+              "en": "Payment delays"
+            },
+            {
+              "fr": "Saturation des équipes",
+              "en": "Teams overloaded"
+            },
+            {
+              "fr": "Perte de crédibilité client",
+              "en": "Loss of customer credibility"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Correction manuelle rapide",
+                "en": "Quick manual fix"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Patch IT ciblé",
+                "en": "Targeted IT patch"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Audit global des données",
+                "en": "Full data audit"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card2",
+          "act": 1,
+          "round": 2,
+          "ref": {
+            "fr": "Carte 2",
+            "en": "Card 2"
+          },
+          "tag": {
+            "fr": "Escalade fiscale · Round 2",
+            "en": "Tax escalation · Round 2"
+          },
+          "color": "red",
+          "title": {
+            "fr": "DGFIP — incohérences",
+            "en": "Tax authority — inconsistencies"
+          },
+          "situation": {
+            "fr": "L’administration détecte des anomalies et demande une explication formelle.",
+            "en": "The tax authority detects anomalies and requests a formal explanation."
+          },
+          "motif": [
+            {
+              "fr": "Écarts de TVA (montants sur factures v. CA3)",
+              "en": "VAT discrepancies (invoice amounts vs. VAT return)"
+            },
+            {
+              "fr": "Anomalies sur les codes VATEX v. détail à la ligne des opérations",
+              "en": "VATEX code anomalies vs. the line-level detail of the transactions"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Risque de redressement fiscal",
+              "en": "Risk of a tax reassessment"
+            },
+            {
+              "fr": "Exposition financière",
+              "en": "Financial exposure"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Justification a posteriori",
+                "en": "After-the-fact justification"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Correction ciblée",
+                "en": "Targeted correction"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Revue complète du paramétrage de l’ERP et des applicatifs amont",
+                "en": "Full review of the ERP and upstream application settings"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card3",
+          "act": 1,
+          "round": 2,
+          "ref": {
+            "fr": "Carte 3",
+            "en": "Card 3"
+          },
+          "tag": {
+            "fr": "Audit interne · Round 2",
+            "en": "Internal audit · Round 2"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Alerte sur les contrôles",
+            "en": "Controls alert"
+          },
+          "situation": {
+            "fr": "L’audit interne alerte le comité sur la fragilité du dispositif.",
+            "en": "Internal audit warns the committee that the setup is fragile."
+          },
+          "motif": [
+            {
+              "fr": "Absence de contrôle de la data (exhaustivité, qualité)",
+              "en": "No data controls (completeness, quality)"
+            },
+            {
+              "fr": "Dépendance excessive à la PA",
+              "en": "Excessive dependency on the accredited platform"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Fragilité du dispositif",
+              "en": "Fragile setup"
+            },
+            {
+              "fr": "Risque non maîtrisé",
+              "en": "Unmanaged risk"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Minimiser : normal en post go-live",
+                "en": "Play it down: normal after go-live"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Plan de remédiation léger",
+                "en": "Light remediation plan"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Refonte du dispositif de contrôle",
+                "en": "Redesign the control framework"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card4",
+          "act": 1,
+          "round": 3,
+          "ref": {
+            "fr": "Carte 4",
+            "en": "Card 4"
+          },
+          "tag": {
+            "fr": "Crise réputation · Round 3",
+            "en": "Reputation crisis · Round 3"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Article de presse",
+            "en": "Press article"
+          },
+          "situation": {
+            "fr": "Un article paraît : « Grand groupe X en difficulté sur la facturation électronique ».",
+            "en": "An article is published: “Major group X struggling with e-invoicing”."
+          },
+          "motif": [],
+          "impact": [
+            {
+              "fr": "Image dégradée",
+              "en": "Damaged image"
+            },
+            {
+              "fr": "Pression interne et externe",
+              "en": "Internal and external pressure"
+            },
+            {
+              "fr": "Mobilisation de la direction générale",
+              "en": "Executive committee mobilised"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Communication + correctifs rapides",
+                "en": "Communication + quick fixes"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Programme de stabilisation",
+                "en": "Stabilisation programme"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Repositionnement stratégique data et fiscal",
+                "en": "Strategic data and tax repositioning"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act2-step1",
+          "act": 2,
+          "round": 1,
+          "ref": {
+            "fr": "Étape 1/4",
+            "en": "Step 1/4"
+          },
+          "tag": {
+            "fr": "Transformation · Stabilisation",
+            "en": "Transformation · Stabilisation"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Stabiliser ou investir ?",
+            "en": "Stabilise or invest?"
+          },
+          "situation": {
+            "fr": "Votre solution fonctionne, mais elle génère 7 % d’erreurs et un volume élevé de corrections manuelles.",
+            "en": "Your solution works, but it generates 7% errors and a high volume of manual corrections."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Pression forte des équipes",
+            "en": "Strong pressure from the teams"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Corriger au fil de l’eau",
+                "en": "Fix as you go"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Rapide, mais dette cachée",
+                "en": "Fast, but hidden debt"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Corriger les cas critiques",
+                "en": "Fix the critical cases"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Amélioration partielle",
+                "en": "Partial improvement"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Lancer un diagnostic complet de la data",
+                "en": "Launch a full data diagnostic"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Effort élevé, base saine",
+                "en": "High effort, healthy foundation"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step2",
+          "act": 2,
+          "round": 2,
+          "ref": {
+            "fr": "Étape 2/4",
+            "en": "Step 2/4"
+          },
+          "tag": {
+            "fr": "Transformation · Risque fiscal",
+            "en": "Transformation · Tax risk"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Maîtrise ou réaction ?",
+            "en": "Control or reaction?"
+          },
+          "situation": {
+            "fr": "Les premières incohérences sont détectées dans les données de TVA.",
+            "en": "The first inconsistencies are detected in the VAT data."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Risque de contrôle fiscal ciblé",
+            "en": "Risk of a targeted tax audit"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Gérer les anomalies au cas par cas",
+                "en": "Handle anomalies case by case"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Effet pansement",
+                "en": "Sticking-plaster effect"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Renforcer les contrôles existants",
+                "en": "Strengthen existing controls"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Contrôle mais incomplet",
+                "en": "Some control, but incomplete"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Repenser la logique fiscale",
+                "en": "Rethink the tax logic"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Sécurisation durable",
+                "en": "Lasting protection"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step3",
+          "act": 2,
+          "round": 3,
+          "ref": {
+            "fr": "Étape 3/4",
+            "en": "Step 3/4"
+          },
+          "tag": {
+            "fr": "Transformation · Data vs IT",
+            "en": "Transformation · Data vs IT"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Qui pilote ?",
+            "en": "Who is in charge?"
+          },
+          "situation": {
+            "fr": "Les problèmes viennent des données, des référentiels et du mapping. L’IT propose une solution technique rapide.",
+            "en": "The problems come from data, master data and mapping. IT proposes a quick technical fix."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Arbitrage de gouvernance",
+            "en": "Governance trade-off"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Laisser l’IT gérer",
+                "en": "Let IT handle it"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Solution technique limitée",
+                "en": "Limited technical fix"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Co-pilotage IT / fiscal",
+                "en": "Joint IT / tax steering"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Compromis efficace",
+                "en": "Effective compromise"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Gouvernance data transverse",
+                "en": "Cross-functional data governance"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Transformation en profondeur",
+                "en": "Deep transformation"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step4",
+          "act": 2,
+          "round": 4,
+          "ref": {
+            "fr": "Étape 4/4",
+            "en": "Step 4/4"
+          },
+          "tag": {
+            "fr": "Transformation · Vision",
+            "en": "Transformation · Vision"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Ambitieux ou minimaliste ?",
+            "en": "Ambitious or minimalist?"
+          },
+          "situation": {
+            "fr": "Trois trajectoires s’offrent à vous : stabiliser, optimiser ou transformer.",
+            "en": "Three trajectories are open to you: stabilise, optimise or transform."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Budget limité + pression de la direction générale",
+            "en": "Limited budget + pressure from the CEO"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Stabilisation minimale",
+                "en": "Minimal stabilisation"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Conformité fragile",
+                "en": "Fragile compliance"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Optimisation progressive",
+                "en": "Progressive optimisation"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Trajectoire solide",
+                "en": "Solid trajectory"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Transformation data-driven",
+                "en": "Data-driven transformation"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Avantage compétitif",
+                "en": "Competitive advantage"
+              }
+            }
+          ]
+        }
+      ],
+      "log": [
+        {
+          "id": "log_e792d1435fec3022",
+          "ts": 1789075137621,
+          "type": "session_created",
+          "params": {
+            "name": "test",
+            "teams": 2
+          }
+        }
+      ],
+      "archivedRecordId": null
+    },
+    "sess_347587a6c9bad493": {
+      "id": "sess_347587a6c9bad493",
+      "code": "98FE6Q",
+      "superKey": "0595739ba6a1798626a14292f1a4b93f",
+      "name": "test",
+      "facilitator": "",
+      "lang": "fr",
+      "status": "lobby",
+      "revealed": false,
+      "revealedAt": null,
+      "createdAt": 1789075154065,
+      "startedAt": null,
+      "endedAt": null,
+      "settings": {
+        "defaultDuration": 300,
+        "teamSize": 6,
+        "arbitrationSeconds": 90,
+        "autoAssignRoles": true,
+        "autoCloseOnAllVotes": true,
+        "allowLateJoin": true,
+        "allowChangeVote": true
+      },
+      "teams": [
+        {
+          "id": "team_f5cb85b15dec5464",
+          "name": "Table 1",
+          "adminToken": "977951980bb7679d1713dc176a4d6203",
+          "adminCode": "Z367UC",
+          "hostClaimedAt": 1789075181030,
+          "createdAt": 1789075154065,
+          "players": [],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "wins": 0
+        },
+        {
+          "id": "team_462b35429531eb35",
+          "name": "Table 2",
+          "adminToken": "cdc59bdbdd51e25c90a7a012eb80456d",
+          "adminCode": "BZRRN7",
+          "hostClaimedAt": null,
+          "createdAt": 1789075154065,
+          "players": [],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "wins": 0
+        }
+      ],
+      "events": [
+        {
+          "id": "act1-card1",
+          "act": 1,
+          "round": 1,
+          "ref": {
+            "fr": "Carte 1",
+            "en": "Card 1"
+          },
+          "tag": {
+            "fr": "Incident opérationnel · Round 1",
+            "en": "Operational incident · Round 1"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Factures rejetées",
+            "en": "Rejected invoices"
+          },
+          "situation": {
+            "fr": "8 % de vos factures sont rejetées par les plateformes de vos clients.",
+            "en": "8% of your invoices are rejected by your customers’ platforms."
+          },
+          "motif": [
+            {
+              "fr": "SIREN erroné (adresse de facturation incorrecte)",
+              "en": "Incorrect company ID (wrong billing address)"
+            },
+            {
+              "fr": "Prix unitaire des biens livrés incohérent avec les négociations commerciales",
+              "en": "Unit price of the delivered goods inconsistent with the commercial terms"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Retards de paiement",
+              "en": "Payment delays"
+            },
+            {
+              "fr": "Saturation des équipes",
+              "en": "Teams overloaded"
+            },
+            {
+              "fr": "Perte de crédibilité client",
+              "en": "Loss of customer credibility"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Correction manuelle rapide",
+                "en": "Quick manual fix"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Patch IT ciblé",
+                "en": "Targeted IT patch"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Audit global des données",
+                "en": "Full data audit"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card2",
+          "act": 1,
+          "round": 2,
+          "ref": {
+            "fr": "Carte 2",
+            "en": "Card 2"
+          },
+          "tag": {
+            "fr": "Escalade fiscale · Round 2",
+            "en": "Tax escalation · Round 2"
+          },
+          "color": "red",
+          "title": {
+            "fr": "DGFIP — incohérences",
+            "en": "Tax authority — inconsistencies"
+          },
+          "situation": {
+            "fr": "L’administration détecte des anomalies et demande une explication formelle.",
+            "en": "The tax authority detects anomalies and requests a formal explanation."
+          },
+          "motif": [
+            {
+              "fr": "Écarts de TVA (montants sur factures v. CA3)",
+              "en": "VAT discrepancies (invoice amounts vs. VAT return)"
+            },
+            {
+              "fr": "Anomalies sur les codes VATEX v. détail à la ligne des opérations",
+              "en": "VATEX code anomalies vs. the line-level detail of the transactions"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Risque de redressement fiscal",
+              "en": "Risk of a tax reassessment"
+            },
+            {
+              "fr": "Exposition financière",
+              "en": "Financial exposure"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Justification a posteriori",
+                "en": "After-the-fact justification"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Correction ciblée",
+                "en": "Targeted correction"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Revue complète du paramétrage de l’ERP et des applicatifs amont",
+                "en": "Full review of the ERP and upstream application settings"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card3",
+          "act": 1,
+          "round": 2,
+          "ref": {
+            "fr": "Carte 3",
+            "en": "Card 3"
+          },
+          "tag": {
+            "fr": "Audit interne · Round 2",
+            "en": "Internal audit · Round 2"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Alerte sur les contrôles",
+            "en": "Controls alert"
+          },
+          "situation": {
+            "fr": "L’audit interne alerte le comité sur la fragilité du dispositif.",
+            "en": "Internal audit warns the committee that the setup is fragile."
+          },
+          "motif": [
+            {
+              "fr": "Absence de contrôle de la data (exhaustivité, qualité)",
+              "en": "No data controls (completeness, quality)"
+            },
+            {
+              "fr": "Dépendance excessive à la PA",
+              "en": "Excessive dependency on the accredited platform"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Fragilité du dispositif",
+              "en": "Fragile setup"
+            },
+            {
+              "fr": "Risque non maîtrisé",
+              "en": "Unmanaged risk"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Minimiser : normal en post go-live",
+                "en": "Play it down: normal after go-live"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Plan de remédiation léger",
+                "en": "Light remediation plan"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Refonte du dispositif de contrôle",
+                "en": "Redesign the control framework"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card4",
+          "act": 1,
+          "round": 3,
+          "ref": {
+            "fr": "Carte 4",
+            "en": "Card 4"
+          },
+          "tag": {
+            "fr": "Crise réputation · Round 3",
+            "en": "Reputation crisis · Round 3"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Article de presse",
+            "en": "Press article"
+          },
+          "situation": {
+            "fr": "Un article paraît : « Grand groupe X en difficulté sur la facturation électronique ».",
+            "en": "An article is published: “Major group X struggling with e-invoicing”."
+          },
+          "motif": [],
+          "impact": [
+            {
+              "fr": "Image dégradée",
+              "en": "Damaged image"
+            },
+            {
+              "fr": "Pression interne et externe",
+              "en": "Internal and external pressure"
+            },
+            {
+              "fr": "Mobilisation de la direction générale",
+              "en": "Executive committee mobilised"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Communication + correctifs rapides",
+                "en": "Communication + quick fixes"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Programme de stabilisation",
+                "en": "Stabilisation programme"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Repositionnement stratégique data et fiscal",
+                "en": "Strategic data and tax repositioning"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act2-step1",
+          "act": 2,
+          "round": 1,
+          "ref": {
+            "fr": "Étape 1/4",
+            "en": "Step 1/4"
+          },
+          "tag": {
+            "fr": "Transformation · Stabilisation",
+            "en": "Transformation · Stabilisation"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Stabiliser ou investir ?",
+            "en": "Stabilise or invest?"
+          },
+          "situation": {
+            "fr": "Votre solution fonctionne, mais elle génère 7 % d’erreurs et un volume élevé de corrections manuelles.",
+            "en": "Your solution works, but it generates 7% errors and a high volume of manual corrections."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Pression forte des équipes",
+            "en": "Strong pressure from the teams"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Corriger au fil de l’eau",
+                "en": "Fix as you go"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Rapide, mais dette cachée",
+                "en": "Fast, but hidden debt"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Corriger les cas critiques",
+                "en": "Fix the critical cases"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Amélioration partielle",
+                "en": "Partial improvement"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Lancer un diagnostic complet de la data",
+                "en": "Launch a full data diagnostic"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Effort élevé, base saine",
+                "en": "High effort, healthy foundation"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step2",
+          "act": 2,
+          "round": 2,
+          "ref": {
+            "fr": "Étape 2/4",
+            "en": "Step 2/4"
+          },
+          "tag": {
+            "fr": "Transformation · Risque fiscal",
+            "en": "Transformation · Tax risk"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Maîtrise ou réaction ?",
+            "en": "Control or reaction?"
+          },
+          "situation": {
+            "fr": "Les premières incohérences sont détectées dans les données de TVA.",
+            "en": "The first inconsistencies are detected in the VAT data."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Risque de contrôle fiscal ciblé",
+            "en": "Risk of a targeted tax audit"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Gérer les anomalies au cas par cas",
+                "en": "Handle anomalies case by case"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Effet pansement",
+                "en": "Sticking-plaster effect"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Renforcer les contrôles existants",
+                "en": "Strengthen existing controls"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Contrôle mais incomplet",
+                "en": "Some control, but incomplete"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Repenser la logique fiscale",
+                "en": "Rethink the tax logic"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Sécurisation durable",
+                "en": "Lasting protection"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step3",
+          "act": 2,
+          "round": 3,
+          "ref": {
+            "fr": "Étape 3/4",
+            "en": "Step 3/4"
+          },
+          "tag": {
+            "fr": "Transformation · Data vs IT",
+            "en": "Transformation · Data vs IT"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Qui pilote ?",
+            "en": "Who is in charge?"
+          },
+          "situation": {
+            "fr": "Les problèmes viennent des données, des référentiels et du mapping. L’IT propose une solution technique rapide.",
+            "en": "The problems come from data, master data and mapping. IT proposes a quick technical fix."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Arbitrage de gouvernance",
+            "en": "Governance trade-off"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Laisser l’IT gérer",
+                "en": "Let IT handle it"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Solution technique limitée",
+                "en": "Limited technical fix"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Co-pilotage IT / fiscal",
+                "en": "Joint IT / tax steering"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Compromis efficace",
+                "en": "Effective compromise"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Gouvernance data transverse",
+                "en": "Cross-functional data governance"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Transformation en profondeur",
+                "en": "Deep transformation"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step4",
+          "act": 2,
+          "round": 4,
+          "ref": {
+            "fr": "Étape 4/4",
+            "en": "Step 4/4"
+          },
+          "tag": {
+            "fr": "Transformation · Vision",
+            "en": "Transformation · Vision"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Ambitieux ou minimaliste ?",
+            "en": "Ambitious or minimalist?"
+          },
+          "situation": {
+            "fr": "Trois trajectoires s’offrent à vous : stabiliser, optimiser ou transformer.",
+            "en": "Three trajectories are open to you: stabilise, optimise or transform."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Budget limité + pression de la direction générale",
+            "en": "Limited budget + pressure from the CEO"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Stabilisation minimale",
+                "en": "Minimal stabilisation"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Conformité fragile",
+                "en": "Fragile compliance"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Optimisation progressive",
+                "en": "Progressive optimisation"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Trajectoire solide",
+                "en": "Solid trajectory"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Transformation data-driven",
+                "en": "Data-driven transformation"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Avantage compétitif",
+                "en": "Competitive advantage"
+              }
+            }
+          ]
+        }
+      ],
+      "log": [
+        {
+          "id": "log_b8bab54fe312590f",
+          "ts": 1789075154065,
+          "type": "session_created",
+          "params": {
+            "name": "test",
+            "teams": 2
+          }
+        },
+        {
+          "id": "log_a6708b8013f69f7c",
+          "ts": 1789075181030,
+          "type": "table_claimed",
+          "params": {
+            "team": "Table 1"
+          }
+        }
+      ],
+      "archivedRecordId": null
+    },
+    "sess_856505bef1cb740f": {
+      "id": "sess_856505bef1cb740f",
+      "code": "A2ARS7",
+      "superKey": "644f1cf73f27d451fdede41b425d671b",
+      "name": "test",
+      "facilitator": "",
+      "lang": "fr",
+      "status": "lobby",
+      "revealed": false,
+      "revealedAt": null,
+      "createdAt": 1789110754299,
+      "startedAt": null,
+      "endedAt": null,
+      "settings": {
+        "defaultDuration": 300,
+        "teamSize": 6,
+        "arbitrationSeconds": 90,
+        "autoAssignRoles": true,
+        "autoCloseOnAllVotes": true,
+        "allowLateJoin": true,
+        "allowChangeVote": true
+      },
+      "teams": [
+        {
+          "id": "team_66f8cb0d0ed5b696",
+          "name": "Table 1",
+          "adminToken": "345ebc044af23865c009a5ed5945f9d3",
+          "adminCode": "5NMCWC",
+          "hostClaimedAt": 1789110840079,
+          "createdAt": 1789110754299,
+          "players": [
+            {
+              "id": "pl_e2ba7617d77e1497",
+              "token": "b28a2c159dbd82cc90ddd30ca58803ee",
+              "name": "mer1",
+              "roleId": null,
+              "sockets": 0,
+              "joinedAt": 1789110796281
+            }
+          ],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "wins": 0
+        },
+        {
+          "id": "team_12ca7f951eb53b9a",
+          "name": "Table 2",
+          "adminToken": "836f7186340cb252c270b4d8faa0afe0",
+          "adminCode": "PJ6JU5",
+          "hostClaimedAt": 1789110855263,
+          "createdAt": 1789110754299,
+          "players": [
+            {
+              "id": "pl_91a9c78c18daec36",
+              "token": "ccaffd4a579d75a98c56da80ff6acca7",
+              "name": "test2",
+              "roleId": null,
+              "sockets": 0,
+              "joinedAt": 1789110812395
+            }
+          ],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "wins": 0
+        }
+      ],
+      "events": [
+        {
+          "id": "act1-card1",
+          "act": 1,
+          "round": 1,
+          "ref": {
+            "fr": "Carte 1",
+            "en": "Card 1"
+          },
+          "tag": {
+            "fr": "Incident opérationnel · Round 1",
+            "en": "Operational incident · Round 1"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Factures rejetées",
+            "en": "Rejected invoices"
+          },
+          "situation": {
+            "fr": "8 % de vos factures sont rejetées par les plateformes de vos clients.",
+            "en": "8% of your invoices are rejected by your customers’ platforms."
+          },
+          "motif": [
+            {
+              "fr": "SIREN erroné (adresse de facturation incorrecte)",
+              "en": "Incorrect company ID (wrong billing address)"
+            },
+            {
+              "fr": "Prix unitaire des biens livrés incohérent avec les négociations commerciales",
+              "en": "Unit price of the delivered goods inconsistent with the commercial terms"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Retards de paiement",
+              "en": "Payment delays"
+            },
+            {
+              "fr": "Saturation des équipes",
+              "en": "Teams overloaded"
+            },
+            {
+              "fr": "Perte de crédibilité client",
+              "en": "Loss of customer credibility"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Correction manuelle rapide",
+                "en": "Quick manual fix"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Patch IT ciblé",
+                "en": "Targeted IT patch"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Audit global des données",
+                "en": "Full data audit"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card2",
+          "act": 1,
+          "round": 2,
+          "ref": {
+            "fr": "Carte 2",
+            "en": "Card 2"
+          },
+          "tag": {
+            "fr": "Escalade fiscale · Round 2",
+            "en": "Tax escalation · Round 2"
+          },
+          "color": "red",
+          "title": {
+            "fr": "DGFIP — incohérences",
+            "en": "Tax authority — inconsistencies"
+          },
+          "situation": {
+            "fr": "L’administration détecte des anomalies et demande une explication formelle.",
+            "en": "The tax authority detects anomalies and requests a formal explanation."
+          },
+          "motif": [
+            {
+              "fr": "Écarts de TVA (montants sur factures v. CA3)",
+              "en": "VAT discrepancies (invoice amounts vs. VAT return)"
+            },
+            {
+              "fr": "Anomalies sur les codes VATEX v. détail à la ligne des opérations",
+              "en": "VATEX code anomalies vs. the line-level detail of the transactions"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Risque de redressement fiscal",
+              "en": "Risk of a tax reassessment"
+            },
+            {
+              "fr": "Exposition financière",
+              "en": "Financial exposure"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Justification a posteriori",
+                "en": "After-the-fact justification"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Correction ciblée",
+                "en": "Targeted correction"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Revue complète du paramétrage de l’ERP et des applicatifs amont",
+                "en": "Full review of the ERP and upstream application settings"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card3",
+          "act": 1,
+          "round": 2,
+          "ref": {
+            "fr": "Carte 3",
+            "en": "Card 3"
+          },
+          "tag": {
+            "fr": "Audit interne · Round 2",
+            "en": "Internal audit · Round 2"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Alerte sur les contrôles",
+            "en": "Controls alert"
+          },
+          "situation": {
+            "fr": "L’audit interne alerte le comité sur la fragilité du dispositif.",
+            "en": "Internal audit warns the committee that the setup is fragile."
+          },
+          "motif": [
+            {
+              "fr": "Absence de contrôle de la data (exhaustivité, qualité)",
+              "en": "No data controls (completeness, quality)"
+            },
+            {
+              "fr": "Dépendance excessive à la PA",
+              "en": "Excessive dependency on the accredited platform"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Fragilité du dispositif",
+              "en": "Fragile setup"
+            },
+            {
+              "fr": "Risque non maîtrisé",
+              "en": "Unmanaged risk"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Minimiser : normal en post go-live",
+                "en": "Play it down: normal after go-live"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Plan de remédiation léger",
+                "en": "Light remediation plan"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Refonte du dispositif de contrôle",
+                "en": "Redesign the control framework"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card4",
+          "act": 1,
+          "round": 3,
+          "ref": {
+            "fr": "Carte 4",
+            "en": "Card 4"
+          },
+          "tag": {
+            "fr": "Crise réputation · Round 3",
+            "en": "Reputation crisis · Round 3"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Article de presse",
+            "en": "Press article"
+          },
+          "situation": {
+            "fr": "Un article paraît : « Grand groupe X en difficulté sur la facturation électronique ».",
+            "en": "An article is published: “Major group X struggling with e-invoicing”."
+          },
+          "motif": [],
+          "impact": [
+            {
+              "fr": "Image dégradée",
+              "en": "Damaged image"
+            },
+            {
+              "fr": "Pression interne et externe",
+              "en": "Internal and external pressure"
+            },
+            {
+              "fr": "Mobilisation de la direction générale",
+              "en": "Executive committee mobilised"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Communication + correctifs rapides",
+                "en": "Communication + quick fixes"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Programme de stabilisation",
+                "en": "Stabilisation programme"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Repositionnement stratégique data et fiscal",
+                "en": "Strategic data and tax repositioning"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act2-step1",
+          "act": 2,
+          "round": 1,
+          "ref": {
+            "fr": "Étape 1/4",
+            "en": "Step 1/4"
+          },
+          "tag": {
+            "fr": "Transformation · Stabilisation",
+            "en": "Transformation · Stabilisation"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Stabiliser ou investir ?",
+            "en": "Stabilise or invest?"
+          },
+          "situation": {
+            "fr": "Votre solution fonctionne, mais elle génère 7 % d’erreurs et un volume élevé de corrections manuelles.",
+            "en": "Your solution works, but it generates 7% errors and a high volume of manual corrections."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Pression forte des équipes",
+            "en": "Strong pressure from the teams"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Corriger au fil de l’eau",
+                "en": "Fix as you go"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Rapide, mais dette cachée",
+                "en": "Fast, but hidden debt"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Corriger les cas critiques",
+                "en": "Fix the critical cases"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Amélioration partielle",
+                "en": "Partial improvement"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Lancer un diagnostic complet de la data",
+                "en": "Launch a full data diagnostic"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Effort élevé, base saine",
+                "en": "High effort, healthy foundation"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step2",
+          "act": 2,
+          "round": 2,
+          "ref": {
+            "fr": "Étape 2/4",
+            "en": "Step 2/4"
+          },
+          "tag": {
+            "fr": "Transformation · Risque fiscal",
+            "en": "Transformation · Tax risk"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Maîtrise ou réaction ?",
+            "en": "Control or reaction?"
+          },
+          "situation": {
+            "fr": "Les premières incohérences sont détectées dans les données de TVA.",
+            "en": "The first inconsistencies are detected in the VAT data."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Risque de contrôle fiscal ciblé",
+            "en": "Risk of a targeted tax audit"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Gérer les anomalies au cas par cas",
+                "en": "Handle anomalies case by case"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Effet pansement",
+                "en": "Sticking-plaster effect"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Renforcer les contrôles existants",
+                "en": "Strengthen existing controls"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Contrôle mais incomplet",
+                "en": "Some control, but incomplete"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Repenser la logique fiscale",
+                "en": "Rethink the tax logic"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Sécurisation durable",
+                "en": "Lasting protection"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step3",
+          "act": 2,
+          "round": 3,
+          "ref": {
+            "fr": "Étape 3/4",
+            "en": "Step 3/4"
+          },
+          "tag": {
+            "fr": "Transformation · Data vs IT",
+            "en": "Transformation · Data vs IT"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Qui pilote ?",
+            "en": "Who is in charge?"
+          },
+          "situation": {
+            "fr": "Les problèmes viennent des données, des référentiels et du mapping. L’IT propose une solution technique rapide.",
+            "en": "The problems come from data, master data and mapping. IT proposes a quick technical fix."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Arbitrage de gouvernance",
+            "en": "Governance trade-off"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Laisser l’IT gérer",
+                "en": "Let IT handle it"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Solution technique limitée",
+                "en": "Limited technical fix"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Co-pilotage IT / fiscal",
+                "en": "Joint IT / tax steering"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Compromis efficace",
+                "en": "Effective compromise"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Gouvernance data transverse",
+                "en": "Cross-functional data governance"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Transformation en profondeur",
+                "en": "Deep transformation"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step4",
+          "act": 2,
+          "round": 4,
+          "ref": {
+            "fr": "Étape 4/4",
+            "en": "Step 4/4"
+          },
+          "tag": {
+            "fr": "Transformation · Vision",
+            "en": "Transformation · Vision"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Ambitieux ou minimaliste ?",
+            "en": "Ambitious or minimalist?"
+          },
+          "situation": {
+            "fr": "Trois trajectoires s’offrent à vous : stabiliser, optimiser ou transformer.",
+            "en": "Three trajectories are open to you: stabilise, optimise or transform."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Budget limité + pression de la direction générale",
+            "en": "Limited budget + pressure from the CEO"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Stabilisation minimale",
+                "en": "Minimal stabilisation"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Conformité fragile",
+                "en": "Fragile compliance"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Optimisation progressive",
+                "en": "Progressive optimisation"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Trajectoire solide",
+                "en": "Solid trajectory"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Transformation data-driven",
+                "en": "Data-driven transformation"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Avantage compétitif",
+                "en": "Competitive advantage"
+              }
+            }
+          ]
+        }
+      ],
+      "log": [
+        {
+          "id": "log_9258bb274850004e",
+          "ts": 1789110754299,
+          "type": "session_created",
+          "params": {
+            "name": "test",
+            "teams": 2
+          }
+        },
+        {
+          "id": "log_319537befd4637f9",
+          "ts": 1789110796281,
+          "type": "player_joined",
+          "params": {
+            "player": "mer1",
+            "team": "Table 1"
+          }
+        },
+        {
+          "id": "log_da103bce5fdc5183",
+          "ts": 1789110812395,
+          "type": "player_joined",
+          "params": {
+            "player": "test2",
+            "team": "Table 2"
+          }
+        },
+        {
+          "id": "log_f9bdac56800f07bb",
+          "ts": 1789110840079,
+          "type": "table_claimed",
+          "params": {
+            "team": "Table 1"
+          }
+        },
+        {
+          "id": "log_235f3dcbeb020c25",
+          "ts": 1789110855263,
+          "type": "table_claimed",
+          "params": {
+            "team": "Table 2"
+          }
+        }
+      ],
+      "archivedRecordId": null
+    },
+    "sess_c055a05668a62189": {
+      "id": "sess_c055a05668a62189",
+      "code": "CNZ4DR",
+      "superKey": "7853c9a7d07b9f9e61c2ac118087638a",
+      "name": "test 1",
+      "facilitator": "",
+      "lang": "fr",
+      "status": "lobby",
+      "revealed": false,
+      "revealedAt": null,
+      "createdAt": 1789118125371,
+      "startedAt": null,
+      "endedAt": null,
+      "settings": {
+        "defaultDuration": 300,
+        "teamSize": 6,
+        "arbitrationSeconds": 90,
+        "autoAssignRoles": true,
+        "autoCloseOnAllVotes": true,
+        "allowLateJoin": true,
+        "allowChangeVote": true
+      },
+      "teams": [
+        {
+          "id": "team_5583f23ec1004652",
+          "name": "test 1 · Table 1",
+          "adminToken": "78fd9ded49c0eacd546dbfb76faf972d",
+          "adminCode": "GXBQ94",
+          "hostClaimedAt": 1789118131807,
+          "createdAt": 1789118125372,
+          "players": [
+            {
+              "id": "pl_5e90b155d6d3f788",
+              "token": "99934d2244c8c7332a2e12a7d90f765a",
+              "name": "m1",
+              "roleId": null,
+              "sockets": 0,
+              "joinedAt": 1789118159523
+            },
+            {
+              "id": "pl_d0d85a44f6633f25",
+              "token": "98d1c3a92300fe83374d51c63fa49ab4",
+              "name": "m4",
+              "roleId": null,
+              "sockets": 0,
+              "joinedAt": 1789118237219
+            },
+            {
+              "id": "pl_35e552b76b1ee358",
+              "token": "e4464593aeb1ab9b91b216767b0ffc7d",
+              "name": "M11",
+              "roleId": null,
+              "sockets": 0,
+              "joinedAt": 1789118295467
+            }
+          ],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "wins": 0
+        },
+        {
+          "id": "team_04106e30af5c1a9c",
+          "name": "test 1 · Table 2",
+          "adminToken": "17307d5d677d0742ba23277d5900c865",
+          "adminCode": "C6FAPV",
+          "hostClaimedAt": 1789118144091,
+          "createdAt": 1789118125372,
+          "players": [
+            {
+              "id": "pl_958182dc1ea70724",
+              "token": "f1691bf94b92b1b98fb59332dfbd7a3e",
+              "name": "m2",
+              "roleId": null,
+              "sockets": 0,
+              "joinedAt": 1789118222470
+            },
+            {
+              "id": "pl_eca29722e8de76e8",
+              "token": "3dd568e6966ca0d61f10694e90fba6bd",
+              "name": "M5",
+              "roleId": null,
+              "sockets": 0,
+              "joinedAt": 1789118250868
+            },
+            {
+              "id": "pl_a410941963182880",
+              "token": "b926ce4cb4ae0a21e7774a602239b1bc",
+              "name": "M5(",
+              "roleId": null,
+              "sockets": 0,
+              "joinedAt": 1789118344917
+            }
+          ],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "wins": 0
+        },
+        {
+          "id": "team_02721e4a97ee0d06",
+          "name": "test 1 · Table 3",
+          "adminToken": "d5445f21da691de9b58cbc147e0f2873",
+          "adminCode": "C7WDCA",
+          "hostClaimedAt": 1789118147306,
+          "createdAt": 1789118125372,
+          "players": [
+            {
+              "id": "pl_8f44d3e3da87a390",
+              "token": "6b5f290de88857b9c915524084a7c003",
+              "name": "M3",
+              "roleId": null,
+              "sockets": 0,
+              "joinedAt": 1789118230069
+            },
+            {
+              "id": "pl_755418e7e0d0e7c2",
+              "token": "5bcbbfdf7cb993173fe80b39b6d0cad8",
+              "name": "M6",
+              "roleId": null,
+              "sockets": 0,
+              "joinedAt": 1789118261324
+            },
+            {
+              "id": "pl_865feb93fdf4da8d",
+              "token": "015c744022c0f0550d2d50eafc89e386",
+              "name": "DS",
+              "roleId": null,
+              "sockets": 1,
+              "joinedAt": 1789118353230
+            }
+          ],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "wins": 0
+        }
+      ],
+      "events": [
+        {
+          "id": "act1-card1",
+          "act": 1,
+          "round": 1,
+          "ref": {
+            "fr": "Carte 1",
+            "en": "Card 1"
+          },
+          "tag": {
+            "fr": "Incident opérationnel · Round 1",
+            "en": "Operational incident · Round 1"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Factures rejetées",
+            "en": "Rejected invoices"
+          },
+          "situation": {
+            "fr": "8 % de vos factures sont rejetées par les plateformes de vos clients.",
+            "en": "8% of your invoices are rejected by your customers’ platforms."
+          },
+          "motif": [
+            {
+              "fr": "SIREN erroné (adresse de facturation incorrecte)",
+              "en": "Incorrect company ID (wrong billing address)"
+            },
+            {
+              "fr": "Prix unitaire des biens livrés incohérent avec les négociations commerciales",
+              "en": "Unit price of the delivered goods inconsistent with the commercial terms"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Retards de paiement",
+              "en": "Payment delays"
+            },
+            {
+              "fr": "Saturation des équipes",
+              "en": "Teams overloaded"
+            },
+            {
+              "fr": "Perte de crédibilité client",
+              "en": "Loss of customer credibility"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Correction manuelle rapide",
+                "en": "Quick manual fix"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Patch IT ciblé",
+                "en": "Targeted IT patch"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Audit global des données",
+                "en": "Full data audit"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card2",
+          "act": 1,
+          "round": 2,
+          "ref": {
+            "fr": "Carte 2",
+            "en": "Card 2"
+          },
+          "tag": {
+            "fr": "Escalade fiscale · Round 2",
+            "en": "Tax escalation · Round 2"
+          },
+          "color": "red",
+          "title": {
+            "fr": "DGFIP — incohérences",
+            "en": "Tax authority — inconsistencies"
+          },
+          "situation": {
+            "fr": "L’administration détecte des anomalies et demande une explication formelle.",
+            "en": "The tax authority detects anomalies and requests a formal explanation."
+          },
+          "motif": [
+            {
+              "fr": "Écarts de TVA (montants sur factures v. CA3)",
+              "en": "VAT discrepancies (invoice amounts vs. VAT return)"
+            },
+            {
+              "fr": "Anomalies sur les codes VATEX v. détail à la ligne des opérations",
+              "en": "VATEX code anomalies vs. the line-level detail of the transactions"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Risque de redressement fiscal",
+              "en": "Risk of a tax reassessment"
+            },
+            {
+              "fr": "Exposition financière",
+              "en": "Financial exposure"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Justification a posteriori",
+                "en": "After-the-fact justification"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Correction ciblée",
+                "en": "Targeted correction"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Revue complète du paramétrage de l’ERP et des applicatifs amont",
+                "en": "Full review of the ERP and upstream application settings"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card3",
+          "act": 1,
+          "round": 2,
+          "ref": {
+            "fr": "Carte 3",
+            "en": "Card 3"
+          },
+          "tag": {
+            "fr": "Audit interne · Round 2",
+            "en": "Internal audit · Round 2"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Alerte sur les contrôles",
+            "en": "Controls alert"
+          },
+          "situation": {
+            "fr": "L’audit interne alerte le comité sur la fragilité du dispositif.",
+            "en": "Internal audit warns the committee that the setup is fragile."
+          },
+          "motif": [
+            {
+              "fr": "Absence de contrôle de la data (exhaustivité, qualité)",
+              "en": "No data controls (completeness, quality)"
+            },
+            {
+              "fr": "Dépendance excessive à la PA",
+              "en": "Excessive dependency on the accredited platform"
+            }
+          ],
+          "impact": [
+            {
+              "fr": "Fragilité du dispositif",
+              "en": "Fragile setup"
+            },
+            {
+              "fr": "Risque non maîtrisé",
+              "en": "Unmanaged risk"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Minimiser : normal en post go-live",
+                "en": "Play it down: normal after go-live"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Plan de remédiation léger",
+                "en": "Light remediation plan"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Refonte du dispositif de contrôle",
+                "en": "Redesign the control framework"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act1-card4",
+          "act": 1,
+          "round": 3,
+          "ref": {
+            "fr": "Carte 4",
+            "en": "Card 4"
+          },
+          "tag": {
+            "fr": "Crise réputation · Round 3",
+            "en": "Reputation crisis · Round 3"
+          },
+          "color": "red",
+          "title": {
+            "fr": "Article de presse",
+            "en": "Press article"
+          },
+          "situation": {
+            "fr": "Un article paraît : « Grand groupe X en difficulté sur la facturation électronique ».",
+            "en": "An article is published: “Major group X struggling with e-invoicing”."
+          },
+          "motif": [],
+          "impact": [
+            {
+              "fr": "Image dégradée",
+              "en": "Damaged image"
+            },
+            {
+              "fr": "Pression interne et externe",
+              "en": "Internal and external pressure"
+            },
+            {
+              "fr": "Mobilisation de la direction générale",
+              "en": "Executive committee mobilised"
+            }
+          ],
+          "tension": null,
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Communication + correctifs rapides",
+                "en": "Communication + quick fixes"
+              },
+              "points": 0,
+              "reveal": null
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Programme de stabilisation",
+                "en": "Stabilisation programme"
+              },
+              "points": 2,
+              "reveal": null
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Repositionnement stratégique data et fiscal",
+                "en": "Strategic data and tax repositioning"
+              },
+              "points": 4,
+              "reveal": null
+            }
+          ]
+        },
+        {
+          "id": "act2-step1",
+          "act": 2,
+          "round": 1,
+          "ref": {
+            "fr": "Étape 1/4",
+            "en": "Step 1/4"
+          },
+          "tag": {
+            "fr": "Transformation · Stabilisation",
+            "en": "Transformation · Stabilisation"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Stabiliser ou investir ?",
+            "en": "Stabilise or invest?"
+          },
+          "situation": {
+            "fr": "Votre solution fonctionne, mais elle génère 7 % d’erreurs et un volume élevé de corrections manuelles.",
+            "en": "Your solution works, but it generates 7% errors and a high volume of manual corrections."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Pression forte des équipes",
+            "en": "Strong pressure from the teams"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Corriger au fil de l’eau",
+                "en": "Fix as you go"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Rapide, mais dette cachée",
+                "en": "Fast, but hidden debt"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Corriger les cas critiques",
+                "en": "Fix the critical cases"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Amélioration partielle",
+                "en": "Partial improvement"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Lancer un diagnostic complet de la data",
+                "en": "Launch a full data diagnostic"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Effort élevé, base saine",
+                "en": "High effort, healthy foundation"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step2",
+          "act": 2,
+          "round": 2,
+          "ref": {
+            "fr": "Étape 2/4",
+            "en": "Step 2/4"
+          },
+          "tag": {
+            "fr": "Transformation · Risque fiscal",
+            "en": "Transformation · Tax risk"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Maîtrise ou réaction ?",
+            "en": "Control or reaction?"
+          },
+          "situation": {
+            "fr": "Les premières incohérences sont détectées dans les données de TVA.",
+            "en": "The first inconsistencies are detected in the VAT data."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Risque de contrôle fiscal ciblé",
+            "en": "Risk of a targeted tax audit"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Gérer les anomalies au cas par cas",
+                "en": "Handle anomalies case by case"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Effet pansement",
+                "en": "Sticking-plaster effect"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Renforcer les contrôles existants",
+                "en": "Strengthen existing controls"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Contrôle mais incomplet",
+                "en": "Some control, but incomplete"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Repenser la logique fiscale",
+                "en": "Rethink the tax logic"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Sécurisation durable",
+                "en": "Lasting protection"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step3",
+          "act": 2,
+          "round": 3,
+          "ref": {
+            "fr": "Étape 3/4",
+            "en": "Step 3/4"
+          },
+          "tag": {
+            "fr": "Transformation · Data vs IT",
+            "en": "Transformation · Data vs IT"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Qui pilote ?",
+            "en": "Who is in charge?"
+          },
+          "situation": {
+            "fr": "Les problèmes viennent des données, des référentiels et du mapping. L’IT propose une solution technique rapide.",
+            "en": "The problems come from data, master data and mapping. IT proposes a quick technical fix."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Arbitrage de gouvernance",
+            "en": "Governance trade-off"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Laisser l’IT gérer",
+                "en": "Let IT handle it"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Solution technique limitée",
+                "en": "Limited technical fix"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Co-pilotage IT / fiscal",
+                "en": "Joint IT / tax steering"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Compromis efficace",
+                "en": "Effective compromise"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Gouvernance data transverse",
+                "en": "Cross-functional data governance"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Transformation en profondeur",
+                "en": "Deep transformation"
+              }
+            }
+          ]
+        },
+        {
+          "id": "act2-step4",
+          "act": 2,
+          "round": 4,
+          "ref": {
+            "fr": "Étape 4/4",
+            "en": "Step 4/4"
+          },
+          "tag": {
+            "fr": "Transformation · Vision",
+            "en": "Transformation · Vision"
+          },
+          "color": "blue",
+          "title": {
+            "fr": "Ambitieux ou minimaliste ?",
+            "en": "Ambitious or minimalist?"
+          },
+          "situation": {
+            "fr": "Trois trajectoires s’offrent à vous : stabiliser, optimiser ou transformer.",
+            "en": "Three trajectories are open to you: stabilise, optimise or transform."
+          },
+          "motif": [],
+          "impact": [],
+          "tension": {
+            "fr": "Budget limité + pression de la direction générale",
+            "en": "Limited budget + pressure from the CEO"
+          },
+          "options": [
+            {
+              "key": "A",
+              "label": {
+                "fr": "Stabilisation minimale",
+                "en": "Minimal stabilisation"
+              },
+              "points": 0,
+              "reveal": {
+                "fr": "Conformité fragile",
+                "en": "Fragile compliance"
+              }
+            },
+            {
+              "key": "B",
+              "label": {
+                "fr": "Optimisation progressive",
+                "en": "Progressive optimisation"
+              },
+              "points": 2,
+              "reveal": {
+                "fr": "Trajectoire solide",
+                "en": "Solid trajectory"
+              }
+            },
+            {
+              "key": "C",
+              "label": {
+                "fr": "Transformation data-driven",
+                "en": "Data-driven transformation"
+              },
+              "points": 4,
+              "reveal": {
+                "fr": "Avantage compétitif",
+                "en": "Competitive advantage"
+              }
+            }
+          ]
+        }
+      ],
+      "log": [
+        {
+          "id": "log_25b87bd3fa0e388f",
+          "ts": 1789118125372,
+          "type": "session_created",
+          "params": {
+            "name": "test 1",
+            "teams": 3
+          }
+        },
+        {
+          "id": "log_582afaa4671cff5b",
+          "ts": 1789118131807,
+          "type": "table_claimed",
+          "params": {
+            "team": "test 1 · Table 1"
+          }
+        },
+        {
+          "id": "log_b8c853935bbaa849",
+          "ts": 1789118144091,
+          "type": "table_claimed",
+          "params": {
+            "team": "test 1 · Table 2"
+          }
+        },
+        {
+          "id": "log_7c959cc6906254fb",
+          "ts": 1789118147306,
+          "type": "table_claimed",
+          "params": {
+            "team": "test 1 · Table 3"
+          }
+        },
+        {
+          "id": "log_11ab030894a34c20",
+          "ts": 1789118159523,
+          "type": "player_joined",
+          "params": {
+            "player": "m1",
+            "team": "test 1 · Table 1"
+          }
+        },
+        {
+          "id": "log_cbfb86faec2154ff",
+          "ts": 1789118222470,
+          "type": "player_joined",
+          "params": {
+            "player": "m2",
+            "team": "test 1 · Table 2"
+          }
+        },
+        {
+          "id": "log_eaf869bd6d81714c",
+          "ts": 1789118230069,
+          "type": "player_joined",
+          "params": {
+            "player": "M3",
+            "team": "test 1 · Table 3"
+          }
+        },
+        {
+          "id": "log_b8e7d2b0fa9979cb",
+          "ts": 1789118237219,
+          "type": "player_joined",
+          "params": {
+            "player": "m4",
+            "team": "test 1 · Table 1"
+          }
+        },
+        {
+          "id": "log_1a9d853ef64926c9",
+          "ts": 1789118250868,
+          "type": "player_joined",
+          "params": {
+            "player": "M5",
+            "team": "test 1 · Table 2"
+          }
+        },
+        {
+          "id": "log_f32b8034309eac70",
+          "ts": 1789118261324,
+          "type": "player_joined",
+          "params": {
+            "player": "M6",
+            "team": "test 1 · Table 3"
+          }
+        },
+        {
+          "id": "log_d9f2d61a0fd64f0b",
+          "ts": 1789118295467,
+          "type": "player_joined",
+          "params": {
+            "player": "M11",
+            "team": "test 1 · Table 1"
+          }
+        },
+        {
+          "id": "log_d926fb4d454ef07b",
+          "ts": 1789118344917,
+          "type": "player_joined",
+          "params": {
+            "player": "M5(",
+            "team": "test 1 · Table 2"
+          }
+        },
+        {
+          "id": "log_bb8337ba5f413cf6",
+          "ts": 1789118353230,
+          "type": "player_joined",
+          "params": {
+            "player": "DS",
+            "team": "test 1 · Table 3"
           }
         }
       ],

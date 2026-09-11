@@ -2,7 +2,8 @@
 (function () {
   'use strict';
 
-  const { $, h, clear, api, toast, tableStore, t, L, connect, startTicker, qs } = window.SG;
+  const { $, h, clear, api, toast, tableStore, t, L, connect, startTicker, qs, toMinutes, toSeconds } =
+    window.SG;
   const C = window.CARDS;
 
   window.SG.initChrome();
@@ -36,7 +37,7 @@
       const entry = {
         sessionId: res.sessionId,
         code: res.code,
-        adminCode: code,
+        adminCode: res.adminCode || code,
         teamId: res.teamId,
         teamName: res.teamName,
         adminToken: res.adminToken,
@@ -101,8 +102,6 @@
         showVotes: Boolean(state.round && state.round.status === 'open'),
       })
     );
-    const pending = $('#roles-pending');
-    pending.classList.toggle('hidden', team.rolesAssigned || !team.players.length);
   }
 
   function renderSealed() {
@@ -131,10 +130,10 @@
     const input = h('input', {
       type: 'number',
       id: 'duration',
-      min: '5',
-      max: '3600',
-      step: '30',
-      value: String(defaultSec),
+      min: '1',
+      max: '60',
+      step: '1',
+      value: String(toMinutes(defaultSec)),
     });
 
     return h('div', { class: 'panel' }, [
@@ -144,19 +143,19 @@
       ]),
       h('div', { class: 'team-title', text: L(next.title) }),
       h('div', { class: 'small muted', text: L(next.tag) }),
-      h('div', { class: 'row', style: 'margin-top:14px;gap:12px;align-items:flex-end' }, [
-        h('label', { class: 'field', style: 'max-width:150px' }, [
-          h('span', { text: `${t('team.duration')} (s)` }),
-          input,
+      h('div', { class: 'launch-row' }, [
+        h('label', { class: 'field', style: 'margin:0' }, [
+          h('span', { text: `${t('team.duration')} (min)` }),
+          C.stepper(input),
         ]),
         h('button', {
           class: 'btn btn-primary',
           type: 'button',
-          text: t('team.startWith', { min: Math.round(defaultSec / 60) }),
+          text: t('team.start'),
           onClick: () =>
             socket.callSafe('round:start', {
               eventId: next.id,
-              durationSec: Number(input.value) || defaultSec,
+              durationSec: toSeconds(input.value) || defaultSec,
             }),
         }),
       ]),
@@ -229,10 +228,18 @@
       shownClosed = null;
       if (!state.team.rolesAssigned && state.team.players.length) {
         stage.appendChild(
+          /* L'action est dans le bloc qui l'explique : l'animateur peut forcer
+             le tirage sans attendre que la table soit au complet. */
           h('div', { class: 'stage-empty' }, [
             h('div', { class: 'pulse-dot' }),
             h('h2', { text: t('play.waitingRole') }),
             h('div', { class: 'small muted', text: t('team.waitingRoles') }),
+            h('button', {
+              class: 'btn btn-primary',
+              type: 'button',
+              text: t('team.assignNow'),
+              onClick: () => socket.callSafe('team:assignRoles', {}),
+            }),
           ])
         );
         return;
@@ -354,8 +361,6 @@
 
   /* --------------------------------------------------------------- démarrage */
 
-  $('#btn-assign').addEventListener('click', () => socket.callSafe('team:assignRoles', {}));
-
   window.I18N.onChange(() => render());
 
   (async function boot() {
@@ -380,6 +385,15 @@
       if (message) toast(message, payload.type === 'round_tied' ? 'warn' : '');
     });
 
+    /* La session vient d'être supprimée : cette console n'anime plus rien. */
+    socket.on('session:deleted', () => {
+      toast(t('err.session_deleted'), 'error');
+      tableStore.remove(creds.teamId);
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1800);
+    });
+
     socket.on('connect', async () => {
       try {
         const res = await socket.call('teamAdmin:join', {
@@ -389,8 +403,11 @@
         });
         applyState(res.state);
       } catch (err) {
-        toast(err.message, 'error');
-        if (err.code === 'session_not_found' || err.code === 'forbidden') {
+        /* La session a disparu : on le dit clairement au lieu de renvoyer le
+           « introuvable » du serveur, qui parle d'un code mal saisi. */
+        const gone = err.code === 'session_not_found';
+        toast(gone ? t('err.session_deleted') : err.message, 'error');
+        if (gone || err.code === 'forbidden') {
           tableStore.remove(creds.teamId);
           setTimeout(() => {
             window.location.href = '/';

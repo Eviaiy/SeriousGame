@@ -15,8 +15,11 @@
     fmtTimeOnly,
     fmtClock,
     qs,
+    svg,
+    toMinutes,
+    toSeconds,
     joinUrl,
-    tableUrl,
+    resolveOrigin,
     copyText,
     modal,
     startTicker,
@@ -56,6 +59,15 @@
   const socket = window.SG.connect(onState, onFlash);
   socket.on('connect', joinSession);
 
+  /* Session supprimée depuis un autre appareil : il n'y a plus rien à diriger. */
+  socket.on('session:deleted', () => {
+    toast(t('err.session_deleted'), 'error');
+    superStore.remove(sessionId);
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 1800);
+  });
+
   async function joinSession() {
     try {
       const res = await socket.call('super:join', { sessionId, superKey: entry.superKey });
@@ -88,13 +100,48 @@
 
   const call = (event, payload) => socket.callSafe(event, payload);
 
+  /* --------------------------------------------------------- accès des joueurs */
+
+  let qrFor = null;
+
+  const playerLink = (code) => joinUrl(code);
+
+  function renderQr(url) {
+    if (qrFor === url) return; // le QR ne dépend que du lien : inutile de le refaire à chaque état
+    qrFor = url;
+    const tile = clear($('#qr-tile'));
+    try {
+      tile.appendChild(window.QR.element(url, { label: t('admin.qrHint') }));
+      tile.classList.remove('hidden');
+    } catch (err) {
+      tile.classList.add('hidden');
+    }
+  }
+
+  /** Vue plein écran : le QR est fait pour être projeté ou tendu à la table. */
+  function openQrModal() {
+    const url = playerLink(state.session.code);
+    const body = h('div', { class: 'qr-full' }, [
+      h('div', { class: 'row' }, [
+        h('div', { class: 'eyebrow', text: t('admin.qrTitle') }),
+        h('div', { class: 'spacer' }),
+        h('button', { class: 'btn btn-sm btn-ghost', type: 'button', text: '×', onClick: () => dialog.close() }),
+      ]),
+      h('div', { class: 'code-display', text: state.session.code }),
+      h('div', { class: 'qr-canvas' }, [window.QR.element(url, { label: t('admin.qrTitle') })]),
+      h('div', { class: 'join-url center', text: url }),
+      h('p', { class: 'small muted center', text: t('admin.projectHint') }),
+    ]);
+    const dialog = modal(body);
+  }
+
   /* --------------------------------------------------------------- entêtes */
 
   function renderHeader() {
     const s = state.session;
     $('#session-name').textContent = s.name;
     $('#session-code').textContent = s.code;
-    $('#join-link').textContent = joinUrl(s.code);
+    renderQr(playerLink(s.code));
 
     const badge = $('#session-status');
     const key =
@@ -160,18 +207,10 @@
         h('span', { class: 'team-title', text: team.name }),
         statusBadge,
       ]),
-      h('div', { class: 'tile-foot' }, [
-        h('span', { class: 'code-pill', text: team.adminCode }),
-        h('button', {
-          class: 'btn btn-ghost btn-xs',
-          type: 'button',
-          text: t('btn.copy'),
-          title: t('admin.tableLink'),
-          onClick: (e) => copyText(tableUrl(team.adminCode), e.target),
-        }),
-        h('div', { class: 'spacer' }),
-        clock,
-      ]),
+      /* Le décompte n'apparaît que pendant un vote : sinon la ligne resterait vide. */
+      round && round.status === 'open'
+        ? h('div', { class: 'tile-foot' }, [h('div', { class: 'spacer' }), clock])
+        : null,
       h('div', { class: 'progress-track' }, [
         h('i', { class: 'progress-fill', style: `width:${pct}%` }),
       ]),
@@ -246,6 +285,28 @@
 
   /* ------------------------------------------------------------------ déroulé */
 
+  /** Crayon d'édition : une icône, pour que « Lancer » reste la seule action nommée. */
+  function pencil() {
+    return svg(
+      'svg',
+      {
+        viewBox: '0 0 24 24',
+        width: 15,
+        height: 15,
+        fill: 'none',
+        stroke: 'currentColor',
+        'stroke-width': 1.7,
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round',
+        'aria-hidden': 'true',
+      },
+      [
+        svg('path', { d: 'M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17v3z' }),
+        svg('path', { d: 'M14.5 6.5l3 3' }),
+      ]
+    );
+  }
+
   function renderDeck() {
     const host = clear($('#deck-host'));
     state.events.forEach((event, index) => {
@@ -263,20 +324,14 @@
               })}`,
             }),
           ]),
-          h('div', { class: 'row-actions' }, [
-            h('button', {
-              class: 'btn btn-sm',
-              type: 'button',
-              text: t('admin.launchOn'),
-              disabled: !idle.length || state.session.status === 'finished',
-              onClick: () => openLaunchModal(event),
-            }),
+          h('div', { class: 'row-actions row-icons' }, [
             h('button', {
               class: 'btn btn-sm btn-ghost',
               type: 'button',
-              text: t('admin.edit'),
+              title: t('admin.edit'),
+              'aria-label': t('admin.edit'),
               onClick: () => openEventModal(event),
-            }),
+            }, [pencil()]),
             h('button', {
               class: 'btn btn-sm btn-ghost',
               type: 'button',
@@ -305,6 +360,15 @@
               },
             }),
           ]),
+          h('div', { class: 'row-actions row-main' }, [
+            h('button', {
+              class: 'btn btn-sm btn-primary',
+              type: 'button',
+              text: t('admin.launch'),
+              disabled: !idle.length || state.session.status === 'finished',
+              onClick: () => openLaunchModal(event),
+            }),
+          ]),
         ])
       );
     });
@@ -321,10 +385,10 @@
     });
     const duration = h('input', {
       type: 'number',
-      min: '5',
-      max: '3600',
-      step: '30',
-      value: String(state.session.settings.defaultDuration),
+      min: '1',
+      max: '60',
+      step: '1',
+      value: String(toMinutes(state.session.settings.defaultDuration)),
     });
 
     body.appendChild(
@@ -335,7 +399,10 @@
       ])
     );
     body.appendChild(
-      h('label', { class: 'field' }, [h('span', { text: `${t('team.duration')} (s)` }), duration])
+      h('label', { class: 'field' }, [
+        h('span', { text: `${t('team.duration')} (min)` }),
+        C.stepper(duration),
+      ])
     );
     boxes.forEach(({ team, input }) => {
       body.appendChild(h('label', { class: 'checkline' }, [input, h('span', { text: team.name })]));
@@ -346,7 +413,7 @@
           class: 'btn btn-primary',
           text: t('admin.launch'),
           onClick: async () => {
-            const seconds = Number(duration.value) || state.session.settings.defaultDuration;
+            const seconds = toSeconds(duration.value) || state.session.settings.defaultDuration;
             for (const { team, input } of boxes) {
               if (input.checked) {
                 await call('round:start', {
@@ -412,8 +479,8 @@
 
   function renderSettings() {
     const s = state.session.settings;
-    $('#set-duration').value = s.defaultDuration;
-    $('#set-arbitration').value = s.arbitrationSeconds;
+    $('#set-duration').value = toMinutes(s.defaultDuration);
+    $('#set-arbitration').value = toMinutes(s.arbitrationSeconds);
     $('#set-teamsize').value = s.teamSize;
     $('#set-autoassign').checked = Boolean(s.autoAssignRoles);
     $('#set-autoclose').checked = Boolean(s.autoCloseOnAllVotes);
@@ -424,8 +491,8 @@
   function pushSettings() {
     call('super:updateSettings', {
       settings: {
-        defaultDuration: Number($('#set-duration').value) || 300,
-        arbitrationSeconds: Number($('#set-arbitration').value) || 90,
+        defaultDuration: toSeconds($('#set-duration').value) || 300,
+        arbitrationSeconds: toSeconds($('#set-arbitration').value) || 90,
         teamSize: Number($('#set-teamsize').value) || 6,
         autoAssignRoles: $('#set-autoassign').checked,
         autoCloseOnAllVotes: $('#set-autoclose').checked,
@@ -475,6 +542,12 @@
     tickers.forEach((fn) => fn());
   });
 
+  /* Les liens et les QR doivent porter une adresse joignable par les téléphones. */
+  resolveOrigin(() => {
+    qrFor = null;
+    if (state) renderHeader();
+  });
+
   /* ------------------------------------------------------- fiche d'une table */
 
   function openTeamModal(teamId) {
@@ -495,64 +568,6 @@
           h('h2', { text: team.name }),
           h('div', { class: 'spacer' }),
           h('button', { class: 'btn btn-sm btn-ghost', text: '×', onClick: () => dialog.close() }),
-        ])
-      );
-
-      /* ---------------------------------------------------------- accès table */
-      body.appendChild(
-        h('div', { class: 'panel tight' }, [
-          h('div', { class: 'label', text: t('admin.tableCode') }),
-          h('div', { class: 'row', style: 'gap:8px;align-items:center;flex-wrap:wrap' }, [
-            h('span', { class: 'code-display', style: 'font-size:1.3rem', text: team.adminCode }),
-            h('button', {
-              class: 'btn btn-sm',
-              text: t('btn.copy'),
-              onClick: (e) => copyText(tableUrl(team.adminCode), e.target),
-            }),
-            h('a', {
-              class: 'btn btn-sm btn-ghost',
-              href: tableUrl(team.adminCode),
-              target: '_blank',
-              rel: 'noopener',
-              text: t('nav.team'),
-            }),
-            h('button', {
-              class: 'btn btn-sm btn-ghost',
-              text: t('admin.regenCode'),
-              onClick: () => call('super:regenTeamCode', { teamId }),
-            }),
-          ]),
-        ])
-      );
-
-      /* -------------------------------------------------------------- gestion */
-      const nameInput = h('input', { type: 'text', value: team.name, maxlength: '40' });
-      body.appendChild(
-        h('div', { class: 'row', style: 'gap:8px;align-items:flex-end;flex-wrap:wrap' }, [
-          h('label', { class: 'field', style: 'margin:0;flex:1 1 180px' }, [
-            h('span', { text: t('admin.renameTable') }),
-            nameInput,
-          ]),
-          h('button', {
-            class: 'btn btn-sm',
-            text: t('btn.save'),
-            onClick: () => call('team:rename', { teamId, name: nameInput.value.trim() }),
-          }),
-          h('button', {
-            class: 'btn btn-sm btn-ghost',
-            text: team.rolesAssigned ? t('admin.rerollRoles') : t('admin.assignRoles'),
-            onClick: () => call('team:assignRoles', { teamId }),
-          }),
-          h('button', {
-            class: 'btn btn-sm btn-ghost btn-danger',
-            text: t('admin.removeTable'),
-            onClick: () => {
-              if (window.confirm(t('admin.removeTableConfirm'))) {
-                call('super:removeTeam', { teamId });
-                dialog.close();
-              }
-            },
-          }),
         ])
       );
 
@@ -795,9 +810,9 @@
       impact: [],
       tension: null,
       options: [
-        { key: 'A', label: { fr: '', en: '' }, short: 2, long: -3, points: 0, reveal: null },
-        { key: 'B', label: { fr: '', en: '' }, short: 1, long: 1, points: 2, reveal: null },
-        { key: 'C', label: { fr: '', en: '' }, short: -2, long: 3, points: 4, reveal: null },
+        { key: 'A', label: { fr: '', en: '' }, points: 0, reveal: null },
+        { key: 'B', label: { fr: '', en: '' }, points: 2, reveal: null },
+        { key: 'C', label: { fr: '', en: '' }, points: 4, reveal: null },
       ],
     };
 
@@ -865,14 +880,6 @@
         type: 'text',
         value: (option.label && option.label.en) || '',
       });
-      f[`opt_${key}_short`] = h('input', {
-        type: 'number',
-        value: option.short != null ? option.short : 0,
-      });
-      f[`opt_${key}_long`] = h('input', {
-        type: 'number',
-        value: option.long != null ? option.long : 0,
-      });
       f[`opt_${key}_points`] = h('input', {
         type: 'number',
         value: option.points != null ? option.points : 0,
@@ -898,19 +905,9 @@
             f[`opt_${key}_label_en`],
           ]),
         ]),
-        h('div', { class: 'grid cols-3', style: 'gap:8px' }, [
-          h('label', { class: 'field', style: 'margin:0' }, [
-            h('span', { text: t('admin.optShort') }),
-            f[`opt_${key}_short`],
-          ]),
-          h('label', { class: 'field', style: 'margin:0' }, [
-            h('span', { text: t('admin.optLong') }),
-            f[`opt_${key}_long`],
-          ]),
-          h('label', { class: 'field', style: 'margin:0' }, [
-            h('span', { text: t('admin.optPoints') }),
-            f[`opt_${key}_points`],
-          ]),
+        h('label', { class: 'field' }, [
+          h('span', { text: t('admin.optPoints') }),
+          f[`opt_${key}_points`],
         ]),
         h('div', { class: 'grid cols-2', style: 'gap:8px' }, [
           h('label', { class: 'field', style: 'margin:0' }, [
@@ -1017,8 +1014,6 @@
             const en = f[`opt_${key}_label_en`].value.trim();
             return { fr: fr || en || key, en: en || fr || key };
           })(),
-          short: Number(f[`opt_${key}_short`].value) || 0,
-          long: Number(f[`opt_${key}_long`].value) || 0,
           points: Number(f[`opt_${key}_points`].value) || 0,
           reveal: (function () {
             const fr = f[`opt_${key}_reveal_fr`].value.trim();
@@ -1034,10 +1029,18 @@
   /* --------------------------------------------------------- branchements UI */
 
   $('#copy-code').addEventListener('click', (e) => copyText(state.session.code, e.target));
-  $('#copy-link').addEventListener('click', (e) => copyText(joinUrl(state.session.code), e.target));
+  $('#copy-link').addEventListener('click', (e) => copyText(playerLink(state.session.code), e.target));
+  $('#qr-tile').addEventListener('click', () => {
+    if (state) openQrModal();
+  });
   $('#btn-new-event').addEventListener('click', () => openEventModal(null));
   $('#btn-add-team').addEventListener('click', () => call('super:addTeam', {}));
 
+  /* Les deux durées reçoivent les mêmes boutons ± que l'écran de lancement. */
+  ['#set-duration', '#set-arbitration'].forEach((sel) => {
+    const input = $(sel);
+    input.parentNode.appendChild(C.stepper(input));
+  });
   ['#set-duration', '#set-arbitration', '#set-teamsize'].forEach((sel) => {
     $(sel).addEventListener('change', pushSettings);
   });

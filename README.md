@@ -20,13 +20,23 @@ clair (identité papier), au choix de chaque écran.
 | Qui | Porte d’entrée | Ce qu’il voit |
 | --- | -------------- | ------------- |
 | **Direction de jeu** (super animateur) | *Direction de jeu* → crée la session | tout : tables, codes, scores en temps réel, classements, journal |
-| **Animateur de table** | *Animer une table* → code de table (6 caractères) | sa table seulement : carte en cours, chrono, composition, avancement. Il n’a pas de rôle et ne vote pas |
+| **Animateur de table** | *Animer une table* → code de session | sa table seulement : carte en cours, chrono, composition, avancement. Il n’a pas de rôle et ne vote pas |
 | **Joueur** | *Rejoindre la partie* → code de session + prénom | son rôle et son briefing, la carte, son vote, sa table. Pas de points avant le dévoilement |
 
-À la création, la session pré-crée les tables demandées (« Table 1 », « Table 2 »…),
-chacune avec son propre code d’animateur. Les joueurs, eux, n’utilisent qu’un seul
-code : celui de la session. Ils sont **répartis automatiquement** sur la table la
-moins remplie.
+**Un seul code circule dans la salle** : celui de la session. Les joueurs sont
+**répartis automatiquement** sur la table la moins remplie. Un animateur qui saisit
+ce même code reçoit la première table encore sans animateur — et s’il n’en reste
+aucune, une table est créée. Le nombre de tables suit donc le nombre d’animateurs
+présents, au-delà des tables pré-créées à l’ouverture de la session.
+
+Chaque table garde un code propre, affiché sur sa tuile côté direction de jeu et
+copiable d’un clic : il ramène toujours à la même table, utile pour reprendre une
+console sur un autre appareil.
+
+Le **QR code de la session**, projeté depuis la console de direction, évite toute
+saisie aux joueurs. Un lien peut aussi désigner une table précise
+(`/join/<code>?t=<table>`) : celui qui l’ouvre est assis à cette table au lieu
+d’être réparti.
 
 ---
 
@@ -64,34 +74,42 @@ npm run check      # = npm run lint:ui && npm run smoke
 ## Déroulé d’une partie
 
 1. **Direction de jeu → « Ouvrir la session »** : nom de la session, nom de
-   l’animateur, nombre de tables (1 à 12), joueurs par table (2 à 10). La console
-   affiche le code de session, le lien joueurs et un code par table.
-2. **Les joueurs rejoignent** : code de session + prénom, un téléphone par
-   personne. Ils se répartissent seuls entre les tables.
-3. **Distribution des rôles** : dès qu’une table est complète, les six rôles sont
+   l’animateur, nombre de tables (1 à 12), joueurs par table (2 à 10). Les tables
+   sont créées aussitôt et portent le nom de la session suivi de leur numéro —
+   « Atelier EY · Table 1 ». La console affiche le code de session, son QR à
+   projeter et de quoi copier le lien joueurs.
+2. **Les animateurs prennent leur table** : *Animer une table* → code de session.
+   Chacun reçoit la première table encore libre. Le nombre de tables ne bouge
+   plus : quand toutes sont prises, la porte le dit, et seule la direction de jeu
+   peut en ajouter une depuis sa console. Le code d’une table ramène à la même
+   console depuis un autre appareil.
+3. **Les joueurs rejoignent** : code de session (ou QR projeté) + prénom, un
+   téléphone par personne. Ils se répartissent seuls entre les tables, dans la
+   limite des places annoncées : tables × joueurs par table, ni une de plus.
+4. **Distribution des rôles** : dès qu’une table est complète, les six rôles sont
    tirés au sort — exactement une **Direction générale** par table. Chaque joueur
    reçoit son objectif et sa phrase de personnage. Les arrivées tardives reçoivent
    un rôle d’appoint (jamais DG).
-4. **Récit d’ouverture** : la crise est posée sur l’écran de chaque joueur avant
+5. **Récit d’ouverture** : la crise est posée sur l’écran de chaque joueur avant
    la première carte.
-5. **Chaque table avance à son rythme** : son animateur lance la carte suivante
-   (5 min par défaut), peut ajouter du temps, mettre en pause, clore le vote plus
-   tôt ou annuler l’événement. La direction de jeu peut aussi lancer une même
-   carte sur plusieurs tables d’un coup.
-6. **Vote** : chaque joueur choisit A, B ou C sur son téléphone. La console de
+6. **Chaque table avance à son rythme** : son animateur lance la carte suivante
+   (5 min par défaut, réglable minute par minute), peut ajouter du temps, mettre
+   en pause, clore le vote plus tôt ou annuler l’événement. La direction de jeu
+   peut aussi lancer une même carte sur plusieurs tables d’un coup.
+7. **Vote** : chaque joueur choisit A, B ou C sur son téléphone. La console de
    table montre la progression (4 / 6 ont voté) sans révéler les choix.
-7. **Décision** : majorité simple. En cas d’**égalité**, la table passe en
+8. **Décision** : majorité simple. En cas d’**égalité**, la table passe en
    arbitrage : la Direction générale tranche entre les options à égalité
    (90 s par défaut). Sans arbitrage dans le temps imparti, le sort décide.
    L’animateur de table peut suppléer le DG si nécessaire.
-8. **Points scellés** : le résultat de la carte s’affiche (décision, répartition
+9. **Points scellés** : le résultat de la carte s’affiche (décision, répartition
    des voix), mais aucun point, aucun classement n’est visible des joueurs ni des
    animateurs de table.
-9. **Dévoilement** : quand les tables ont terminé, la direction de jeu clique
+10. **Dévoilement** : quand les tables ont terminé, la direction de jeu clique
    **« Dévoiler les scores à tous »**. Classement général, classement par
    événement, profils Acte 1 et Acte 2 apparaissent au même instant sur tous les
    écrans.
-10. **Terminer et archiver** : la partie rejoint *Historique* avec le classement
+11. **Terminer et archiver** : la partie rejoint *Historique* avec le classement
     final, les compositions et rôles, le détail par événement, les ajustements et
     un export Excel (CSV).
 
@@ -114,26 +132,19 @@ personnage :
 
 ## Barème
 
-Repris du kit de cartes.
+Repris de la carte de scoring du kit, **identique aux deux actes** :
 
-**Acte 1 — Comité de crise** (deux axes, cumulés carte après carte)
+| Choix | Profil | Points |
+| ----- | ------ | ------ |
+| A | court terme | 0 |
+| B | équilibré | +2 |
+| C | structurant | +4 |
 
-| Choix | Court terme | Long terme | Total événement |
-| ----- | ----------- | ---------- | --------------- |
-| A — quick fix | +2 | −3 | −1 |
-| B — intermédiaire | +1 | +1 | +2 |
-| C — structurant | −2 | +3 | +1 |
+4 décisions × 4 points = **16 points maximum par acte**, 32 sur la partie
+complète. Les points se cumulent carte après carte.
 
-Profils Acte 1 : `< 0` Firefighter · `0–5` Conforme fragile · `5–10` En contrôle ·
-`> 10` Data driven leader.
-
-**Acte 2 — Choose your transformation**
-
-| Choix | Points |
-| ----- | ------ |
-| A — court terme | 0 |
-| B — équilibré | +2 |
-| C — structurant | +4 |
+Profils Acte 1 : `0–4` Firefighter · `5–8` Conforme fragile · `9–12` En contrôle ·
+`13–16` Data driven leader.
 
 Profils Acte 2 : `0–4` Survivor · `5–8` Compliant · `9–12` Controller ·
 `13–16` Data Leader.
@@ -147,8 +158,8 @@ décision) ; la table gagnante porte une étoile.
 
 ## Ce que contrôle la direction de jeu
 
-- **Tables** : en ajouter, consulter la vue d’ensemble de chacune, redistribuer
-  les rôles, copier son code d’animateur.
+- **Tables** : en ajouter, copier le code d’une table, consulter sa vue d’ensemble,
+  déplacer ou retirer un joueur.
 - **Déroulé** : lancer une carte sur plusieurs tables, réordonner, modifier ou
   supprimer les cartes, en créer de nouvelles (bilingues, avec leur propre
   barème), rejouer un événement.
@@ -171,8 +182,8 @@ individuel n’existe dans le modèle de données.
 
 ## Contenu livré
 
-- 6 cartes **Acte 1** : factures rejetées, blocage de paiement, DGFIP —
-  incohérences, alerte sur les contrôles, article de presse, tension cash.
+- 4 cartes **Acte 1**, sur 3 rounds : factures rejetées (round 1), DGFIP —
+  incohérences et alerte sur les contrôles (round 2), article de presse (round 3).
 - 4 étapes **Acte 2** : stabilisation, risque fiscal, data vs IT, vision.
 - Le récit d’ouverture de la crise et les 6 rôles avec leurs briefings.
 - Profils de fin de partie, classements et export CSV.
@@ -275,3 +286,11 @@ navigateur, ce qui permet de reprendre après un rafraîchissement. Pour ouvrir 
 console de direction sur un autre appareil : `/admin.html?s=<sessionId>&k=<clé>`
 (la clé est retirée de l’URL une fois mémorisée). L’outil est conçu pour un usage
 en salle sur réseau de confiance.
+
+**Supprimer une session.** La croix devant une session, dans « Accès ouverts sur
+ce navigateur », la supprime pour tout le monde : ses tables, leurs codes
+d’animateur et les postes de ses joueurs cessent d’exister, et les consoles
+ouvertes sont renvoyées à l’accueil en disant pourquoi. L’accueil demande
+confirmation, c’est sans retour. L’archive d’une partie terminée ne dépend plus
+de sa session et reste dans l’historique ; supprimer cette archive efface en
+revanche la session terminée qui l’a produite, tables comprises.

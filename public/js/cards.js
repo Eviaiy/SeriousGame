@@ -306,16 +306,9 @@
 
   /* --------------------------------------------------------- cartes d'événement */
 
-  /** Libellé de barème d'une option : « +2 / −3 » (acte 1) ou « +4 » (acte 2). */
-  function pointsLabel(event, option) {
-    if (event.act === 2) return fmtSigned(option.points).replace('-', '−');
-    const short = fmtSigned(option.short).replace('-', '−');
-    const long = fmtSigned(option.long).replace('-', '−');
-    return `${short} / ${long}`;
-  }
-
-  function pointsHint(event) {
-    return event.act === 2 ? t('score.points') : `${t('score.short')} / ${t('score.long')}`;
+  /** Libellé de barème d'une option, identique aux deux actes : « 0 », « +2 », « +4 ». */
+  function pointsLabel(option) {
+    return fmtSigned(option.points).replace('-', '−');
   }
 
   /** Dos de carte : sceau de l'acte, on ne voit rien du contenu. */
@@ -389,7 +382,7 @@
         h('span', { class: 'choice-key', text: option.key }),
         h('span', { class: 'choice-label', text: L(option.label) }),
         o.showPoints && !o.revealed
-          ? h('span', { class: 'choice-points', text: pointsLabel(event, option) })
+          ? h('span', { class: 'choice-points', text: pointsLabel(option) })
           : null,
         isSelected ? h('span', { class: 'choice-check', text: '✓' }) : null,
       ]);
@@ -402,7 +395,7 @@
           h('span', { class: 'choice-label', text: L(option.label) }),
           option.reveal ? h('span', { class: 'choice-reveal', text: L(option.reveal) }) : null,
         ]),
-        o.showPoints ? h('span', { class: 'choice-points', text: pointsLabel(event, option) }) : null,
+        o.showPoints ? h('span', { class: 'choice-points', text: pointsLabel(option) }) : null,
         winning.includes(option.key) ? h('span', { class: 'choice-check', text: '★' }) : null,
       ]);
 
@@ -434,7 +427,7 @@
         h('div', { class: 'meta-label', text: t(o.promptKey || 'play.chooseNow') }),
         ...choiceNodes,
         o.showPoints
-          ? h('div', { class: 'matrix-hint', text: `${t('score.matrix')} — ${pointsHint(event)}` })
+          ? h('div', { class: 'matrix-hint', text: `${t('score.matrix')} — ${t('score.scale')}` })
           : null,
       ].filter(Boolean)
     );
@@ -645,8 +638,7 @@
       : [
           h('th', { text: t('score.rank') }),
           h('th', { text: t('score.team') }),
-          h('th', { class: 'num', text: t('score.short') }),
-          h('th', { class: 'num', text: t('score.long') }),
+          h('th', { class: 'num', text: t('score.act1') }),
           h('th', { class: 'num', text: t('score.act2') }),
           h('th', { class: 'num', text: t('score.adjust') }),
           h('th', { class: 'num', text: t('score.total') }),
@@ -689,8 +681,7 @@
                         })
                       : null,
                   ]),
-                  h('td', { class: `num ${signClass(row.short)}`, text: fmtSigned(row.short) }),
-                  h('td', { class: `num ${signClass(row.long)}`, text: fmtSigned(row.long) }),
+                  h('td', { class: `num ${signClass(row.act1)}`, text: fmtSigned(row.act1) }),
                   h('td', { class: `num ${signClass(row.act2)}`, text: fmtSigned(row.act2) }),
                   h('td', { class: `num ${signClass(row.adjust)}`, text: fmtSigned(row.adjust) }),
                   h('td', {
@@ -763,6 +754,38 @@
     ]);
   }
 
+  /**
+   * Encadre un champ numérique de deux boutons − / +.
+   * Le pas et les bornes viennent du champ lui-même, pas d'un réglage à part.
+   */
+  function stepper(input) {
+    const step = Number(input.step) || 1;
+    const min = input.min === '' ? -Infinity : Number(input.min);
+    const max = input.max === '' ? Infinity : Number(input.max);
+    const nudge = (delta) => {
+      const current = Number(input.value);
+      const base = Number.isFinite(current) ? current : min;
+      const next = Math.min(max, Math.max(min, base + delta * step));
+      /* Un pas fractionnaire (0,5 min) traîne des flottants : on arrondit. */
+      input.value = String(Math.round(next * 100) / 100);
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    const arrow = (label, delta, titleKey) =>
+      h('button', {
+        class: 'btn btn-ghost',
+        type: 'button',
+        text: label,
+        title: t(titleKey),
+        'aria-label': t(titleKey),
+        onClick: () => nudge(delta),
+      });
+    return h('div', { class: 'stepper' }, [
+      arrow('−', -1, 'btn.less'),
+      input,
+      arrow('+', 1, 'btn.more'),
+    ]);
+  }
+
   window.CARDS = {
     icon,
     roleMedal,
@@ -783,5 +806,6 @@
     historyTable,
     profileCard,
     pointsLabel,
+    stepper,
   };
 })();

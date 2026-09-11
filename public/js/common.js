@@ -113,6 +113,18 @@
     return `${Math.floor(min / 60)} h ${String(min % 60).padStart(2, '0')}`;
   }
 
+  /* Les animateurs annoncent « cinq minutes », jamais « 300 secondes ». Les
+     champs de saisie sont donc en minutes ; le moteur reste en secondes. */
+  function toMinutes(seconds) {
+    return Math.round(((Number(seconds) || 0) / 60) * 10) / 10;
+  }
+
+  function toSeconds(minutes) {
+    const value = Number(String(minutes).replace(',', '.'));
+    if (!Number.isFinite(value) || value <= 0) return 0;
+    return Math.max(5, Math.round(value * 60));
+  }
+
   /* ----------------------------------------------------------- stockage web */
 
   const LS = {
@@ -475,12 +487,35 @@
     return new URLSearchParams(window.location.search).get(name);
   }
 
-  function joinUrl(code) {
-    return `${window.location.origin}/join/${encodeURIComponent(code)}`;
+  /* Les consoles tournent souvent sur le poste d'un animateur : un lien en
+     localhost n'est joignable par aucun téléphone. On demande donc au serveur son
+     adresse publique (URL Render) ou son adresse réseau locale avant d'afficher
+     un lien ou un QR. */
+  let publicOrigin = window.location.origin;
+
+  async function resolveOrigin(onChange) {
+    if (!/^(localhost|127\.0\.0\.1|\[?::1\]?)$/.test(window.location.hostname)) return publicOrigin;
+    try {
+      const res = await api('/api/network');
+      const reachable = (res.urls || []).find((url) => !/localhost|127\.0\.0\.1|\[::1\]/.test(url));
+      if (reachable) {
+        publicOrigin = reachable.replace(/\/+$/, '');
+        if (typeof onChange === 'function') onChange(publicOrigin);
+      }
+    } catch (err) {
+      /* on garde l'origine du navigateur */
+    }
+    return publicOrigin;
+  }
+
+  /** Lien d'inscription. Avec teamId, le joueur est assis à cette table. */
+  function joinUrl(code, teamId) {
+    const base = `${publicOrigin}/join/${encodeURIComponent(code)}`;
+    return teamId ? `${base}?t=${encodeURIComponent(teamId)}` : base;
   }
 
   function tableUrl(code) {
-    return `${window.location.origin}/table/${encodeURIComponent(code)}`;
+    return `${publicOrigin}/table/${encodeURIComponent(code)}`;
   }
 
   window.SG = {
@@ -496,6 +531,8 @@
     fmtDateTime,
     fmtTimeOnly,
     fmtDuration,
+    toMinutes,
+    toSeconds,
     LS,
     superStore,
     tableStore,
@@ -513,6 +550,7 @@
     copyText,
     modal,
     qs,
+    resolveOrigin,
     joinUrl,
     tableUrl,
     t,

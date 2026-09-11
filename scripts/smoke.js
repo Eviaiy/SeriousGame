@@ -145,6 +145,107 @@ async function main() {
   );
   step('doublon de nom de joueur refusé');
 
+  /* ------------------------------------------------------------- QR de table */
+  const qrSession = await post('/api/sessions', {
+    name: 'Smoke QR',
+    facilitator: 'QA',
+    lang: 'fr',
+    teamCount: 3,
+    teamSize: 2,
+  });
+  const wanted = qrSession.teams[2];
+  const scanned = await post(`/api/sessions/${qrSession.code}/players`, {
+    name: 'Zoe',
+    teamId: wanted.id,
+  });
+  assert.strictEqual(scanned.teamId, wanted.id, 'le QR d’une table y assoit le joueur');
+  const strayed = await post(`/api/sessions/${qrSession.code}/players`, {
+    name: 'Yann',
+    teamId: 'tm_inconnue',
+  });
+  assert.ok(
+    qrSession.teams.some((x) => x.id === strayed.teamId),
+    'table inconnue : retour à la répartition automatique'
+  );
+  const lookup = await rest(`/api/sessions/${qrSession.code}`);
+  assert.ok(
+    (lookup.tables || []).some((x) => x.id === wanted.id && x.name === wanted.name),
+    'l’accueil peut nommer la table scannée'
+  );
+  step('QR de table : le joueur est assis à la table scannée');
+
+  /* ------------------------------------ console de table par code de session */
+  const claims = [];
+  for (let i = 0; i < 3; i += 1) claims.push(await post('/api/team-admin', { code: qrSession.code }));
+  assert.strictEqual(
+    new Set(claims.map((c) => c.teamId)).size,
+    3,
+    'trois animateurs, les trois tables de la session'
+  );
+  assert.ok(claims[0].adminToken && claims[0].adminCode, 'jeton et code de table renvoyés');
+  const again = await post('/api/team-admin', { code: claims[0].adminCode });
+  assert.strictEqual(again.teamId, claims[0].teamId, 'un code de table mène toujours à sa table');
+  step('code de session côté animateur : une table libre de la session');
+
+  /* Le nombre de tables est arrêté à la création : le quatrième animateur ne
+     doit pas en faire naître une quatrième. */
+  await assert.rejects(
+    () => post('/api/team-admin', { code: qrSession.code }),
+    /tables_all_hosted|400/,
+    'aucune table créée à la demande'
+  );
+  assert.strictEqual(
+    (await rest(`/api/sessions/${qrSession.code}`)).teamCount,
+    3,
+    'la session garde ses trois tables'
+  );
+  step('toutes les tables animées : la porte refuse au lieu d’en créer une');
+
+  /* Les places annoncées (tables × joueurs) sont une capacité réelle. */
+  const full = await post('/api/sessions', {
+    name: 'Smoke places',
+    facilitator: 'QA',
+    lang: 'fr',
+    teamCount: 2,
+    teamSize: 2,
+  });
+  for (const name of ['Alix', 'Bo', 'Cam', 'Dia']) {
+    await post(`/api/sessions/${full.code}/players`, { name });
+  }
+  const seated = await rest(`/api/sessions/${full.code}`);
+  assert.strictEqual(seated.playerCount, 4, '2 tables × 2 joueurs : quatre places');
+  await assert.rejects(
+    () => post(`/api/sessions/${full.code}/players`, { name: 'Eli' }),
+    /session_full|400/,
+    'cinquième joueur refusé'
+  );
+  await assert.rejects(
+    () => post(`/api/sessions/${full.code}/players`, { name: 'Fay', teamId: full.teams[0].id }),
+    /session_full|400/,
+    'table pleine demandée par QR : refus aussi'
+  );
+  step('places par table respectées : session complète au-delà');
+
+  /* Nom des tables : celui de la session, suivi du numéro. */
+  assert.strictEqual(full.teams[0].name, 'Smoke places · Table 1', 'la table porte le nom de la session');
+  assert.strictEqual(full.teams[1].name, 'Smoke places · Table 2', 'et son numéro d’ordre');
+  step('tables nommées d’après la session');
+
+  /* Une table ouverte par son propre code compte comme animée : l'animateur
+     suivant, arrivé avec le code de session, doit recevoir l'autre table. */
+  const picked = await post('/api/sessions', {
+    name: 'Smoke attribution',
+    facilitator: 'QA',
+    lang: 'fr',
+    teamCount: 2,
+    teamSize: 6,
+  });
+  const byCode = await post('/api/team-admin', { code: picked.teams[1].adminCode });
+  assert.strictEqual(byCode.teamId, picked.teams[1].id, 'le code d’une table mène à cette table');
+  const next = await post('/api/team-admin', { code: picked.code });
+  assert.strictEqual(next.teamId, picked.teams[0].id, 'la table déjà animée n’est pas réattribuée');
+  step('table ouverte par son code : elle n’est plus proposée à un autre animateur');
+
   /* ------------------------------------------------------- super animateur */
   const superSocket = await connect();
   const superTracker = track(superSocket);
@@ -154,9 +255,9 @@ async function main() {
   });
   superTracker.state = superJoined.state;
   assert.strictEqual(superJoined.state.role, 'super');
-  assert.strictEqual(superJoined.state.events.length, 10, '10 événements par défaut');
+  assert.strictEqual(superJoined.state.events.length, 8, '8 événements par défaut (4 + 4)');
   assert.strictEqual(superJoined.state.teams.length, 3);
-  step('super animateur connecté, deck par défaut chargé (10 événements)');
+  step('super animateur connecté, deck par défaut chargé (8 événements)');
 
   await expectFail(superSocket, 'super:join', { sessionId: created.sessionId, superKey: 'nope' });
   step('clé super animateur invalide rejetée');
@@ -348,10 +449,10 @@ async function main() {
   const superState = superTracker.state;
   const byName = {};
   for (const t of superState.teams) byName[t.id] = t;
-  assert.strictEqual(byName[teamA].total, 2, 'acte 1, choix B = +1 / +1 = 2');
-  assert.strictEqual(byName[teamB].total, 1, 'acte 1, choix C = −2 / +3 = 1');
-  assert.strictEqual(byName[teamC].total, 1, 'acte 1, choix C = 1');
-  step('barème acte 1 appliqué (B = +2, C = +1)');
+  assert.strictEqual(byName[teamA].act1, 2, 'acte 1, choix B = +2');
+  assert.strictEqual(byName[teamB].act1, 4, 'acte 1, choix C = +4');
+  assert.strictEqual(byName[teamC].act1, 4, 'acte 1, choix C = +4');
+  step('barème unique appliqué à l’acte 1 (A 0 · B +2 · C +4)');
 
   const act2 = superState.events.find((e) => e.act === 2);
   await call(admins[teamA].socket, 'round:start', { eventId: act2.id, durationSec: 120 });
@@ -360,15 +461,17 @@ async function main() {
   }
   await waitForState(admins[teamA].tracker, (s) => s.round && s.round.status === 'closed', 'A acte 2');
   await call(admins[teamA].socket, 'round:finish', {});
-  await waitForState(superTracker, (s) => s.teams.find((t) => t.id === teamA).total === 6, 'A à 6');
+  await waitForState(superTracker, (s) => s.teams.find((t) => t.id === teamA).act2 === 4, 'A acte 2 à 4');
+  assert.strictEqual(superTracker.state.teams.find((t) => t.id === teamA).total, 6, 'A total 2 + 4');
   step('barème acte 2 appliqué (C = +4, total 6)');
 
   /* ------------------------------------------------- classement par événement */
   const rankings = superTracker.state.rankings;
   const evt1Ranking = rankings.find((r) => r.eventId === evt1.id);
   assert.strictEqual(evt1Ranking.rows.length, 3, 'les trois tables ont joué l’événement 1');
-  assert.strictEqual(evt1Ranking.rows[0].teamId, teamA, 'table A gagne l’événement 1 (+2)');
+  assert.strictEqual(evt1Ranking.rows[0].total, 4, 'l’événement 1 est gagné avec le choix C (+4)');
   assert.strictEqual(evt1Ranking.rows[0].rank, 1);
+  assert.strictEqual(evt1Ranking.rows[2].teamId, teamA, 'table A dernière sur l’événement 1 (+2)');
   step('classement par événement calculé et conservé en interne');
 
   /* ------------------------------------- les scores restent invisibles aux tables */
@@ -403,7 +506,12 @@ async function main() {
     'dévoilement joueur'
   );
   assert.ok(revealed.leaderboard.length === 3, 'classement général visible après dévoilement');
-  assert.strictEqual(revealed.leaderboard[0].name, byName[teamA].name, 'table A première');
+  const finalByName = {};
+  for (const row of revealed.leaderboard) finalByName[row.name] = row;
+  assert.strictEqual(finalByName[byName[teamA].name].total, 6, 'table A : 2 (acte 1) + 4 (acte 2)');
+  assert.strictEqual(finalByName[byName[teamB].name].total, 7, 'table B : 4 (acte 1) + 3 (ajustements)');
+  assert.strictEqual(finalByName[byName[teamC].name].total, 2, 'table C : 2 après correction');
+  assert.strictEqual(revealed.leaderboard[0].name, byName[teamB].name, 'table B première (7 pts)');
   assert.ok(revealed.team.total !== undefined, 'le joueur voit enfin le total de son équipe');
   assert.ok(revealed.team.act1Profile, 'profil acte 1 révélé');
   step('dévoilement simultané : classement et profils visibles par tous');
@@ -423,7 +531,7 @@ async function main() {
   const entry = list.records.find((r) => r.id === ended.recordId);
   assert.ok(entry, 'archive listée');
   assert.strictEqual(entry.playerCount, 9, '9 joueurs archivés');
-  assert.strictEqual(entry.winner.name, byName[teamA].name, 'vainqueur archivé');
+  assert.strictEqual(entry.winner.name, byName[teamB].name, 'vainqueur archivé');
   step(`historique : vainqueur ${entry.winner.name} (${entry.winner.total} pts)`);
 
   const detail = await rest(`/api/records/${ended.recordId}`);
@@ -443,6 +551,72 @@ async function main() {
   await call(superSocket, 'super:reopenSession', {});
   await waitForState(superTracker, (s) => s.session.status !== 'finished', 'session réouverte');
   step('session réouverte par le super animateur');
+
+  /* ------------------------------------------------- suppression d'une session */
+  const doomed = await post('/api/sessions', {
+    name: 'Smoke suppression',
+    facilitator: 'QA',
+    lang: 'fr',
+    teamCount: 2,
+    teamSize: 6,
+  });
+  const doomedTable = doomed.teams[0];
+  const hostSocket = await connect();
+  const hosted = await post('/api/team-admin', { code: doomedTable.adminCode });
+  await call(hostSocket, 'teamAdmin:join', {
+    sessionId: hosted.sessionId,
+    teamId: hosted.teamId,
+    adminToken: hosted.adminToken,
+  });
+  const kicked = new Promise((resolve) => hostSocket.once('session:deleted', resolve));
+
+  const badKey = await fetch(`${BASE}/api/sessions/${doomed.sessionId}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ superKey: 'pas-la-bonne' }),
+  });
+  assert.strictEqual(badKey.status, 400, 'suppression refusée sans la clé de direction');
+  assert.ok((await rest(`/api/sessions/${doomed.code}`)).ok, 'la session a survécu à la tentative');
+  step('suppression refusée sans la clé de direction');
+
+  await rest(`/api/sessions/${doomed.sessionId}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ superKey: doomed.superKey }),
+  });
+  await kicked;
+  step('console de table prévenue de la suppression');
+
+  const goneSession = await fetch(`${BASE}/api/sessions/${doomed.code}`);
+  assert.strictEqual(goneSession.status, 404, 'la session supprimée est introuvable');
+  const orphanCode = await fetch(`${BASE}/api/team-admin`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code: doomedTable.adminCode }),
+  });
+  assert.strictEqual(orphanCode.status, 400, 'le code de sa table n’ouvre plus rien');
+  hostSocket.close();
+  step('session supprimée : tables, codes et postes effacés');
+
+  /* --------------------------------- archive supprimée = session terminée effacée */
+  const archived = await post('/api/sessions', {
+    name: 'Smoke archive',
+    facilitator: 'QA',
+    lang: 'fr',
+    teamCount: 1,
+    teamSize: 6,
+  });
+  const archiveSocket = await connect();
+  await call(archiveSocket, 'super:join', {
+    sessionId: archived.sessionId,
+    superKey: archived.superKey,
+  });
+  const archiveEnd = await call(archiveSocket, 'super:endSession', {});
+  archiveSocket.close();
+  await rest(`/api/records/${archiveEnd.recordId}`, { method: 'DELETE' });
+  const afterPurge = await fetch(`${BASE}/api/sessions/${archived.code}`);
+  assert.strictEqual(afterPurge.status, 404, 'la session terminée part avec son archive');
+  step('archive supprimée : la session terminée et ses tables partent avec elle');
 
   /* ------------------------------------------------------------------- fin */
   superSocket.close();

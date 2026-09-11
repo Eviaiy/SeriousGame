@@ -3,40 +3,31 @@
 /**
  * Contenu du jeu / Game content.
  *
- * Acte 1 — Comité de crise : 6 cartes incidents, matrice A/B/C sur deux axes
- *          (court terme / long terme).
- * Acte 2 — Choose your transformation : 4 étapes, matrice A/B/C sur un axe
- *          (0 / +2 / +4 points).
+ * Acte 1 — Comité de crise : 4 cartes incidents sur 3 rounds de 6 min.
+ * Acte 2 — Choose your transformation : 4 étapes de décision.
+ *
+ * Barème unique aux deux actes (carte de scoring « Compter les points ») :
+ *   A court terme = 0 · B équilibré = +2 · C structurant = +4.
+ * Soit 4 décisions × 4 points = 16 points maximum par acte.
  *
  * Chaque texte est bilingue : { fr, en }.
  */
 
-const ACT1_MATRIX = {
-  A: { short: 2, long: -3 },
-  B: { short: 1, long: 1 },
-  C: { short: -2, long: 3 },
+/** Barème partagé par les deux actes. */
+const OPTION_POINTS = { A: 0, B: 2, C: 4 };
+
+/** Étiquettes du barème, telles qu'elles figurent sur la carte de scoring. */
+const OPTION_TIERS = {
+  A: { fr: 'Court terme', en: 'Short term' },
+  B: { fr: 'Équilibré', en: 'Balanced' },
+  C: { fr: 'Structurant', en: 'Structural' },
 };
 
-const ACT2_MATRIX = { A: 0, B: 2, C: 4 };
-
-function act1Options(list) {
+function options(list) {
   return list.map((opt) => ({
     key: opt.key,
     label: opt.label,
-    short: ACT1_MATRIX[opt.key].short,
-    long: ACT1_MATRIX[opt.key].long,
-    points: null,
-    reveal: opt.reveal || null,
-  }));
-}
-
-function act2Options(list) {
-  return list.map((opt) => ({
-    key: opt.key,
-    label: opt.label,
-    short: null,
-    long: null,
-    points: ACT2_MATRIX[opt.key],
+    points: OPTION_POINTS[opt.key],
     reveal: opt.reveal || null,
   }));
 }
@@ -55,8 +46,14 @@ const DEFAULT_EVENTS = [
       en: '8% of your invoices are rejected by your customers’ platforms.',
     },
     motif: [
-      { fr: 'SIREN manquant', en: 'Missing company ID (SIREN)' },
-      { fr: 'Nature d’opération incohérente', en: 'Inconsistent transaction type' },
+      {
+        fr: 'SIREN erroné (adresse de facturation incorrecte)',
+        en: 'Incorrect company ID (wrong billing address)',
+      },
+      {
+        fr: 'Prix unitaire des biens livrés incohérent avec les négociations commerciales',
+        en: 'Unit price of the delivered goods inconsistent with the commercial terms',
+      },
     ],
     impact: [
       { fr: 'Retards de paiement', en: 'Payment delays' },
@@ -64,7 +61,7 @@ const DEFAULT_EVENTS = [
       { fr: 'Perte de crédibilité client', en: 'Loss of customer credibility' },
     ],
     tension: null,
-    options: act1Options([
+    options: options([
       { key: 'A', label: { fr: 'Correction manuelle rapide', en: 'Quick manual fix' } },
       { key: 'B', label: { fr: 'Patch IT ciblé', en: 'Targeted IT patch' } },
       { key: 'C', label: { fr: 'Audit global des données', en: 'Full data audit' } },
@@ -73,30 +70,40 @@ const DEFAULT_EVENTS = [
   {
     id: 'act1-card2',
     act: 1,
-    round: 1,
+    round: 2,
     ref: { fr: 'Carte 2', en: 'Card 2' },
-    tag: { fr: 'Incident client · Round 1', en: 'Customer incident · Round 1' },
+    tag: { fr: 'Escalade fiscale · Round 2', en: 'Tax escalation · Round 2' },
     color: 'red',
-    title: { fr: 'Blocage de paiement', en: 'Payment freeze' },
+    title: { fr: 'DGFIP — incohérences', en: 'Tax authority — inconsistencies' },
     situation: {
-      fr: 'Un client stratégique (plus de 15 % du CA) bloque tous ses paiements.',
-      en: 'A strategic customer (over 15% of revenue) has frozen all payments.',
+      fr: 'L’administration détecte des anomalies et demande une explication formelle.',
+      en: 'The tax authority detects anomalies and requests a formal explanation.',
     },
     motif: [
       {
-        fr: 'Incohérences entre facture et données de livraison',
-        en: 'Mismatch between invoice and delivery data',
+        fr: 'Écarts de TVA (montants sur factures v. CA3)',
+        en: 'VAT discrepancies (invoice amounts vs. VAT return)',
+      },
+      {
+        fr: 'Anomalies sur les codes VATEX v. détail à la ligne des opérations',
+        en: 'VATEX code anomalies vs. the line-level detail of the transactions',
       },
     ],
     impact: [
-      { fr: 'Tension commerciale forte', en: 'Severe commercial tension' },
-      { fr: 'Risque cash immédiat', en: 'Immediate cash risk' },
+      { fr: 'Risque de redressement fiscal', en: 'Risk of a tax reassessment' },
+      { fr: 'Exposition financière', en: 'Financial exposure' },
     ],
     tension: null,
-    options: act1Options([
-      { key: 'A', label: { fr: 'Gérer au cas par cas', en: 'Handle case by case' } },
-      { key: 'B', label: { fr: 'Task force dédiée', en: 'Dedicated task force' } },
-      { key: 'C', label: { fr: 'Revue complète du process O2C', en: 'Full order-to-cash review' } },
+    options: options([
+      { key: 'A', label: { fr: 'Justification a posteriori', en: 'After-the-fact justification' } },
+      { key: 'B', label: { fr: 'Correction ciblée', en: 'Targeted correction' } },
+      {
+        key: 'C',
+        label: {
+          fr: 'Revue complète du paramétrage de l’ERP et des applicatifs amont',
+          en: 'Full review of the ERP and upstream application settings',
+        },
+      },
     ]),
   },
   {
@@ -104,60 +111,36 @@ const DEFAULT_EVENTS = [
     act: 1,
     round: 2,
     ref: { fr: 'Carte 3', en: 'Card 3' },
-    tag: { fr: 'Alerte fiscale · Round 2', en: 'Tax alert · Round 2' },
-    color: 'orange',
-    title: { fr: 'DGFIP — incohérences', en: 'Tax authority — inconsistencies' },
-    situation: {
-      fr: 'L’administration détecte des anomalies et demande une explication formelle.',
-      en: 'The tax authority detects anomalies and requests a formal explanation.',
-    },
-    motif: [
-      { fr: 'Écarts de TVA', en: 'VAT discrepancies' },
-      { fr: 'Anomalies d’e-reporting', en: 'E-reporting anomalies' },
-    ],
-    impact: [
-      { fr: 'Risque de contrôle fiscal', en: 'Tax audit risk' },
-      { fr: 'Exposition financière', en: 'Financial exposure' },
-    ],
-    tension: null,
-    options: act1Options([
-      { key: 'A', label: { fr: 'Justification a posteriori', en: 'After-the-fact justification' } },
-      { key: 'B', label: { fr: 'Correction ciblée', en: 'Targeted correction' } },
-      { key: 'C', label: { fr: 'Revue complète des règles fiscales', en: 'Full review of tax rules' } },
-    ]),
-  },
-  {
-    id: 'act1-card4',
-    act: 1,
-    round: 2,
-    ref: { fr: 'Carte 4', en: 'Card 4' },
     tag: { fr: 'Audit interne · Round 2', en: 'Internal audit · Round 2' },
-    color: 'orange',
+    color: 'red',
     title: { fr: 'Alerte sur les contrôles', en: 'Controls alert' },
     situation: {
       fr: 'L’audit interne alerte le comité sur la fragilité du dispositif.',
       en: 'Internal audit warns the committee that the setup is fragile.',
     },
     motif: [
-      { fr: 'Absence de contrôle data', en: 'No data controls' },
-      { fr: 'Dépendance excessive à la PDP', en: 'Excessive dependency on the platform provider' },
+      {
+        fr: 'Absence de contrôle de la data (exhaustivité, qualité)',
+        en: 'No data controls (completeness, quality)',
+      },
+      { fr: 'Dépendance excessive à la PA', en: 'Excessive dependency on the accredited platform' },
     ],
     impact: [
       { fr: 'Fragilité du dispositif', en: 'Fragile setup' },
       { fr: 'Risque non maîtrisé', en: 'Unmanaged risk' },
     ],
     tension: null,
-    options: act1Options([
+    options: options([
       { key: 'A', label: { fr: 'Minimiser : normal en post go-live', en: 'Play it down: normal after go-live' } },
       { key: 'B', label: { fr: 'Plan de remédiation léger', en: 'Light remediation plan' } },
       { key: 'C', label: { fr: 'Refonte du dispositif de contrôle', en: 'Redesign the control framework' } },
     ]),
   },
   {
-    id: 'act1-card5',
+    id: 'act1-card4',
     act: 1,
     round: 3,
-    ref: { fr: 'Carte 5', en: 'Card 5' },
+    ref: { fr: 'Carte 4', en: 'Card 4' },
     tag: { fr: 'Crise réputation · Round 3', en: 'Reputation crisis · Round 3' },
     color: 'red',
     title: { fr: 'Article de presse', en: 'Press article' },
@@ -172,38 +155,13 @@ const DEFAULT_EVENTS = [
       { fr: 'Mobilisation de la direction générale', en: 'Executive committee mobilised' },
     ],
     tension: null,
-    options: act1Options([
+    options: options([
       { key: 'A', label: { fr: 'Communication + correctifs rapides', en: 'Communication + quick fixes' } },
       { key: 'B', label: { fr: 'Programme de stabilisation', en: 'Stabilisation programme' } },
       {
         key: 'C',
         label: { fr: 'Repositionnement stratégique data et fiscal', en: 'Strategic data and tax repositioning' },
       },
-    ]),
-  },
-  {
-    id: 'act1-card6',
-    act: 1,
-    round: 3,
-    ref: { fr: 'Carte 6', en: 'Card 6' },
-    tag: { fr: 'Crise financière · Round 3', en: 'Financial crisis · Round 3' },
-    color: 'red',
-    title: { fr: 'Tension cash', en: 'Cash squeeze' },
-    situation: {
-      fr: '12 % du cash client est retardé, à cause d’anomalies sur les factures.',
-      en: '12% of customer cash is delayed because of invoice anomalies.',
-    },
-    motif: [],
-    impact: [
-      { fr: 'Pression sur le CFO', en: 'Pressure on the CFO' },
-      { fr: 'Impact direct sur le résultat', en: 'Direct impact on earnings' },
-      { fr: 'Arbitrages urgents', en: 'Urgent trade-offs' },
-    ],
-    tension: null,
-    options: act1Options([
-      { key: 'A', label: { fr: 'Traitement manuel', en: 'Manual processing' } },
-      { key: 'B', label: { fr: 'Optimisation ciblée', en: 'Targeted optimisation' } },
-      { key: 'C', label: { fr: 'Refonte complète du modèle', en: 'Full model redesign' } },
     ]),
   },
   {
@@ -221,7 +179,7 @@ const DEFAULT_EVENTS = [
     motif: [],
     impact: [],
     tension: { fr: 'Pression forte des équipes', en: 'Strong pressure from the teams' },
-    options: act2Options([
+    options: options([
       {
         key: 'A',
         label: { fr: 'Corriger au fil de l’eau', en: 'Fix as you go' },
@@ -254,7 +212,7 @@ const DEFAULT_EVENTS = [
     motif: [],
     impact: [],
     tension: { fr: 'Risque de contrôle fiscal ciblé', en: 'Risk of a targeted tax audit' },
-    options: act2Options([
+    options: options([
       {
         key: 'A',
         label: { fr: 'Gérer les anomalies au cas par cas', en: 'Handle anomalies case by case' },
@@ -287,7 +245,7 @@ const DEFAULT_EVENTS = [
     motif: [],
     impact: [],
     tension: { fr: 'Arbitrage de gouvernance', en: 'Governance trade-off' },
-    options: act2Options([
+    options: options([
       {
         key: 'A',
         label: { fr: 'Laisser l’IT gérer', en: 'Let IT handle it' },
@@ -323,7 +281,7 @@ const DEFAULT_EVENTS = [
       fr: 'Budget limité + pression de la direction générale',
       en: 'Limited budget + pressure from the CEO',
     },
-    options: act2Options([
+    options: options([
       {
         key: 'A',
         label: { fr: 'Stabilisation minimale', en: 'Minimal stabilisation' },
@@ -348,7 +306,7 @@ const NARRATIVE = {
   eyebrow: { fr: 'À lire à voix haute · Acte 1', en: 'Read aloud · Act 1' },
   title: { fr: 'Comité de crise', en: 'Crisis committee' },
   lines: [
-    { fr: 'Nous sommes le 1er octobre 2026.', en: 'It is 1 October 2026.' },
+    { fr: 'Nous sommes le 8 octobre 2026.', en: 'It is 8 October 2026.' },
     {
       fr: 'Votre entreprise est conforme… techniquement. Les factures passent, la plateforme est en place.',
       en: 'Your company is compliant… technically. Invoices go through, the platform is live.',
@@ -383,8 +341,8 @@ const ROLES = [
     },
     focus: { fr: 'Sécuriser le fond avant la forme.', en: 'Secure substance before form.' },
     quote: {
-      fr: '« Avant de ré-émettre quoi que ce soit : quel est l’impact TVA chiffré ? »',
-      en: '“Before we reissue anything: what is the quantified VAT impact?”',
+      fr: '« Avant de ré-émettre des factures électroniques : quel est l’impact TVA chiffré ? »',
+      en: '“Before we reissue any e-invoices: what is the quantified VAT impact?”',
     },
     stance: {
       fr: 'Vous portez l’exposition au contrôle. Exigez des chiffres avant toute décision.',
@@ -499,23 +457,23 @@ function roleById(roleId) {
   return ROLES.find((r) => r.id === roleId) || null;
 }
 
-/** Profils Acte 1 : bornes sur (court terme + long terme) cumulés. */
+/** Profils Acte 1 : bornes sur les points cumulés (0 à 16), comme l'Acte 2. */
 const ACT1_PROFILES = [
   {
     id: 'firefighter',
-    max: -0.0001,
+    max: 4,
     label: { fr: 'Firefighter', en: 'Firefighter' },
     desc: { fr: 'Vous subissez la réforme', en: 'The reform is happening to you' },
   },
   {
     id: 'conforme-fragile',
-    max: 5,
+    max: 8,
     label: { fr: 'Conforme fragile', en: 'Fragile compliance' },
     desc: { fr: 'Conforme, mais dépendant des corrections', en: 'Compliant, but dependent on fixes' },
   },
   {
     id: 'en-controle',
-    max: 10,
+    max: 12,
     label: { fr: 'En contrôle', en: 'In control' },
     desc: { fr: 'Dispositif maîtrisé et outillé', en: 'Framework mastered and tooled' },
   },
@@ -580,8 +538,8 @@ function cloneDefaultEvents() {
 }
 
 module.exports = {
-  ACT1_MATRIX,
-  ACT2_MATRIX,
+  OPTION_POINTS,
+  OPTION_TIERS,
   DEFAULT_EVENTS,
   NARRATIVE,
   ROLES,

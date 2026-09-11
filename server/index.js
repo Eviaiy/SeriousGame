@@ -140,9 +140,31 @@ function armTeamTimer(session, teamId) {
   roundTimers.set(key, timer);
 }
 
+/**
+ * Supprimer une session, c'est supprimer tout ce qu'elle contient : ses tables,
+ * leurs codes d'animateur et les postes de ses joueurs. Les consoles ouvertes
+ * sont prévenues avant l'effacement, sinon elles resteraient sur un état figé.
+ */
+function dropSession(session) {
+  for (const team of session.teams) clearTeamTimer(session.id, team.id);
+  const set = sessionSockets.get(session.id);
+  if (set) {
+    for (const socket of set) {
+      socket.emit('session:deleted', { sessionId: session.id });
+      socket.data.sessionId = null;
+      socket.data.audience = null;
+    }
+    sessionSockets.delete(session.id);
+  }
+  game.deleteSession(session);
+}
+
 /** Au démarrage : réarme les minuteurs, ferme les manches expirées pendant l'arrêt. */
 function resumeAfterRestart() {
   for (const session of Object.values(store.state.sessions)) {
+    /* Recalcule les cumuls par acte : les parties écrites avant le barème
+       unique n'ont pas encore les champs act1 / act2. */
+    game.recomputeAllScores(session);
     for (const team of session.teams) {
       const round = team.round;
       if (!round) continue;
@@ -223,15 +245,39 @@ app.get('/api/sessions/:code', (req, res) => {
     teamCount: session.teams.length,
     playerCount: session.teams.reduce((sum, t) => sum + t.players.length, 0),
     teamSize: session.settings.teamSize,
+    /* Le QR d'une table porte son identifiant : l'accueil doit pouvoir nommer
+       la table avant l'inscription. Aucun code d'animateur ici. */
+    tables: session.teams.map((t) => ({ id: t.id, name: t.name })),
   });
 });
 
-/** Inscription d'un joueur : le serveur choisit la table la moins remplie. */
+/**
+ * La direction de jeu supprime sa session : ses tables et leurs codes cessent
+ * d'exister, les consoles ouvertes sont renvoyées à l'accueil. L'archive d'une
+ * partie terminée reste dans l'historique, elle ne dépend plus de la session.
+ */
+app.delete('/api/sessions/:id', (req, res) => {
+  try {
+    const session = game.getSession(req.params.id);
+    if (!session) throw new game.GameError('session_not_found', 'Session introuvable');
+    game.assertSuper(session, (req.body || {}).superKey || req.get('x-super-key'));
+    dropSession(session);
+    res.json({ ok: true });
+  } catch (err) {
+    sendError(res, err);
+  }
+});
+
+/**
+ * Inscription d'un joueur. Sans précision le serveur choisit la table la moins
+ * remplie ; le QR d'une table transmet son identifiant et le joueur y est assis.
+ */
 app.post('/api/sessions/:code/players', (req, res) => {
   try {
     const session = game.findByCode(req.params.code);
     if (!session) throw new game.GameError('session_not_found', 'Session introuvable');
-    const { team, player } = game.joinPlayer(session, (req.body || {}).name);
+    const body = req.body || {};
+    const { team, player } = game.joinPlayer(session, body.name, { teamId: body.teamId });
     broadcast(session);
     notify(session, { type: 'player_joined', name: player.name, team: team.name }, team.id);
     res.json({
@@ -249,19 +295,35 @@ app.post('/api/sessions/:code/players', (req, res) => {
   }
 });
 
-/** Un animateur d'équipe échange son code de table contre un jeton d'accès. */
+/**
+ * Un animateur échange un code contre un jeton d'accès à sa console de table.
+ * Le code de session suffit : une table libre lui est attribuée, ou créée. Le
+ * code d'une table précise reste accepté et mène toujours à la même table.
+ */
 app.post('/api/team-admin', (req, res) => {
   try {
-    const found = game.findByTeamCode((req.body || {}).code);
-    if (!found) throw new game.GameError('team_not_found', 'Code de table inconnu');
+    const code = (req.body || {}).code;
+    const found = game.findByTeamCode(code);
+    let session = found ? found.session : null;
+    let team = found ? found.team : null;
+    if (!team) {
+      session = game.findByCode(code);
+      if (!session) throw new game.GameError('team_not_found', 'Code inconnu');
+      team = game.claimTeamForHost(session);
+    } else {
+      /* Table choisie dans la liste : elle compte aussi comme animée. */
+      game.markTeamHosted(session, team);
+    }
+    broadcast(session);
     res.json({
       ok: true,
-      sessionId: found.session.id,
-      code: found.session.code,
-      sessionName: found.session.name,
-      teamId: found.team.id,
-      teamName: found.team.name,
-      adminToken: found.team.adminToken,
+      sessionId: session.id,
+      code: session.code,
+      sessionName: session.name,
+      teamId: team.id,
+      teamName: team.name,
+      adminCode: team.adminCode,
+      adminToken: team.adminToken,
     });
   } catch (err) {
     sendError(res, err);
@@ -293,12 +355,15 @@ app.get('/api/records/:id', requirePass, (req, res) => {
 });
 
 app.delete('/api/records/:id', requirePass, (req, res) => {
-  const before = store.state.records.length;
+  const record = store.state.records.find((r) => r.id === req.params.id);
+  if (!record) return res.status(404).json({ ok: false, error: 'record_not_found' });
   store.state.records = store.state.records.filter((r) => r.id !== req.params.id);
-  if (store.state.records.length === before) {
-    return res.status(404).json({ ok: false, error: 'record_not_found' });
-  }
   store.persistRecords();
+  /* L'archive effacée, la session terminée qui l'a produite n'a plus de raison
+     de survivre : ses codes de table ouvriraient encore des consoles. Une
+     session rouverte est repartie en jeu, on n'y touche pas. */
+  const session = record.sessionId ? game.getSession(record.sessionId) : null;
+  if (session && session.status === 'finished') dropSession(session);
   return res.json({ ok: true });
 });
 
@@ -322,8 +387,6 @@ function recordToCsv(record) {
   push([
     'Rang',
     'Équipe',
-    'Court terme',
-    'Long terme',
     'Acte 1',
     'Acte 2',
     'Ajustements',
@@ -336,8 +399,6 @@ function recordToCsv(record) {
     push([
       row.rank,
       row.name,
-      row.short,
-      row.long,
       row.act1,
       row.act2,
       row.adjust,
@@ -403,7 +464,10 @@ app.get('/api/records/:id/csv', requirePass, (req, res) => {
 });
 
 app.get('/join/:code', (req, res) => {
-  res.redirect(`/play.html?code=${encodeURIComponent(String(req.params.code || '').toUpperCase())}`);
+  const code = encodeURIComponent(String(req.params.code || '').toUpperCase());
+  /* ?t=<table> vient du QR posé sur une table : on le garde jusqu'au formulaire. */
+  const table = String(req.query.t || '').slice(0, 40);
+  res.redirect(`/play.html?code=${code}${table ? `&t=${encodeURIComponent(table)}` : ''}`);
 });
 
 app.get('/table/:code', (req, res) => {
