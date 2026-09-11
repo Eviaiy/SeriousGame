@@ -127,18 +127,15 @@
 
         <!-- =============================================== colonne droite -->
         <div class="stack">
-          <!-- dévoilement -->
+          <!-- dévoilement et classement : le geste et son résultat au même endroit -->
           <section class="panel" id="reveal-panel">
             <div class="panel-head">
               <h2 data-i18n="admin.overview">Vue d’ensemble</h2>
             </div>
             <div id="reveal-host"></div>
-          </section>
-
-          <!-- classement général -->
-          <section class="panel">
-            <div class="panel-head">
-              <h2 data-i18n="admin.leaderboard">Classement général</h2>
+            <div class="divider"></div>
+            <div class="label" style="margin-bottom: 10px" data-i18n="admin.leaderboard">
+              Classement général
             </div>
             <div class="table-wrap" id="board-host"></div>
             <p class="small muted" style="margin: 10px 0 0" data-i18n="admin.noIndividual"></p>
@@ -151,7 +148,7 @@
             </div>
             <label class="field">
               <span data-i18n="admin.duration">Durée du vote (minutes)</span>
-              <input type="number" id="set-duration" min="1" max="60" step="1" />
+              <input type="number" id="set-duration" min="0.5" max="60" step="0.5" />
             </label>
             <label class="field">
               <span data-i18n="admin.arbitration">Temps d’arbitrage (minutes)</span>

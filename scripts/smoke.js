@@ -172,6 +172,10 @@ async function main() {
     (lookup.tables || []).some((x) => x.id === wanted.id && x.name === wanted.name),
     'l’accueil peut nommer la table scannée'
   );
+  assert.ok(
+    lookup.tables.every((x) => !x.hosted),
+    'aucune table n’est signalée animée avant qu’un animateur ne l’ouvre'
+  );
   step('QR de table : le joueur est assis à la table scannée');
 
   /* ------------------------------------ console de table par code de session */
@@ -200,6 +204,35 @@ async function main() {
     'la session garde ses trois tables'
   );
   step('toutes les tables animées : la porte refuse au lieu d’en créer une');
+
+  /* Les tables vivent sur le serveur, pas dans un navigateur : la porte les
+     liste toutes et rouvre celle qu'on désigne, même déjà animée. C'est le
+     chemin d'un animateur passé du téléphone à l'ordinateur. */
+  const sheet = await rest(`/api/sessions/${qrSession.code}`);
+  assert.ok(
+    sheet.tables.length === 3 && sheet.tables.every((x) => x.hosted),
+    'les tables ouvertes sont signalées animées'
+  );
+  assert.ok(
+    sheet.tables.every((x) => !x.adminCode),
+    'la liste publique ne porte aucun code de table'
+  );
+  const elsewhere = await post('/api/team-admin', {
+    code: qrSession.code,
+    teamId: claims[0].teamId,
+  });
+  assert.strictEqual(elsewhere.teamId, claims[0].teamId, 'la table désignée est bien celle ouverte');
+  assert.strictEqual(
+    elsewhere.adminToken,
+    claims[0].adminToken,
+    'les deux appareils tiennent la même console de table'
+  );
+  await assert.rejects(
+    () => post('/api/team-admin', { code: qrSession.code, teamId: 'tm_inconnue' }),
+    /team_not_found|400/,
+    'table inconnue refusée'
+  );
+  step('une table se rouvre depuis un autre appareil, sans son code');
 
   /* Les places annoncées (tables × joueurs) sont une capacité réelle. */
   const full = await post('/api/sessions', {

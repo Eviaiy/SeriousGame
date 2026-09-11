@@ -246,8 +246,15 @@ app.get('/api/sessions/:code', (req, res) => {
     playerCount: session.teams.reduce((sum, t) => sum + t.players.length, 0),
     teamSize: session.settings.teamSize,
     /* Le QR d'une table porte son identifiant : l'accueil doit pouvoir nommer
-       la table avant l'inscription. Aucun code d'animateur ici. */
-    tables: session.teams.map((t) => ({ id: t.id, name: t.name })),
+       la table avant l'inscription, et la porte animateur dire lesquelles sont
+       déjà tenues. Aucun code d'animateur ici : la porte désigne une table par
+       son identifiant. */
+    tables: session.teams.map((t) => ({
+      id: t.id,
+      name: t.name,
+      hosted: Boolean(t.hostClaimedAt),
+      headcount: t.players.length,
+    })),
   });
 });
 
@@ -302,14 +309,16 @@ app.post('/api/sessions/:code/players', (req, res) => {
  */
 app.post('/api/team-admin', (req, res) => {
   try {
-    const code = (req.body || {}).code;
+    const { code, teamId } = req.body || {};
     const found = game.findByTeamCode(code);
     let session = found ? found.session : null;
     let team = found ? found.team : null;
     if (!team) {
       session = game.findByCode(code);
       if (!session) throw new game.GameError('team_not_found', 'Code inconnu');
-      team = game.claimTeamForHost(session);
+      /* Table désignée dans la liste de la porte : on ouvre celle-là. Sans
+         précision, l'animateur reçoit la première table encore libre. */
+      team = teamId ? game.hostTeam(session, teamId) : game.claimTeamForHost(session);
     } else {
       /* Table choisie dans la liste : elle compte aussi comme animée. */
       game.markTeamHosted(session, team);

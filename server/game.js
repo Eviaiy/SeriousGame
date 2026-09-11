@@ -303,6 +303,17 @@ function claimTeamForHost(session) {
   return markTeamHosted(session, free);
 }
 
+/**
+ * Table désignée par la porte animateur : on ouvre celle-là, même déjà animée.
+ * C'est ainsi qu'un animateur retrouve sa table depuis un autre appareil, et que
+ * deux animateurs d'une même table (téléphone et ordinateur) tiennent la même
+ * console.
+ */
+function hostTeam(session, teamId) {
+  if (session.status === 'finished') throw new GameError('session_finished', 'Session terminée');
+  return markTeamHosted(session, requireTeam(session, teamId));
+}
+
 /** Une table est « animée » dès qu'une console s'y ouvre, quel que soit le code. */
 function markTeamHosted(session, team) {
   if (team.hostClaimedAt) return team;
@@ -1381,6 +1392,7 @@ function stateFor(session, audience = {}) {
           id: team.id,
           name: team.name,
           adminCode: team.adminCode,
+          hosted: Boolean(team.hostClaimedAt),
           headcount: team.players.length,
           online: team.players.filter((p) => p.sockets > 0).length,
           rolesAssigned: Boolean(team.rolesAssignedAt),
@@ -1481,6 +1493,7 @@ module.exports = {
   pruneSessions,
   addTeam,
   claimTeamForHost,
+  hostTeam,
   markTeamHosted,
   getTeam,
   requireTeam,

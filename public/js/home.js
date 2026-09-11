@@ -28,6 +28,12 @@
   /* Table scannée sur place : le joueur y sera assis au lieu d'être réparti. */
   const wantedTable = (qs('t') || '').slice(0, 40);
 
+  /* Déclarés ici : ouvrir la porte animateur rafraîchit la liste des tables,
+     avant que sa section, plus bas dans le fichier, ne soit évaluée. */
+  const tableSheet = $('#table-sheet');
+  let tables = [];
+  let tablesTimer = null;
+
   /* ------------------------------------------------- portes (une à la fois) */
 
   const doors = {
@@ -50,6 +56,8 @@
       /* On attend la fin du dépliage pour ne pas casser l'animation par le scroll. */
       setTimeout(() => input && input.focus({ preventScroll: true }), 260);
     }
+    /* Une table a pu être prise depuis le dernier affichage. */
+    if (openDoor === 'table' && tableCode.value.trim().length === 6) lookupTables();
   }
 
   $$('[data-door]').forEach((btn) => {
@@ -79,6 +87,8 @@
     mine(playerStore.all()).forEach((e) => playerStore.remove(e.playerId));
     superStore.remove(entry.sessionId);
     renderAll();
+    /* La liste des tables affichait peut-être celles qui viennent de mourir. */
+    if (tableCode.value.trim() === (entry.code || '')) lookupTables();
     return toast(t('home.sessionDeleted'));
   }
 
@@ -228,11 +238,11 @@
 
   /* --------------------------------------------------- animateur de table */
 
-  async function openTable(code, button) {
+  async function openTable(code, button, teamId) {
     if (code.length !== 6) return toast(t('err.team_not_found'), 'error');
     if (button) button.disabled = true;
     try {
-      const res = await api('/api/team-admin', { method: 'POST', body: { code } });
+      const res = await api('/api/team-admin', { method: 'POST', body: { code, teamId } });
       tableStore.save({
         sessionId: res.sessionId,
         code: res.code,
@@ -256,14 +266,78 @@
     openTable(tableCode.value.trim().toUpperCase(), event.target.querySelector('button[type="submit"]'));
   });
 
+  /* Les tables de la session telles que le serveur les connaît : tout appareil
+     voit les mêmes, y compris celles ouvertes ailleurs. Un animateur passé du
+     téléphone à l'ordinateur retrouve donc la sienne au lieu d'en prendre une
+     autre. */
+  function renderTables() {
+    const host = clear($('#table-sheet-list'));
+    tableSheet.classList.toggle('hidden', !tables.length);
+    for (const table of tables) {
+      const mine = tableStore.find(table.id);
+      const status = t(table.hosted ? 'home.tableHosted' : 'home.tableFree');
+      host.appendChild(
+        h('div', { class: 'list-item' }, [
+          h('div', { class: 'grow' }, [
+            h('div', { class: 'title', text: table.name }),
+            h('div', {
+              class: 'small muted',
+              text: table.headcount
+                ? `${status} · ${t('home.tablePlayers', { n: table.headcount })}`
+                : status,
+            }),
+          ]),
+          h('button', {
+            class: mine ? 'btn btn-sm btn-primary' : 'btn btn-sm',
+            type: 'button',
+            text: t(mine ? 'home.resumeTable' : 'home.openTable'),
+            onClick: (e) => openTable(tableCode.value.trim().toUpperCase(), e.target, table.id),
+          }),
+        ])
+      );
+    }
+  }
+
+  async function lookupTables() {
+    const code = tableCode.value.trim();
+    try {
+      tables =
+        code.length === 6
+          ? (await api(`/api/sessions/${encodeURIComponent(code)}`)).tables || []
+          : [];
+    } catch (err) {
+      /* Code inconnu, ou code d'une table : rien à lister, le formulaire répondra. */
+      tables = [];
+    }
+    renderTables();
+  }
+
+  /* Un code complet donne la liste tout de suite ; une saisie partielle la vide
+     sans requête. */
+  tableCode.addEventListener('input', () => {
+    clearTimeout(tablesTimer);
+    if (tableCode.value.trim().length === 6) lookupTables();
+    else tablesTimer = setTimeout(lookupTables, 250);
+  });
+  window.I18N.onChange(renderTables);
+
   /* Le code de session déjà connu de ce navigateur est prérempli : l'animateur
-     n'a plus qu'à ouvrir sa console. On garde l'accès le plus récent, sinon une
-     session tout juste créée serait masquée par un atelier précédent. */
+     voit ses tables sans rien retaper. On garde l'accès le plus récent, sinon
+     une session tout juste créée serait masquée par un atelier précédent. */
   const lastAccess = [tableStore.latest(), superStore.latest()]
     .filter(Boolean)
     .sort((a, b) => (b.ts || 0) - (a.ts || 0))[0];
   const knownCode = (lastAccess || {}).code || prefill;
-  if (knownCode && !tableCode.value) tableCode.value = knownCode;
+  if (knownCode && !tableCode.value) {
+    tableCode.value = knownCode;
+    lookupTables();
+  }
+
+  /* Les tables se prennent et se remplissent pendant que la porte est ouverte :
+     on rafraîchit l'état tant qu'elle reste affichée. */
+  setInterval(() => {
+    if (openDoor === 'table' && tableCode.value.trim().length === 6) lookupTables();
+  }, 8000);
 
   /* ----------------------------------------------------- direction de jeu */
 

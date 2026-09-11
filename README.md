@@ -24,14 +24,20 @@ clair (identité papier), au choix de chaque écran.
 | **Joueur** | *Rejoindre la partie* → code de session + prénom | son rôle et son briefing, la carte, son vote, sa table. Pas de points avant le dévoilement |
 
 **Un seul code circule dans la salle** : celui de la session. Les joueurs sont
-**répartis automatiquement** sur la table la moins remplie. Un animateur qui saisit
-ce même code reçoit la première table encore sans animateur — et s’il n’en reste
-aucune, une table est créée. Le nombre de tables suit donc le nombre d’animateurs
-présents, au-delà des tables pré-créées à l’ouverture de la session.
+**répartis automatiquement** sur la table la moins remplie, dans la limite des
+places annoncées. Un animateur qui saisit ce même code voit **les tables de la
+session**, chacune marquée *libre* ou *déjà animée*, et ouvre la sienne ; sans
+choix de sa part, il reçoit la première encore libre. Le nombre de tables est
+arrêté à la création : seule la direction de jeu peut en ajouter une.
 
-Chaque table garde un code propre, affiché sur sa tuile côté direction de jeu et
-copiable d’un clic : il ramène toujours à la même table, utile pour reprendre une
-console sur un autre appareil.
+Les tables vivent sur le serveur, pas dans un navigateur : la liste est la même
+depuis n’importe quel appareil, et une table ouverte sur un téléphone se reprend
+sur un ordinateur sans rien retaper. Corollaire assumé : qui connaît le code de
+session peut ouvrir une console de table.
+
+Chaque table garde un code propre, qui n’est plus écrit nulle part. Il vit dans le
+**QR de la fiche de table**, côté direction de jeu (*Vue d’ensemble*), et dans le
+lien copiable à côté : de quoi installer un animateur sans dicter quoi que ce soit.
 
 Le **QR code de la session**, projeté depuis la console de direction, évite toute
 saisie aux joueurs. Un lien peut aussi désigner une table précise
@@ -79,10 +85,13 @@ npm run check      # = npm run lint:ui && npm run smoke
    « Atelier EY · Table 1 ». La console affiche le code de session, son QR à
    projeter et de quoi copier le lien joueurs.
 2. **Les animateurs prennent leur table** : *Animer une table* → code de session.
-   Chacun reçoit la première table encore libre. Le nombre de tables ne bouge
-   plus : quand toutes sont prises, la porte le dit, et seule la direction de jeu
-   peut en ajouter une depuis sa console. Le code d’une table ramène à la même
-   console depuis un autre appareil.
+   La porte liste les tables de la session, *libre* ou *déjà animée* ; l’animateur
+   ouvre la sienne, ou laisse le bouton lui donner la première libre. Le nombre de
+   tables ne bouge plus : quand toutes sont prises, la porte le dit, et seule la
+   direction de jeu peut en ajouter une. La même liste s’affiche sur tout appareil,
+   donc une table ouverte sur un téléphone se reprend sur un ordinateur. La
+   direction peut aussi ouvrir la fiche d’une table (*Vue d’ensemble*) et lui
+   tendre son QR, ou copier son lien pour l’envoyer.
 3. **Les joueurs rejoignent** : code de session (ou QR projeté) + prénom, un
    téléphone par personne. Ils se répartissent seuls entre les tables, dans la
    limite des places annoncées : tables × joueurs par table, ni une de plus.

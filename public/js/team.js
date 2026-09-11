@@ -130,9 +130,9 @@
     const input = h('input', {
       type: 'number',
       id: 'duration',
-      min: '1',
+      min: '0.5',
       max: '60',
-      step: '1',
+      step: '0.5',
       value: String(toMinutes(defaultSec)),
     });
 

@@ -53,8 +53,15 @@
         'Vous encadrez une équipe : lancez ses événements, prolongez le temps, vérifiez que tout le monde est connecté.',
       'home.tableCode': 'Code de session',
       'home.tableHint':
-        'Les tables sont créées avec la session : vous recevez la première encore libre.',
+        'Les tables sont créées avec la session : sans choix de votre part, vous recevez la première encore libre.',
       'home.tableBtn': 'Ouvrir la console de table',
+      'home.tableList': 'Les tables de la session',
+      'home.tableListHint':
+        'Toutes les tables de la session, où qu’elles aient été ouvertes : choisissez la vôtre pour la tenir depuis cet appareil.',
+      'home.tableFree': 'libre',
+      'home.tableHosted': 'déjà animée',
+      'home.tablePlayers': '{n} joueur(s)',
+      'home.openTable': 'Ouvrir',
       'home.resumeTable': 'Revenir à ma table',
       'home.playerTitle': 'Rejoindre la partie',
       'home.playerDesc':
@@ -161,6 +168,13 @@
       'admin.qrHint': 'Les joueurs scannent ce QR code, ou saisissent le code de session.',
       'admin.qrEnlarge': 'Agrandir le QR code pour le projeter',
       'admin.qrTitle': 'Scannez pour rejoindre la partie',
+      'admin.tableQrTitle': 'Scannez pour animer cette table',
+      'admin.tableQrHint':
+        'Réservé à l’animateur de la table : son scan ouvre la console de cette table, sans code à saisir.',
+      'admin.tableQrEnlarge': 'Agrandir le QR code de cette table',
+      'admin.tableQrCopy': 'Copier le lien de la table',
+      'admin.tableHosted': 'Animée',
+      'admin.tableFree': 'Sans animateur',
       'admin.roles': 'Rôles et missions',
       'admin.noIndividual': 'Aucune statistique individuelle n’est calculée ni affichée.',
 
@@ -447,8 +461,16 @@
       'home.tableDesc':
         'You host one team: launch its events, extend the time, check that everyone is connected.',
       'home.tableCode': 'Session code',
-      'home.tableHint': 'Tables come with the session: you get the first one still free.',
+      'home.tableHint':
+        'Tables come with the session: pick none and you get the first one still free.',
       'home.tableBtn': 'Open the table console',
+      'home.tableList': 'The tables of this session',
+      'home.tableListHint':
+        'Every table of the session, wherever it was opened: pick yours to run it from this device.',
+      'home.tableFree': 'free',
+      'home.tableHosted': 'already hosted',
+      'home.tablePlayers': '{n} player(s)',
+      'home.openTable': 'Open',
       'home.resumeTable': 'Back to my table',
       'home.playerTitle': 'Join the game',
       'home.playerDesc':
@@ -553,6 +575,13 @@
       'admin.qrHint': 'Players scan this QR code, or type the session code.',
       'admin.qrEnlarge': 'Enlarge the QR code for projection',
       'admin.qrTitle': 'Scan to join the game',
+      'admin.tableQrTitle': 'Scan to run this table',
+      'admin.tableQrHint':
+        'For the table facilitator only: scanning opens this table’s console, no code to type.',
+      'admin.tableQrEnlarge': 'Enlarge this table’s QR code',
+      'admin.tableQrCopy': 'Copy the table link',
+      'admin.tableHosted': 'Hosted',
+      'admin.tableFree': 'No facilitator',
       'admin.roles': 'Roles and missions',
       'admin.noIndividual': 'No individual statistic is computed or shown.',
 

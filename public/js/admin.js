@@ -19,6 +19,7 @@
     toMinutes,
     toSeconds,
     joinUrl,
+    tableUrl,
     resolveOrigin,
     copyText,
     modal,
@@ -103,6 +104,8 @@
   /* --------------------------------------------------------- accès des joueurs */
 
   let qrFor = null;
+  /* Repeint la fiche de table ouverte, s'il y en a une. */
+  let repaintSheet = null;
 
   const playerLink = (code) => joinUrl(code);
 
@@ -131,6 +134,66 @@
       h('div', { class: 'qr-canvas' }, [window.QR.element(url, { label: t('admin.qrTitle') })]),
       h('div', { class: 'join-url center', text: url }),
       h('p', { class: 'small muted center', text: t('admin.projectHint') }),
+    ]);
+    const dialog = modal(body);
+  }
+
+  /* ------------------------------------------------- accès d'une table */
+
+  /** Le QR d'une table mène à sa console d'animation : l'animateur le scanne et
+      il y est, sans code à dicter. C'est aussi sa porte de retour s'il change de
+      téléphone, puisque la porte d'accueil refuse une table déjà prise. */
+  function tableQrPanel(team) {
+    const url = tableUrl(team.adminCode);
+    const tile = h('button', {
+      class: 'qr-tile',
+      type: 'button',
+      title: t('admin.tableQrEnlarge'),
+    });
+    try {
+      tile.appendChild(window.QR.element(url, { label: t('admin.tableQrTitle') }));
+    } catch (err) {
+      return null;
+    }
+    tile.addEventListener('click', () => openTableQrModal(team));
+    return h('div', { class: 'panel tight' }, [
+      h('div', { class: 'qr-block' }, [
+        tile,
+        h('div', { class: 'grow' }, [
+          h('div', { class: 'label', text: t('admin.tableQrTitle') }),
+          h('p', { class: 'small muted', style: 'margin:0', text: t('admin.tableQrHint') }),
+          /* Un animateur à distance ne scanne rien : on lui envoie le lien. */
+          h('button', {
+            class: 'btn btn-sm',
+            type: 'button',
+            style: 'margin-top:8px',
+            text: t('admin.tableQrCopy'),
+            onClick: (e) => copyText(url, e.target),
+          }),
+        ]),
+      ]),
+    ]);
+  }
+
+  function openTableQrModal(team) {
+    const body = h('div', { class: 'qr-full' }, [
+      h('div', { class: 'row' }, [
+        h('div', { class: 'eyebrow', text: t('admin.tableQrTitle') }),
+        h('div', { class: 'spacer' }),
+        h('button', {
+          class: 'btn btn-sm btn-ghost',
+          type: 'button',
+          text: '×',
+          onClick: () => dialog.close(),
+        }),
+      ]),
+      h('div', { class: 'team-title center', text: team.name }),
+      h('div', { class: 'qr-canvas' }, [
+        window.QR.element(tableUrl(team.adminCode), { label: t('admin.tableQrTitle') }),
+      ]),
+      /* Le lien porte le code de la table : on ne l'écrit pas en grand devant
+         les joueurs, seul l'animateur a besoin de le scanner. */
+      h('p', { class: 'small muted center', text: t('admin.tableQrHint') }),
     ]);
     const dialog = modal(body);
   }
@@ -236,6 +299,11 @@
           : [h('span', { class: 'small muted', text: t('admin.waitingPlayers') })]
       ),
       h('div', { class: 'row tight', style: 'gap:8px' }, [
+        /* Une table sans animateur ne jouera pas : elle se signale d'elle-même. */
+        h('span', {
+          class: `badge ${team.hosted ? '' : 'warn'}`.trim(),
+          text: t(team.hosted ? 'admin.tableHosted' : 'admin.tableFree'),
+        }),
         h('span', {
           class: `badge ${team.rolesAssigned ? 'green' : 'warn'}`,
           text: team.rolesAssigned ? t('admin.rolesDone') : t('admin.rolesPending'),
@@ -385,9 +453,11 @@
     });
     const duration = h('input', {
       type: 'number',
-      min: '1',
+      /* Une demi-minute est une durée de jeu : certaines cartes se tranchent
+         en trente secondes. */
+      min: '0.5',
       max: '60',
-      step: '1',
+      step: '0.5',
       value: String(toMinutes(state.session.settings.defaultDuration)),
     });
 
@@ -546,6 +616,9 @@
   resolveOrigin(() => {
     qrFor = null;
     if (state) renderHeader();
+    /* Une fiche ouverte avant la réponse du serveur porte un QR en localhost,
+       qu'aucun téléphone ne peut suivre : on la repeint. */
+    if (repaintSheet) repaintSheet();
   });
 
   /* ------------------------------------------------------- fiche d'une table */
@@ -555,8 +628,14 @@
     /* La fiche suit l'état en direct : on la repeint à chaque diffusion, et on
        se désabonne quelle que soit la façon dont la modale se ferme. */
     const onPaint = () => paint();
-    const dialog = modal(body, { onClose: () => socket.off('state', onPaint) });
+    const dialog = modal(body, {
+      onClose: () => {
+        socket.off('state', onPaint);
+        repaintSheet = null;
+      },
+    });
     socket.on('state', onPaint);
+    repaintSheet = onPaint;
 
     function paint() {
       const team = state.teams.find((x) => x.id === teamId);
@@ -570,6 +649,10 @@
           h('button', { class: 'btn btn-sm btn-ghost', text: '×', onClick: () => dialog.close() }),
         ])
       );
+
+      /* ------------------------------------------------- accès de l'animateur */
+      const qrPanel = tableQrPanel(team);
+      if (qrPanel) body.appendChild(qrPanel);
 
       /* ------------------------------------------------------------ effectif */
       body.appendChild(h('div', { class: 'label', text: t('team.roster') }));
