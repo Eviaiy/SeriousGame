@@ -533,6 +533,97 @@ function profileFor(profiles, score) {
   return { id: last.id, label: last.label, desc: last.desc };
 }
 
+/**
+ * Twists optionnels : cartes que la direction de jeu peut « projeter » à tout
+ * moment pour secouer le scénario. Purement narratifs — l'impact éventuel sur
+ * le score passe par un ajustement manuel décidé par l'animateur.
+ */
+const TWISTS = [
+  {
+    id: 'twist-budget',
+    icon: 'cash',
+    when: { fr: 'À la moitié du jeu', en: 'Mid-game' },
+    title: { fr: 'Budget coupé de 30 %', en: 'Budget cut by 30%' },
+    desc: {
+      fr: 'À mi-parcours, la direction ampute le budget de 30 %. Rejouez vos priorités : qu’est-ce qu’on sacrifie ?',
+      en: 'Halfway through, leadership slashes the budget by 30%. Rework your priorities: what gets sacrificed?',
+    },
+  },
+  {
+    id: 'twist-perquisition',
+    icon: 'gavel',
+    when: { fr: 'Carte joker', en: 'Wildcard' },
+    title: { fr: 'Perquisition fiscale informatisée', en: 'Computerised tax raid' },
+    desc: {
+      fr: 'L’administration lance une perquisition informatisée : vos données doivent parler d’elles-mêmes, sur-le-champ.',
+      en: 'The tax authority launches a computerised raid: your data has to speak for itself, right now.',
+    },
+  },
+  {
+    id: 'twist-dg',
+    icon: 'crown',
+    when: { fr: 'Pression continue', en: 'Ongoing pressure' },
+    title: { fr: 'Pression DG quotidienne', en: 'Daily pressure from the CEO' },
+    desc: {
+      fr: 'La direction générale exige un point chaque jour : décidez plus vite et assumez vos arbitrages devant elle.',
+      en: 'The CEO demands a daily update: decide faster and own your trade-offs in front of them.',
+    },
+  },
+  {
+    id: 'twist-gouvernance',
+    icon: 'handshake',
+    when: { fr: 'Bonus', en: 'Bonus' },
+    title: { fr: 'Bonus gouvernance transverse', en: 'Cross-functional governance bonus' },
+    desc: {
+      fr: 'Récompense : toute table qui met en place une gouvernance data transverse gagne un bonus.',
+      en: 'Reward: any table that sets up cross-functional data governance earns a bonus.',
+    },
+  },
+];
+
+/** Débrief des deux actes : ce que l'animateur fait passer en clôture. */
+const DEBRIEF = {
+  eyebrow: { fr: 'Débrief · Les deux actes', en: 'Debrief · Both acts' },
+  title: { fr: 'Ce que vous en retenez', en: 'What to take away' },
+  lessons: [
+    {
+      title: { fr: 'Le piège du court terme', en: 'The short-term trap' },
+      text: {
+        fr: 'Les décisions « rationnelles » prises en crise créent la dette de demain.',
+        en: 'The “rational” decisions taken in a crisis create tomorrow’s debt.',
+      },
+    },
+    {
+      title: { fr: 'La centralité des données', en: 'Data is central' },
+      text: {
+        fr: 'Tous les problèmes venaient de la data — jamais de la plateforme. L’IT seul ne suffit pas.',
+        en: 'Every problem came from the data — never the platform. IT alone is not enough.',
+      },
+    },
+    {
+      title: { fr: 'Un sujet de gouvernance', en: 'A governance topic' },
+      text: {
+        fr: 'Le directeur fiscal passe de la conformité à la transformation, à la data et au business.',
+        en: 'The head of tax shifts from compliance to transformation, data and business.',
+      },
+    },
+  ],
+  questions: [
+    { fr: 'Qui a choisi majoritairement des quick wins ?', en: 'Who mostly chose quick wins?' },
+    { fr: 'Qui a investi tôt dans la data ?', en: 'Who invested early in data?' },
+    { fr: 'Qui a basculé en C en cours de route ?', en: 'Who switched to C along the way?' },
+    { fr: 'Qu’est-ce qui a été le plus dur à arbitrer ?', en: 'What was hardest to decide?' },
+  ],
+  punch: {
+    fr: '« Le vrai match commence après le go-live. Dans votre entreprise, où êtes-vous aujourd’hui ? »',
+    en: '“The real match starts after go-live. In your company, where are you today?”',
+  },
+};
+
+function twistById(twistId) {
+  return TWISTS.find((x) => x.id === twistId) || null;
+}
+
 function cloneDefaultEvents() {
   return JSON.parse(JSON.stringify(DEFAULT_EVENTS));
 }
@@ -543,10 +634,13 @@ module.exports = {
   DEFAULT_EVENTS,
   NARRATIVE,
   ROLES,
+  TWISTS,
+  DEBRIEF,
   ACT1_PROFILES,
   ACT2_PROFILES,
   cloneDefaultEvents,
   profileFor,
   dgRole,
   roleById,
+  twistById,
 };

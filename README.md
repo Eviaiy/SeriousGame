@@ -102,11 +102,13 @@ npm run check      # = npm run lint:ui && npm run smoke
 5. **Récit d’ouverture** : la crise est posée sur l’écran de chaque joueur avant
    la première carte.
 6. **Chaque table avance à son rythme** : son animateur lance la carte suivante
-   (5 min par défaut, réglable minute par minute), peut ajouter du temps, mettre
+   (5 min par défaut, réglable par demi-minutes), peut ajouter du temps, mettre
    en pause, clore le vote plus tôt ou annuler l’événement. La direction de jeu
    peut aussi lancer une même carte sur plusieurs tables d’un coup.
-7. **Vote** : chaque joueur choisit A, B ou C sur son téléphone. La console de
-   table montre la progression (4 / 6 ont voté) sans révéler les choix.
+7. **Vote** : chaque joueur choisit A, B ou C sur son téléphone. Sur téléphone,
+   la barre du bas porte l’énoncé, le chrono et les trois réponses : la carte se
+   lit en descendant, le vote reste sous le pouce. La console de table montre la
+   progression (4 / 6 ont voté) sans révéler les choix.
 8. **Décision** : majorité simple. En cas d’**égalité**, la table passe en
    arbitrage : la Direction générale tranche entre les options à égalité
    (90 s par défaut). Sans arbitrage dans le temps imparti, le sort décide.

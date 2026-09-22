@@ -135,6 +135,10 @@ function createSession({ name, lang, facilitator, teamCount, teamSize } = {}) {
     status: 'lobby',
     revealed: false,
     revealedAt: null,
+    /* Dévoilement intermédiaire : les résultats de l'Acte 1 peuvent être
+       révélés entre les deux actes, sans lever le sceau sur l'Acte 2. */
+    act1Revealed: false,
+    act1RevealedAt: null,
     createdAt: Date.now(),
     startedAt: null,
     endedAt: null,
@@ -258,6 +262,9 @@ function createTeam(session, name, taken) {
     /* Horodatage de la prise en charge : sert à attribuer une table libre à
        l'animateur suivant qui se présente avec le code de session. */
     hostClaimedAt: null,
+    /* Consoles de table actuellement ouvertes (présence en direct, éphémère) :
+       distingue « animée en ce moment » de « déjà prise en charge un jour ». */
+    hostSockets: 0,
     createdAt: Date.now(),
     players: [],
     rolesAssignedAt: null,
@@ -378,15 +385,20 @@ function findPlayerByName(session, name) {
 }
 
 /**
- * Répartition automatique : la table la moins remplie accueille le joueur. Le
- * nombre de joueurs par table annoncé à la création est une capacité, pas une
- * indication : une fois toutes les tables pleines, la session est complète.
+ * Répartition automatique : la table la moins remplie accueille le joueur (y
+ * compris pour une arrivée en cours de partie). À égalité entre plusieurs
+ * tables aussi peu remplies, on en tire une au sort — sinon la première table
+ * de la liste se remplirait toujours en premier. Le nombre de joueurs par table
+ * annoncé à la création est une capacité : une fois toutes les tables pleines,
+ * la session est complète.
  */
 function pickTeamForJoin(session) {
   const size = session.settings.teamSize;
   const open = session.teams.filter((t) => t.players.length < size);
   if (!open.length) throw new GameError('session_full', 'Toutes les tables sont complètes');
-  return open.reduce((best, t) => (t.players.length < best.players.length ? t : best), open[0]);
+  const fewest = Math.min(...open.map((t) => t.players.length));
+  const leastFilled = open.filter((t) => t.players.length === fewest);
+  return leastFilled[crypto.randomInt(leastFilled.length)];
 }
 
 /**
@@ -1156,6 +1168,52 @@ function leaderboard(session) {
     });
 }
 
+/**
+ * La direction de jeu « projette » un twist optionnel : il est journalisé et
+ * diffusé à tous les écrans. Aucun effet automatique sur le score — l'animateur
+ * décide d'un éventuel ajustement.
+ */
+function throwTwist(session, twistId) {
+  const twist = deck.twistById(twistId);
+  if (!twist) throw new GameError('twist_not_found', 'Twist inconnu');
+  addLog(session, 'twist', { twist: twist.title.fr, twistEn: twist.title.en });
+  store.persistSessions();
+  return twist;
+}
+
+/**
+ * Classement intermédiaire de l'Acte 1 : uniquement les points de l'Acte 1,
+ * départagés par le nom. Sert au dévoilement entre les deux actes.
+ */
+function act1Leaderboard(session) {
+  return session.teams
+    .map((team) => {
+      const act1 = toInt(team.act1, 0);
+      return {
+        teamId: team.id,
+        name: team.name,
+        act1,
+        act1Profile: deck.profileFor(deck.ACT1_PROFILES, act1),
+      };
+    })
+    .sort((a, b) => (b.act1 !== a.act1 ? b.act1 - a.act1 : a.name.localeCompare(b.name)))
+    .map((row, index, arr) => {
+      const prev = arr[index - 1];
+      row.rank = prev && prev.act1 === row.act1 ? prev.rank : index + 1;
+      return row;
+    });
+}
+
+/** Dévoile les résultats de l'Acte 1 à toutes les tables (l'Acte 2 reste scellé). */
+function revealAct1(session) {
+  if (session.act1Revealed || session.revealed) return session;
+  session.act1Revealed = true;
+  session.act1RevealedAt = Date.now();
+  addLog(session, 'act1_revealed', {});
+  store.persistSessions();
+  return session;
+}
+
 /** Dévoile les scores à toutes les tables, en même temps. */
 function revealScores(session) {
   if (session.revealed) return session;
@@ -1350,12 +1408,16 @@ function stateFor(session, audience = {}) {
   const teamId = audience.teamId || null;
   const playerId = audience.playerId || null;
   const canSeeScores = role === 'super' || session.revealed;
+  /* L'Acte 1 est visible dès son dévoilement intermédiaire, même si l'Acte 2
+     et le total restent scellés jusqu'au dévoilement final. */
+  const act1Visible = canSeeScores || Boolean(session.act1Revealed);
 
   const base = {
     serverNow: Date.now(),
     role,
     teamId,
     playerId,
+    act1Board: act1Visible ? act1Leaderboard(session) : [],
     session: {
       id: session.id,
       code: session.code,
@@ -1365,6 +1427,8 @@ function stateFor(session, audience = {}) {
       status: session.status,
       revealed: session.revealed,
       revealedAt: session.revealedAt,
+      act1Revealed: Boolean(session.act1Revealed),
+      act1RevealedAt: session.act1RevealedAt,
       createdAt: session.createdAt,
       startedAt: session.startedAt,
       endedAt: session.endedAt,
@@ -1376,6 +1440,7 @@ function stateFor(session, audience = {}) {
       allTeamsDone: allTeamsDone(session),
     },
     narrative: deck.NARRATIVE,
+    debrief: deck.DEBRIEF,
     scoresVisible: canSeeScores,
   };
 
@@ -1392,7 +1457,9 @@ function stateFor(session, audience = {}) {
           id: team.id,
           name: team.name,
           adminCode: team.adminCode,
-          hosted: Boolean(team.hostClaimedAt),
+          /* « Animée » = une console de table est ouverte en ce moment, pas
+             seulement une table prise en charge par le passé. */
+          hosted: (team.hostSockets || 0) > 0,
           headcount: team.players.length,
           online: team.players.filter((p) => p.sockets > 0).length,
           rolesAssigned: Boolean(team.rolesAssignedAt),
@@ -1410,6 +1477,7 @@ function stateFor(session, audience = {}) {
       leaderboard: leaderboard(session),
       rankings: eventRankings(session),
       roles: deck.ROLES,
+      twists: deck.TWISTS,
       log: session.log.slice(-140),
     };
   }
@@ -1426,12 +1494,17 @@ function stateFor(session, audience = {}) {
     rolesAssigned: Boolean(team.rolesAssignedAt),
     players: team.players.map((p) => publicPlayer(p, { self: p.id === playerId })),
     progress: teamProgress(session, team),
-    // Les points restent masqués jusqu'au dévoilement, y compris pour l'animateur d'équipe.
-    ...(canSeeScores ? totals : {}),
-    ...(canSeeScores ? { wins: team.wins } : {}),
+    // Les points restent masqués jusqu'au dévoilement, y compris pour l'animateur
+    // d'équipe. L'Acte 1 peut toutefois être dévoilé seul, entre les deux actes.
+    ...(act1Visible
+      ? { act1: totals.act1, act1Profile: deck.profileFor(deck.ACT1_PROFILES, totals.act1) }
+      : {}),
     ...(canSeeScores
       ? {
-          act1Profile: deck.profileFor(deck.ACT1_PROFILES, totals.act1),
+          act2: totals.act2,
+          adjust: totals.adjust,
+          total: totals.total,
+          wins: team.wins,
           act2Profile: deck.profileFor(deck.ACT2_PROFILES, totals.act2),
         }
       : {}),
@@ -1468,7 +1541,9 @@ function stateFor(session, audience = {}) {
       decidedBy: h.decidedBy,
       tally: h.tally,
       closedAt: h.closedAt,
-      ...(canSeeScores ? { points: h.points, total: h.total } : {}),
+      ...(canSeeScores || (act1Visible && toInt(h.act, 1) === 1)
+        ? { points: h.points, total: h.total }
+        : {}),
     })),
     leaderboard: canSeeScores ? leaderboard(session) : [],
     rankings: canSeeScores ? eventRankings(session) : [],
@@ -1529,8 +1604,11 @@ module.exports = {
   removeAdjustment,
   setDecision,
   updateSettings,
+  throwTwist,
   leaderboard,
+  act1Leaderboard,
   eventRankings,
+  revealAct1,
   revealScores,
   finishSession,
   reopenSession,

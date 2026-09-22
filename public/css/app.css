@@ -490,6 +490,14 @@ textarea {
 .btn-block {
   width: 100%;
 }
+.btn-lg {
+  min-height: 56px;
+  padding: 0 34px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: var(--r-md);
+  letter-spacing: 0.01em;
+}
 
 /* bascule de langue et de thème */
 .btn-lang,
@@ -1747,6 +1755,81 @@ input::placeholder {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* L'énoncé accompagne le chrono : sur téléphone, il a quitté l'écran dès qu'on
+   descend dans la carte, et on vote sans plus voir la question. */
+.dock-question {
+  font-weight: 620;
+  line-height: 1.25;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dock-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+.dock-line > .small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Les réponses ne doublent la carte que sur téléphone : c'est là que voter
+   obligeait à faire défiler l'écran, chrono et énoncé perdus de vue. */
+.dock-choices {
+  display: none;
+}
+.dock-choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 7px 12px;
+  text-align: left;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--text-1);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color var(--t-fast), background var(--t-fast);
+}
+.dock-choice > .choice-key {
+  flex: none;
+}
+.dock-choice > .dock-choice-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 560;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dock-choice:hover:not(:disabled) {
+  border-color: var(--gold);
+}
+.dock-choice.selected {
+  border-color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 16%, var(--surface-2));
+}
+.dock-choice.selected > .choice-key {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.dock-choice:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.dock-choice > .choice-check {
+  flex: none;
+  color: var(--gold);
+  font-weight: 700;
+}
 
 /* variante animateur : la barre porte les commandes de la manche */
 .vote-dock.is-controls {
@@ -2366,11 +2449,13 @@ input::placeholder {
 
 /* La barre flottante occupe le bas de l'écran : la page lui réserve sa hauteur
    et les messages se posent juste au-dessus plutôt que de la recouvrir. */
+/* --dock-pad suit la hauteur réelle de la barre, qui grandit quand elle porte
+   les réponses ; 126px est la valeur d'une barre simple, avant mesure. */
 body:has(.vote-dock:not(.hidden)) .shell.dock-pad {
-  padding-bottom: calc(126px + env(safe-area-inset-bottom));
+  padding-bottom: calc(var(--dock-pad, 126px) + env(safe-area-inset-bottom));
 }
 body:has(.vote-dock:not(.hidden)) .toasts {
-  bottom: calc(122px + env(safe-area-inset-bottom));
+  bottom: calc(var(--dock-pad, 126px) - 4px + env(safe-area-inset-bottom));
 }
 
 @media (max-width: 720px) {
@@ -2431,6 +2516,23 @@ body:has(.vote-dock:not(.hidden)) .toasts {
   }
   .choice-box {
     padding: 12px;
+  }
+  /* Les réponses passent dans la barre du bas, à portée de pouce, et la carte
+     garde la situation : sans cela il fallait descendre pour voter, question et
+     chrono hors de l'écran. */
+  .dock-choices:not(:empty) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    grid-column: 1 / -1;
+  }
+  body.dock-vote #stage .choice-box {
+    display: none;
+  }
+  /* « Votez : A, B ou C » sous trois boutons de vote : la consigne se lit dans
+     les boutons eux-mêmes, la barre gagne une ligne d'écran. */
+  body.dock-vote .dock-line > .small {
+    display: none;
   }
 }
 

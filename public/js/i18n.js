@@ -39,6 +39,7 @@
       'theme.toDark': 'Passer en thème sombre',
 
       /* ------------------------------------------------------------- accueil */
+      'home.startGame': 'Démarrer une partie',
       'home.superTitle': 'Direction de jeu',
       'home.superDesc':
         'Créez la session, projetez son code, suivez toutes les tables et dévoilez les scores à la fin.',
@@ -130,6 +131,12 @@
       'admin.revealHint':
         'Les scores sont scellés. Personne ne les voit avant que vous ne les dévoiliez.',
       'admin.revealNotReady': '{n} table(s) n’ont pas fini leur parcours.',
+      'admin.revealAct1': 'Dévoiler l’Acte 1',
+      'admin.revealAct1Hint':
+        'Entre les deux actes : montre le classement de l’Acte 1, l’Acte 2 reste scellé.',
+      'admin.revealAct1Confirm':
+        'Dévoiler les résultats de l’Acte 1 à toutes les tables ? L’Acte 2 et le total restent scellés.',
+      'admin.act1RevealDone': 'Acte 1 dévoilé',
       'admin.endSession': 'Terminer et archiver la session',
       'admin.reopen': 'Reprendre la session',
       'admin.endConfirm': 'Terminer la session, dévoiler les scores et archiver la partie ?',
@@ -177,6 +184,14 @@
       'admin.tableFree': 'Sans animateur',
       'admin.roles': 'Rôles et missions',
       'admin.noIndividual': 'Aucune statistique individuelle n’est calculée ni affichée.',
+      'admin.twists': 'Twists optionnels',
+      'admin.twistsHint':
+        'Projetez un twist quand vous voulez secouer le scénario. Effet libre : à vous d’ajuster les scores si besoin.',
+      'admin.throwTwist': 'Projeter',
+      'admin.debrief': 'Débrief',
+      'debrief.lessons': 'À faire passer',
+      'debrief.questions': 'Questions de débrief',
+      'twist.flash': 'Twist',
 
       /* -------------------------------------------------- animateur de table */
       'team.title': 'Console de table',
@@ -268,6 +283,9 @@
       'play.noIndividual': 'Aucun score individuel n’existe : seule l’équipe compte.',
       'play.done': 'Vous avez terminé le parcours',
       'play.doneHint': 'Les autres tables finissent. Les scores seront dévoilés en même temps pour tous.',
+      'play.act1Title': 'Résultats de l’Acte 1',
+      'play.act1Board': 'Classement de l’Acte 1',
+      'play.act1Hint': 'L’Acte 2 reste scellé jusqu’au dévoilement final.',
       'play.finalTitle': 'Les scores sont dévoilés',
       'play.myTotal': 'Total de l’équipe',
       'play.finalProfile': 'Votre profil de transformation',
@@ -349,12 +367,14 @@
       'log.score_adjust_removed': 'Ajustement annulé : {team} {delta}',
       'log.decision_overridden': 'Décision corrigée : {team} → {choice} ({event})',
       'log.settings_updated': 'Réglages mis à jour',
+      'log.act1_revealed': 'Résultats de l’Acte 1 dévoilés',
       'log.scores_revealed': 'Scores dévoilés à toutes les tables',
       'log.session_ended': 'Session terminée et archivée',
       'log.session_reopened': 'Session reprise',
       'log.event_added': 'Événement ajouté : {event}',
       'log.event_updated': 'Événement modifié : {event}',
       'log.event_removed': 'Événement supprimé : {event}',
+      'log.twist': 'Twist projeté : {twist}',
 
       /* ---------------------------------------------------------- messages flash */
       'flash.roles_assigned': 'Les rôles sont distribués',
@@ -368,9 +388,11 @@
       'flash.round_resumed': 'Chrono relancé',
       'flash.time_added': 'Temps prolongé',
       'flash.team_done': 'Table arrivée au bout du parcours',
+      'flash.act1_revealed': 'Les résultats de l’Acte 1 sont dévoilés',
       'flash.scores_revealed': 'Les scores sont dévoilés',
       'flash.session_ended': 'La session est terminée',
       'flash.player_joined': 'Un joueur rejoint la table',
+      'flash.twist': 'Un twist entre en jeu',
 
       /* ------------------------------------------------------------- erreurs */
       'err.session_not_found': 'Session introuvable — vérifiez le code.',
@@ -408,6 +430,7 @@
       'err.bad_delta': 'Ajustement invalide.',
       'err.not_found': 'Introuvable.',
       'err.record_not_found': 'Enregistrement introuvable.',
+      'err.twist_not_found': 'Twist introuvable.',
       'err.network': 'Problème de connexion au serveur.',
       'err.generic': 'Une erreur est survenue.',
     },
@@ -448,6 +471,7 @@
       'theme.toDark': 'Switch to dark theme',
 
       /* ---------------------------------------------------------------- home */
+      'home.startGame': 'Start a game',
       'home.superTitle': 'Game direction',
       'home.superDesc':
         'Create the session, project its code, follow every table and reveal the scores at the end.',
@@ -537,6 +561,12 @@
       'admin.revealDone': 'Scores revealed',
       'admin.revealHint': 'Scores are sealed. Nobody sees them until you reveal them.',
       'admin.revealNotReady': '{n} table(s) have not finished their run.',
+      'admin.revealAct1': 'Reveal Act 1',
+      'admin.revealAct1Hint':
+        'Between the two acts: shows the Act 1 standings, Act 2 stays sealed.',
+      'admin.revealAct1Confirm':
+        'Reveal Act 1 results to every table? Act 2 and the total stay sealed.',
+      'admin.act1RevealDone': 'Act 1 revealed',
       'admin.endSession': 'Close and archive the session',
       'admin.reopen': 'Reopen the session',
       'admin.endConfirm': 'Close the session, reveal the scores and archive the game?',
@@ -584,6 +614,14 @@
       'admin.tableFree': 'No facilitator',
       'admin.roles': 'Roles and missions',
       'admin.noIndividual': 'No individual statistic is computed or shown.',
+      'admin.twists': 'Optional twists',
+      'admin.twistsHint':
+        'Throw a twist whenever you want to shake up the scenario. Free effect: adjust scores yourself if needed.',
+      'admin.throwTwist': 'Throw',
+      'admin.debrief': 'Debrief',
+      'debrief.lessons': 'Key messages',
+      'debrief.questions': 'Debrief questions',
+      'twist.flash': 'Twist',
 
       /* --------------------------------------------------------- table host */
       'team.title': 'Table console',
@@ -675,6 +713,9 @@
       'play.noIndividual': 'There is no individual score: only the team counts.',
       'play.done': 'You have completed the run',
       'play.doneHint': 'Other tables are finishing. Scores will be revealed to everyone at once.',
+      'play.act1Title': 'Act 1 results',
+      'play.act1Board': 'Act 1 standings',
+      'play.act1Hint': 'Act 2 stays sealed until the final reveal.',
       'play.finalTitle': 'The scores are out',
       'play.myTotal': 'Team total',
       'play.finalProfile': 'Your transformation profile',
@@ -755,12 +796,14 @@
       'log.score_adjust_removed': 'Adjustment cancelled: {team} {delta}',
       'log.decision_overridden': 'Decision overridden: {team} → {choice} ({event})',
       'log.settings_updated': 'Settings updated',
+      'log.act1_revealed': 'Act 1 results revealed',
       'log.scores_revealed': 'Scores revealed to every table',
       'log.session_ended': 'Session closed and archived',
       'log.session_reopened': 'Session reopened',
       'log.event_added': 'Event added: {event}',
       'log.event_updated': 'Event updated: {event}',
       'log.event_removed': 'Event removed: {event}',
+      'log.twist': 'Twist thrown: {twistEn}',
 
       /* --------------------------------------------------------------- flash */
       'flash.roles_assigned': 'Roles are assigned',
@@ -774,9 +817,11 @@
       'flash.round_resumed': 'Timer resumed',
       'flash.time_added': 'Time extended',
       'flash.team_done': 'A table reached the end of the run',
+      'flash.act1_revealed': 'Act 1 results are out',
       'flash.scores_revealed': 'The scores are out',
       'flash.session_ended': 'The session is closed',
       'flash.player_joined': 'A player joined the table',
+      'flash.twist': 'A twist enters play',
 
       /* -------------------------------------------------------------- errors */
       'err.session_not_found': 'Session not found — check the code.',
@@ -814,6 +859,7 @@
       'err.bad_delta': 'Invalid adjustment.',
       'err.not_found': 'Not found.',
       'err.record_not_found': 'Record not found.',
+      'err.twist_not_found': 'Twist not found.',
       'err.network': 'Cannot reach the server.',
       'err.generic': 'Something went wrong.',
     },

@@ -166,6 +166,9 @@ function resumeAfterRestart() {
        unique n'ont pas encore les champs act1 / act2. */
     game.recomputeAllScores(session);
     for (const team of session.teams) {
+      /* Présence en direct : aucune console n'est ouverte tant que personne ne
+         s'est reconnecté après le redémarrage. */
+      team.hostSockets = 0;
       const round = team.round;
       if (!round) continue;
       try {
@@ -507,6 +510,14 @@ function detach(socket) {
       broadcast(session);
     }
   }
+  // Une console de table se ferme : la table n'est plus « animée » si c'était la dernière.
+  if (session && audience.role === 'teamAdmin' && audience.teamId) {
+    const team = game.getTeam(session, audience.teamId);
+    if (team) {
+      team.hostSockets = Math.max(0, (team.hostSockets || 0) - 1);
+      broadcast(session);
+    }
+  }
   socket.data.sessionId = null;
   socket.data.audience = null;
 }
@@ -540,6 +551,8 @@ io.on('connection', (socket) => {
       if (!session) throw new game.GameError('session_not_found', 'Session introuvable');
       const team = game.authTeamAdmin(session, payload.teamId, payload.adminToken);
       attach(session, { role: 'teamAdmin', teamId: team.id });
+      // Présence en direct : une console de table de plus est ouverte sur cette table.
+      team.hostSockets = (team.hostSockets || 0) + 1;
       ack(cb, {
         ok: true,
         team: { id: team.id, name: team.name },
@@ -790,10 +803,24 @@ io.on('connection', (socket) => {
     },
   });
 
+  handle('super:revealAct1', {
+    run: (session) => {
+      game.revealAct1(session);
+      notify(session, { type: 'act1_revealed' });
+    },
+  });
+
   handle('super:reveal', {
     run: (session) => {
       game.revealScores(session);
       notify(session, { type: 'scores_revealed' });
+    },
+  });
+
+  handle('super:twist', {
+    run: (session, p) => {
+      const twist = game.throwTwist(session, p.twistId);
+      notify(session, { type: 'twist', title: twist.title, desc: twist.desc, when: twist.when });
     },
   });
 

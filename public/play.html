@@ -51,6 +51,9 @@
       <!-- scène de jeu -->
       <section id="stage" class="stack" style="margin-top: 16px"></section>
 
+      <!-- résultats intermédiaires de l'Acte 1 -->
+      <section id="act1-host" style="margin-top: 16px"></section>
+
       <!-- résultats finaux, après dévoilement -->
       <section id="final-host" style="margin-top: 16px"></section>
 
@@ -80,14 +83,18 @@
       </div>
     </main>
 
-    <!-- barre de vote -->
+    <!-- barre de vote : la question, le chrono et les réponses restent au pouce -->
     <div class="vote-dock hidden" id="dock">
       <div id="dock-timer"></div>
       <div class="dock-status">
-        <span class="badge" id="dock-badge">—</span>
-        <span class="small muted" id="dock-hint"></span>
+        <div class="dock-question" id="dock-question"></div>
+        <div class="dock-line">
+          <span class="badge" id="dock-badge">—</span>
+          <span class="small muted" id="dock-hint"></span>
+        </div>
       </div>
       <div class="dock-actions" id="dock-actions"></div>
+      <div class="dock-choices" id="dock-choices"></div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>

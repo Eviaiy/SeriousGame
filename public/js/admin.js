@@ -96,7 +96,15 @@
   }
 
   function onFlash(payload) {
-    if (payload && payload.type) toast(t(`flash.${payload.type}`));
+    if (!payload || !payload.type) return;
+    if (payload.type === 'twist') return showTwist(payload);
+    toast(t(`flash.${payload.type}`));
+  }
+
+  /* Le twist s'affiche en grand : la console de direction est projetée. */
+  function showTwist(payload) {
+    let dialog;
+    dialog = modal(C.twistCard(payload, { onClose: () => dialog.close() }));
   }
 
   const call = (event, payload) => socket.callSafe(event, payload);
@@ -312,6 +320,19 @@
         state.scoresVisible
           ? h('span', { class: `num ${signClass(team.total)}`, text: fmtSigned(team.total) })
           : h('span', { class: 'small muted', text: t('score.hidden') }),
+        /* Raccourci direct vers la console de cette table (nouvel onglet), sans
+           passer par le code : la porte animateur porte déjà le code de table.
+           On ouvre un lien de même origine que cette page (localhost ou IP du
+           réseau), toujours joignable — contrairement au QR, calé sur l'adresse
+           réseau pour les téléphones. */
+        h('button', {
+          class: 'btn btn-sm',
+          type: 'button',
+          text: t('nav.team'),
+          title: t('home.tableBtn'),
+          onClick: () =>
+            window.open(`/table/${encodeURIComponent(team.adminCode)}`, '_blank', 'noopener'),
+        }),
         h('button', {
           class: 'btn btn-sm',
           type: 'button',
@@ -519,6 +540,31 @@
       return;
     }
 
+    /* Dévoilement intermédiaire de l'Acte 1, entre les deux actes. */
+    if (s.act1Revealed) {
+      host.appendChild(
+        h('div', { class: 'row', style: 'gap:10px;align-items:center' }, [
+          h('span', { class: 'badge gold', text: t('admin.act1RevealDone') }),
+          h('span', { class: 'small muted', text: fmtTimeOnly(s.act1RevealedAt) }),
+        ])
+      );
+    } else {
+      host.appendChild(
+        h('div', { class: 'row', style: 'gap:10px;align-items:center' }, [
+          h('button', {
+            class: 'btn btn-sm',
+            type: 'button',
+            text: t('admin.revealAct1'),
+            onClick: () => {
+              if (window.confirm(t('admin.revealAct1Confirm'))) call('super:revealAct1');
+            },
+          }),
+          h('span', { class: 'small muted', text: t('admin.revealAct1Hint') }),
+        ])
+      );
+    }
+    host.appendChild(h('div', { class: 'divider' }));
+
     host.appendChild(C.sealedNotice('admin.revealHint'));
     host.appendChild(
       h('div', { class: 'row', style: 'margin-top:12px;gap:10px;align-items:center' }, [
@@ -577,6 +623,32 @@
     host.appendChild(C.rolesGrid(state.roles));
   }
 
+  function renderTwists() {
+    const host = clear($('#twists-host'));
+    (state.twists || []).forEach((tw) => {
+      host.appendChild(
+        h('div', { class: 'list-item' }, [
+          h('div', { class: 'grow' }, [
+            h('div', { class: 'title', text: L(tw.title) }),
+            h('div', { class: 'small muted', text: L(tw.desc) }),
+          ]),
+          h('button', {
+            class: 'btn btn-sm',
+            type: 'button',
+            text: t('admin.throwTwist'),
+            disabled: state.session.status === 'finished',
+            onClick: () => call('super:twist', { twistId: tw.id }),
+          }),
+        ])
+      );
+    });
+  }
+
+  function renderDebrief() {
+    const host = clear($('#debrief-host'));
+    host.appendChild(C.debriefPanel(state.debrief));
+  }
+
   function renderLog() {
     const host = clear($('#log-host'));
     state.log
@@ -604,6 +676,8 @@
     renderDeck();
     renderBoard();
     renderSettings();
+    renderTwists();
+    renderDebrief();
     renderRoles();
     renderLog();
   }

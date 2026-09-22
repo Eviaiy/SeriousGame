@@ -698,6 +698,42 @@
     ]);
   }
 
+  /** Classement intermédiaire d'un acte : rang, table, points de l'acte. */
+  function actBoardTable(rows, opts) {
+    const o = opts || {};
+    if (!rows || !rows.length) return h('p', { class: 'muted small', text: t('admin.noTables') });
+    return h('div', { class: 'table-wrap' }, [
+      h('table', { class: 'table' }, [
+        h('thead', {}, [
+          h('tr', {}, [
+            h('th', { text: t('score.rank') }),
+            h('th', { text: t('score.team') }),
+            h('th', { class: 'num', text: t('score.act1') }),
+          ]),
+        ]),
+        h(
+          'tbody',
+          {},
+          rows.map((row) => {
+            const classes = [];
+            if (row.rank === 1) classes.push('is-winner');
+            if (o.teamId && row.teamId === o.teamId) classes.push('is-me');
+            return h('tr', { class: classes.join(' ') }, [
+              h('td', { class: 'rank' }, [rankMedal(row.rank)]),
+              h('td', {}, [
+                h('div', { text: row.name }),
+                row.act1Profile
+                  ? h('div', { class: 'small muted', text: L(row.act1Profile.label) })
+                  : null,
+              ]),
+              h('td', { class: `num ${signClass(row.act1)}`, text: fmtSigned(row.act1) }),
+            ]);
+          })
+        ),
+      ]),
+    ]);
+  }
+
   /** Historique d'une table : décisions prises, points seulement si dévoilés. */
   function historyTable(history, opts) {
     const o = opts || {};
@@ -742,6 +778,65 @@
           })
         ),
       ]),
+    ]);
+  }
+
+  /* ------------------------------------------------------ twists et débrief */
+
+  /** Carte de twist projetée à tous les écrans (superposition). */
+  function twistCard(payload, opts) {
+    const o = opts || {};
+    if (!payload) return h('div', {});
+    return h('div', { class: 'narrative' }, [
+      h('div', { class: 'eyebrow', text: t('twist.flash') }),
+      h('h2', { text: L(payload.title) }),
+      h('p', { text: L(payload.desc) }),
+      payload.when ? h('p', { class: 'small muted', text: L(payload.when) }) : null,
+      o.onClose
+        ? h('div', {}, [
+            h('button', {
+              class: 'btn btn-primary',
+              type: 'button',
+              text: t('btn.close'),
+              onClick: o.onClose,
+            }),
+          ])
+        : null,
+    ]);
+  }
+
+  /** Bloc de débrief : messages clés, questions, phrase de clôture. */
+  function debriefPanel(debrief) {
+    if (!debrief) return h('div', {});
+    return h('div', { class: 'stack' }, [
+      debrief.lessons && debrief.lessons.length
+        ? h('div', {}, [
+            h('div', { class: 'meta-label', text: t('debrief.lessons') }),
+            h(
+              'div',
+              { class: 'list' },
+              debrief.lessons.map((lesson, index) =>
+                h('div', { class: 'list-item' }, [
+                  h('div', { class: 'grow' }, [
+                    h('div', { class: 'title', text: `${index + 1}. ${L(lesson.title)}` }),
+                    h('div', { class: 'small muted', text: L(lesson.text) }),
+                  ]),
+                ])
+              )
+            ),
+          ])
+        : null,
+      debrief.questions && debrief.questions.length
+        ? h('div', {}, [
+            h('div', { class: 'meta-label', text: t('debrief.questions') }),
+            h(
+              'ul',
+              { class: 'bullets' },
+              debrief.questions.map((q) => h('li', { text: L(q) }))
+            ),
+          ])
+        : null,
+      debrief.punch ? h('p', { class: 'punch', text: L(debrief.punch) }) : null,
     ]);
   }
 
@@ -803,8 +898,11 @@
     rankMedal,
     eventRankTable,
     leaderboardTable,
+    actBoardTable,
     historyTable,
     profileCard,
+    twistCard,
+    debriefPanel,
     pointsLabel,
     stepper,
   };

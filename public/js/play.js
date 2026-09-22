@@ -110,6 +110,37 @@
     host.appendChild(C.historyTable(state.history, { showScores: state.scoresVisible }));
   }
 
+  /* -------------------------------------------- résultats de l'Acte 1 (mi-parcours) */
+
+  function renderAct1() {
+    const host = clear($('#act1-host'));
+    /* Uniquement entre les deux actes : dès le dévoilement final, tout est dans
+       l'écran des résultats finaux. */
+    if (!state.session.act1Revealed || state.scoresVisible) return;
+    const me = (state.act1Board || []).find((row) => row.teamId === state.team.id);
+    host.appendChild(
+      h('div', { class: 'panel' }, [
+        h('div', { class: 'panel-head' }, [
+          h('h2', { text: t('play.act1Title') }),
+          me ? h('span', { class: 'badge gold', text: `${t('score.rank')} ${me.rank}` }) : null,
+        ]),
+        h('div', { class: 'score-strip' }, [
+          metric('score.act1', state.team.act1),
+        ]),
+        state.team.act1Profile
+          ? h('div', { style: 'margin-top:14px' }, [
+              C.profileCard('score.profile1', state.team.act1Profile),
+            ])
+          : null,
+        h('div', { style: 'margin-top:14px' }, [
+          h('div', { class: 'meta-label', text: t('play.act1Board') }),
+          C.actBoardTable(state.act1Board, { teamId: state.team.id }),
+        ]),
+        h('div', { class: 'small muted', style: 'margin-top:10px', text: t('play.act1Hint') }),
+      ])
+    );
+  }
+
   /* -------------------------------------------------------- résultats finaux */
 
   function renderFinal() {
@@ -150,6 +181,15 @@
         h('div', { class: 'small muted', style: 'margin-top:10px', text: t('play.noIndividual') }),
       ])
     );
+
+    if (state.debrief) {
+      host.appendChild(
+        h('div', { class: 'panel', style: 'margin-top:16px' }, [
+          h('div', { class: 'panel-head' }, [h('h2', { text: L(state.debrief.title) })]),
+          C.debriefPanel(state.debrief),
+        ])
+      );
+    }
   }
 
   function metric(labelKey, value, raw) {
@@ -257,6 +297,16 @@
     ]);
   }
 
+  /** Le vote est-il encore ouvert pour ce joueur ? */
+  function voteOpen(round) {
+    return Boolean(
+      round &&
+        round.status === 'open' &&
+        !round.pausedAt &&
+        (!round.myVote || state.session.settings.allowChangeVote)
+    );
+  }
+
   function renderStage() {
     clear(stage);
     const round = state.round;
@@ -271,10 +321,7 @@
     const isNew = shownRound !== round.no;
     shownRound = round.no;
     const closed = round.status === 'closed';
-    const canVote =
-      round.status === 'open' &&
-      !round.pausedAt &&
-      (!round.myVote || state.session.settings.allowChangeVote);
+    const canVote = voteOpen(round);
 
     stage.appendChild(
       C.renderCard(round.event, {
@@ -339,16 +386,59 @@
     });
   }
 
+  /* Les réponses dans la barre : sur téléphone, la carte est plus haute que
+     l'écran et voter obligeait à quitter des yeux l'énoncé et le chrono. La
+     feuille de style les affiche sur téléphone seulement, et masque alors les
+     mêmes boutons dans la carte pour ne pas les proposer deux fois. */
+  function renderDockChoices(round) {
+    const host = clear($('#dock-choices'));
+    const options = (round.event && round.event.options) || [];
+    const open = voteOpen(round);
+    document.body.classList.toggle('dock-vote', open && options.length > 0);
+    if (!open) return;
+    options.forEach((option) => {
+      const chosen = round.myVote === option.key;
+      host.appendChild(
+        h(
+          'button',
+          {
+            class: `dock-choice${chosen ? ' selected' : ''}`,
+            type: 'button',
+            'aria-pressed': String(chosen),
+            onClick: () => socket.callSafe('player:vote', { choice: option.key }),
+          },
+          [
+            h('span', { class: 'choice-key', text: option.key }),
+            h('span', { class: 'dock-choice-label', text: L(option.label) }),
+            chosen ? h('span', { class: 'choice-check', text: '✓' }) : null,
+          ].filter(Boolean)
+        )
+      );
+    });
+  }
+
+  /* La page réserve la hauteur de la barre : elle change selon qu'elle porte
+     les réponses, une seule ligne d'état ou les boutons de départage. */
+  function syncDockPad() {
+    const height = dock.classList.contains('hidden') ? 0 : dock.offsetHeight;
+    document.documentElement.style.setProperty('--dock-pad', `${Math.round(height) + 28}px`);
+  }
+
   function renderDock() {
     const round = state.round;
     dock.classList.toggle('hidden', !round);
     if (!round) {
       timer.update(null);
+      document.body.classList.remove('dock-vote');
+      clear($('#dock-choices'));
+      syncDockPad();
       return;
     }
     const badge = $('#dock-badge');
     const hint = $('#dock-hint');
+    $('#dock-question').textContent = L(round.event && round.event.title);
     renderDockActions(round);
+    renderDockChoices(round);
 
     if (round.status === 'arbitration') {
       badge.textContent = t('play.tie');
@@ -370,6 +460,7 @@
       hint.textContent = t('play.chooseNow');
     }
     timer.update(round);
+    syncDockPad();
   }
 
   /* -------------------------------------------------------------- application */
@@ -381,6 +472,7 @@
     renderRole();
     renderStage();
     renderDock();
+    renderAct1();
     renderFinal();
     renderRoster();
     renderHistory();
@@ -395,6 +487,9 @@
     if (!state || !state.round) return;
     timer.update(state.round);
   });
+
+  /* Rotation de l'écran ou clavier refermé : la barre change de hauteur. */
+  window.addEventListener('resize', syncDockPad);
 
   $('#btn-leave').addEventListener('click', () => {
     if (!window.confirm(t('play.leaveConfirm'))) return;
@@ -422,6 +517,11 @@
 
     socket = connect(applyState, (payload) => {
       if (!payload || !payload.type) return;
+      if (payload.type === 'twist') {
+        let dialog;
+        dialog = window.SG.modal(C.twistCard(payload, { onClose: () => dialog.close() }));
+        return;
+      }
       const message = t(`flash.${payload.type}`);
       if (message) toast(message, payload.type === 'round_tied' ? 'warn' : '');
     });

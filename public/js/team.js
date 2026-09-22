@@ -381,6 +381,11 @@
 
     socket = connect(applyState, (payload) => {
       if (!payload || !payload.type) return;
+      if (payload.type === 'twist') {
+        let dialog;
+        dialog = window.SG.modal(C.twistCard(payload, { onClose: () => dialog.close() }));
+        return;
+      }
       const message = t(`flash.${payload.type}`);
       if (message) toast(message, payload.type === 'round_tied' ? 'warn' : '');
     });

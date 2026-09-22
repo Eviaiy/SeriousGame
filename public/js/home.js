@@ -64,6 +64,35 @@
     btn.addEventListener('click', () => setDoor(btn.getAttribute('data-door')));
   });
 
+  /* Deux accueils, jamais mélangés :
+     - avec un code de session (QR / lien d'inscription) : seul le formulaire
+       joueur est montré, les accès animateur et direction ne le concernent pas ;
+     - sans code (accueil « nu ») : c'est la porte de la direction de jeu et des
+       animateurs de table. Rejoindre la partie passe uniquement par le QR, donc
+       la porte joueur n'a pas sa place ici. */
+  if (prefill) {
+    doors.table.panel.classList.add('hidden');
+    doors.super.panel.classList.add('hidden');
+    const steps = $('.steps');
+    if (steps) steps.classList.add('hidden');
+  } else {
+    /* Accueil « nu » : un seul appel à l'action, « Démarrer une partie », qui
+       dévoile les accès direction de jeu et animateur de table. Tant qu'il n'est
+       pas cliqué, la page reste épurée. */
+    doors.player.panel.classList.add('hidden');
+    doors.table.panel.classList.add('hidden');
+    doors.super.panel.classList.add('hidden');
+    const cta = $('#landing-cta');
+    if (cta) cta.classList.remove('hidden');
+    $('#btn-start-game').addEventListener('click', () => {
+      if (cta) cta.classList.add('hidden');
+      doors.table.panel.classList.remove('hidden');
+      doors.super.panel.classList.remove('hidden');
+      if (tableStore.all().length) setDoor('table');
+      else setDoor('super');
+    });
+  }
+
   /* ------------------------------------------------------- listes mémorisées */
 
   /**
@@ -164,13 +193,6 @@
 
   renderAll();
   window.I18N.onChange(renderAll);
-
-  /* Porte ouverte par défaut : le lien d'invitation mène au formulaire joueur,
-     sinon on rouvre celle de l'accès déjà en cours sur ce navigateur. */
-  if (!prefill && !playerStore.all().length) {
-    if (tableStore.all().length) setDoor('table');
-    else if (superStore.all().length) setDoor('super');
-  }
 
   /* ------------------------------------------ état de la session (places) */
 
