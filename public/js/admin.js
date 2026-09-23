@@ -976,9 +976,11 @@
     const f = {};
 
     function pair(labelKey, key, opts) {
-      const tag = opts && opts.textarea ? 'textarea' : 'input';
-      f[`${key}_fr`] = h(tag, { type: 'text', value: (src[key] && src[key].fr) || '' });
-      f[`${key}_en`] = h(tag, { type: 'text', value: (src[key] && src[key].en) || '' });
+      /* Une textarea ignore l'attribut value : son contenu passe par le texte. */
+      const field = (value) =>
+        opts && opts.textarea ? h('textarea', { text: value }) : h('input', { type: 'text', value });
+      f[`${key}_fr`] = field((src[key] && src[key].fr) || '');
+      f[`${key}_en`] = field((src[key] && src[key].en) || '');
       return h('div', {}, [
         h('div', { class: 'label', text: t(labelKey) }),
         h('div', { class: 'grid cols-2', style: 'gap:8px' }, [
