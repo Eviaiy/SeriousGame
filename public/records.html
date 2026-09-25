@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0a0a0d" />
     <title>Historique — Serious Game</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/css/app.css" />
     <script>
       /* Thème posé avant le rendu : évite le clignotement au chargement. */
@@ -26,12 +27,11 @@
   <body>
     <header class="topbar">
       <div class="brand">
-        <span class="tag" data-i18n="app.name">Serious Game</span>
-        <span data-i18n="app.name">Serious Game</span>
+        <a class="tag" href="/" data-i18n="app.name" aria-label="Serious Game">Serious Game</a>
+        <a class="brand-home" href="/" data-i18n="app.name">Serious Game</a>
       </div>
       <div class="spacer"></div>
       <button class="btn btn-sm btn-ghost" id="btn-refresh" data-i18n="btn.refresh">Rafraîchir</button>
-      <a class="btn btn-sm btn-ghost" href="/" data-i18n="nav.home">Accueil</a>
       <div class="row tight">
         <button class="btn btn-lang" data-lang-btn="fr">FR</button>
         <button class="btn btn-lang" data-lang-btn="en">EN</button>

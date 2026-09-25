@@ -2,7 +2,21 @@
 (function () {
   'use strict';
 
-  const { $, h, clear, toast, playerStore, LS, t, L, connect, startTicker, qs } = window.SG;
+  const {
+    $,
+    h,
+    clear,
+    toast,
+    playerStore,
+    forgetSession,
+    LS,
+    t,
+    L,
+    connect,
+    startTicker,
+    gameTitle,
+    qs,
+  } = window.SG;
   const C = window.CARDS;
 
   window.SG.initChrome();
@@ -52,10 +66,15 @@
 
   /* ------------------------------------------------------------------ entête */
 
+  /* La navigation garde uniquement la marque. Les repères de la partie sont
+     regroupés dans la première carte du contenu. */
   function renderHeader() {
-    const badge = $('#team-badge');
-    badge.textContent = state.team.name;
-    badge.className = 'badge accent';
+    const team = state.team;
+    $('#player-info-table').textContent = team.name;
+    $('#player-info-host').textContent = t('play.tableHost', {
+      name: team.facilitatorName || '—',
+    });
+    $('#player-info-game').textContent = gameTitle(state.session.name);
   }
 
   /* --------------------------------------------------------- récit d'ouverture */
@@ -444,7 +463,7 @@
     /* La direction a supprimé la session : la partie n'existe plus. */
     socket.on('session:deleted', () => {
       toast(t('err.session_deleted'), 'error');
-      playerStore.remove(creds.playerId);
+      forgetSession(creds.sessionId);
       setTimeout(() => {
         window.location.href = '/';
       }, 1800);

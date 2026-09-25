@@ -4,7 +4,20 @@
 (function () {
   'use strict';
 
-  const { $, h, clear, toast, superStore, t, L, qs, fmtSigned, signClass } = window.SG;
+  const {
+    $,
+    h,
+    clear,
+    toast,
+    superStore,
+    forgetSession,
+    t,
+    L,
+    qs,
+    fmtSigned,
+    signClass,
+    gameTitle,
+  } = window.SG;
   const C = window.CARDS;
 
   window.SG.initChrome();
@@ -32,6 +45,7 @@
   const socket = window.SG.connect(onState, () => {});
   socket.on('connect', joinSession);
   socket.on('session:deleted', () => {
+    forgetSession(sessionId);
     toast(t('err.session_deleted'), 'error');
     setTimeout(() => {
       window.location.href = '/';
@@ -56,8 +70,8 @@
 
   function render() {
     if (!state) return;
-    $('#results-game-name').textContent = state.session.name;
-    document.title = `${t('results.title')} — ${state.session.name}`;
+    const title = gameTitle(state.session.name);
+    document.title = `${t('results.title')} — ${title}`;
 
     const allDone = state.session.allTeamsDone;
     const status = $('#results-status');
@@ -72,7 +86,7 @@
     const byId = new Map(state.teams.map((team) => [team.id, team]));
     const teams = state.leaderboard.map((row) => byId.get(row.teamId)).filter(Boolean);
 
-    [2, 1].forEach((act) => {
+    [1, 2].forEach((act) => {
       clear($(`#results-profile-${act}`)).appendChild(profileInContext(act, teams));
     });
     clear($('#results-decisions')).appendChild(decisionsTable(teams));
@@ -143,7 +157,7 @@
     );
 
     const rows = [];
-    [2, 1].forEach((act) => {
+    [1, 2].forEach((act) => {
       const events = state.events.filter((event) => Number(event.act || 1) === act);
       if (!events.length) return;
       rows.push(

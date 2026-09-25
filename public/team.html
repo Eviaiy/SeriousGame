@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0a0a0d" />
     <title>Console de table — Serious Game</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/css/app.css" />
     <script>
       /* Thème posé avant le rendu : évite le clignotement au chargement. */
@@ -26,15 +27,11 @@
   <body>
     <header class="topbar">
       <div class="brand">
-        <span class="tag" data-i18n="app.name">Serious Game</span>
-        <span data-i18n="app.name">Serious Game</span>
+        <a class="tag" href="/" data-i18n="app.name" aria-label="Serious Game">Serious Game</a>
+        <a class="brand-home" href="/" data-i18n="app.name">Serious Game</a>
       </div>
       <span class="badge" id="session-status">—</span>
       <div class="spacer"></div>
-      <span class="row tight small muted">
-        <i class="dot" data-conn-dot></i>
-        <span data-conn-label></span>
-      </span>
       <div class="row tight">
         <button class="btn btn-lang" data-lang-btn="fr">FR</button>
         <button class="btn btn-lang" data-lang-btn="en">EN</button>
@@ -44,15 +41,18 @@
     <main class="shell narrow dock-pad">
       <!-- entête de table -->
       <section class="panel tight">
-        <div class="row table-card-heading">
-          <div class="title" id="team-title">—</div>
-          <div class="spacer"></div>
+        <!-- le jeu, puis « Table n • Animée par … » -->
+        <div class="table-card-heading">
           <div class="title game-name" id="table-game-name">—</div>
+          <div class="table-line">
+            <span class="title" id="team-title">—</span>
+            <span class="team-host hidden" id="team-host"></span>
+          </div>
         </div>
         <div class="small muted" style="margin-top: 6px" data-i18n="team.facilitatorRole"></div>
         <div style="margin-top: 16px">
           <button class="btn btn-sm" id="btn-player-qr" type="button" data-i18n="admin.playerTableQrButton">
-            QR joueurs
+            Ajouter un joueur
           </button>
         </div>
         <div class="label" style="margin-top: 12px" data-i18n="admin.progress">Avancement</div>
@@ -90,10 +90,6 @@
         <div id="history-host"></div>
       </section>
 
-      <div class="row" style="margin-top: 18px">
-        <a class="btn btn-sm btn-ghost" href="/" data-i18n="nav.home">Accueil</a>
-        <div class="spacer"></div>
-      </div>
     </main>
 
     <!-- commandes de la manche -->

@@ -293,18 +293,6 @@
     return label === key ? '' : label;
   }
 
-  /* ------------------------------------------------------------ scores scellés */
-
-  function sealedNotice(hintKey) {
-    return h('div', { class: 'sealed' }, [
-      icon('lock', 22),
-      h('div', {}, [
-        h('div', { style: 'font-weight:620', text: t('play.scoresSealed') }),
-        h('div', { class: 'small', text: t(hintKey || 'play.scoresSealedHint') }),
-      ]),
-    ]);
-  }
-
   /* --------------------------------------------------------- cartes d'événement */
 
   /** Libellé de barème d'une option, identique aux deux actes : « 0 », « +2 », « +4 ». */
@@ -1002,7 +990,6 @@
     rosterList,
     tallyBars,
     decidedByText,
-    sealedNotice,
     renderCard,
     createTimer,
     deltaChip,

@@ -8,12 +8,14 @@
     clear,
     toast,
     superStore,
+    forgetSession,
     t,
     L,
     fmtSigned,
     signClass,
     fmtTimeOnly,
     fmtClock,
+    gameTitle,
     qs,
     svg,
     toMinutes,
@@ -63,7 +65,7 @@
   /* Session supprimée depuis un autre appareil : il n'y a plus rien à diriger. */
   socket.on('session:deleted', () => {
     toast(t('err.session_deleted'), 'error');
-    superStore.remove(sessionId);
+    forgetSession(sessionId);
     setTimeout(() => {
       window.location.href = '/';
     }, 1800);
@@ -260,19 +262,19 @@
 
   function renderHeader() {
     const s = state.session;
-    $('#access-game-title').textContent = s.name;
+    $('#access-game-title').textContent = gameTitle(s.name);
     $('#session-code').textContent = s.code;
     renderQr(playerLink(s.code));
 
     const badge = $('#session-status');
-    const key =
-      s.status === 'finished'
-        ? 'admin.status.finished'
-        : s.status === 'running'
-          ? 'admin.status.running'
-          : 'admin.status.lobby';
-    badge.textContent = t(key);
-    badge.className = `badge ${s.status === 'finished' ? '' : 'accent'}`.trim();
+    if (s.status === 'lobby') {
+      badge.textContent = '';
+      badge.className = 'hidden';
+    } else {
+      const key = s.status === 'finished' ? 'admin.status.finished' : 'admin.status.running';
+      badge.textContent = t(key);
+      badge.className = `badge ${s.status === 'finished' ? '' : 'accent'}`.trim();
+    }
 
     $('#m-tables').textContent = state.teams.length;
     $('#m-players').textContent = s.playerCount;
@@ -662,9 +664,100 @@
     });
   }
 
+  /* Rôles : comme le déroulé, une ligne par rôle (nom, mission) ; le reste du
+     texte se modifie dans une fenêtre, via le crayon. */
   function renderRoles() {
     const host = clear($('#roles-host'));
-    host.appendChild(C.rolesGrid(state.roles));
+    (state.roles || []).forEach((role) => {
+      host.appendChild(
+        h('div', { class: 'list-item role-row' }, [
+          C.roleMedal(role, 'sm'),
+          h('div', { class: 'grow' }, [
+            h('div', { class: 'row tight', style: 'gap:8px;align-items:center' }, [
+              h('div', { class: 'title', text: L(role.name) }),
+              role.dg ? C.dgBadge() : null,
+            ]),
+            h('div', { class: 'small muted', text: L(role.mission) }),
+          ]),
+          h(
+            'button',
+            {
+              class: 'btn btn-sm btn-ghost btn-icon',
+              type: 'button',
+              title: t('admin.editRole'),
+              'aria-label': t('admin.editRole'),
+              onClick: () => openRoleModal(role),
+            },
+            [pencil()]
+          ),
+        ])
+      );
+    });
+  }
+
+  /** Texte d'un rôle, en français et en anglais, modifiable pour cette session. */
+  function openRoleModal(role) {
+    const body = h('div', { class: 'stack' });
+    const dialog = modal(body);
+    const f = {};
+
+    function pair(labelKey, key, textarea) {
+      const field = (value) =>
+        textarea ? h('textarea', { text: value }) : h('input', { type: 'text', value });
+      f[`${key}_fr`] = field((role[key] && role[key].fr) || '');
+      f[`${key}_en`] = field((role[key] && role[key].en) || '');
+      return h('div', {}, [
+        h('div', { class: 'label', text: t(labelKey) }),
+        h('div', { class: 'grid cols-2', style: 'gap:8px' }, [
+          h('label', { class: 'field', style: 'margin:0' }, [
+            h('span', { text: t('admin.frLabel') }),
+            f[`${key}_fr`],
+          ]),
+          h('label', { class: 'field', style: 'margin:0' }, [
+            h('span', { text: t('admin.enLabel') }),
+            f[`${key}_en`],
+          ]),
+        ]),
+      ]);
+    }
+
+    const value = (key) => ({ fr: f[`${key}_fr`].value.trim(), en: f[`${key}_en`].value.trim() });
+
+    body.appendChild(
+      h('div', { class: 'panel-head' }, [
+        h('h2', { text: t('admin.editRole') }),
+        h('div', { class: 'spacer' }),
+        h('button', { class: 'btn btn-sm btn-ghost', text: '×', onClick: dialog.close }),
+      ])
+    );
+    body.appendChild(pair('admin.roleName', 'name'));
+    body.appendChild(pair('admin.roleMission', 'mission', true));
+    body.appendChild(pair('admin.roleFocus', 'focus'));
+    body.appendChild(pair('admin.roleQuote', 'quote', true));
+    body.appendChild(pair('admin.roleStance', 'stance', true));
+    body.appendChild(
+      h('div', { class: 'row', style: 'margin-top:6px' }, [
+        h('button', {
+          class: 'btn btn-primary',
+          text: t('btn.save'),
+          onClick: async () => {
+            const res = await call('super:updateRole', {
+              roleId: role.id,
+              role: {
+                name: value('name'),
+                mission: value('mission'),
+                focus: value('focus'),
+                quote: value('quote'),
+                stance: value('stance'),
+              },
+            });
+            if (res) dialog.close();
+          },
+        }),
+        h('div', { class: 'spacer' }),
+        h('button', { class: 'btn', text: t('btn.cancel'), onClick: dialog.close }),
+      ])
+    );
   }
 
   function renderDebrief() {
@@ -1223,7 +1316,8 @@
     if (!window.confirm(t('admin.endConfirm'))) return;
     const res = await call('super:endSession');
     if (res && res.recordId) {
-      toast(t('flash.session_ended'));
+      forgetSession(sessionId);
+      window.location.href = '/';
     }
   });
 

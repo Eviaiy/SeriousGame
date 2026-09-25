@@ -9,10 +9,12 @@
     api,
     toast,
     tableStore,
+    forgetSession,
     t,
     L,
     connect,
     startTicker,
+    gameTitle,
     qs,
     toMinutes,
     toSeconds,
@@ -100,12 +102,12 @@
 
   function statusBadge(session) {
     const badge = $('#session-status');
-    const key =
-      session.status === 'finished'
-        ? 'admin.status.finished'
-        : session.status === 'running'
-          ? 'admin.status.running'
-          : 'admin.status.lobby';
+    if (session.status === 'lobby') {
+      badge.textContent = '';
+      badge.className = 'hidden';
+      return;
+    }
+    const key = session.status === 'finished' ? 'admin.status.finished' : 'admin.status.running';
     badge.textContent = t(key);
     badge.className = `badge ${session.status === 'finished' ? '' : 'accent'}`.trim();
   }
@@ -113,10 +115,11 @@
   function renderHeader() {
     const team = state.team;
     const progress = team.progress;
-    $('#team-title').textContent = team.facilitatorName
-      ? `${team.name} • ${team.facilitatorName}`
-      : team.name;
-    $('#table-game-name').textContent = state.session.name;
+    $('#team-title').textContent = team.name;
+    const host = $('#team-host');
+    host.textContent = team.facilitatorName ? t('play.tableHost', { name: team.facilitatorName }) : '';
+    host.classList.toggle('hidden', !team.facilitatorName);
+    $('#table-game-name').textContent = gameTitle(state.session.name);
     $('#progress-fill').style.width = `${
       progress.total ? Math.round((progress.played / progress.total) * 100) : 0
     }%`;
@@ -162,6 +165,9 @@
       result &&
       lastHistory &&
       Number(lastHistory.act) === Number(result.act);
+    /* Un bloc de résultats vide gardait malgré tout sa marge supérieure entre
+       la scène et la composition, ce qui doublait visuellement l'espacement. */
+    host.classList.toggle('hidden', !isCurrentResult);
     if (isCurrentResult) {
       const overview = C.gameCompletedOverview(results);
       if (overview) host.appendChild(overview);
@@ -169,10 +175,7 @@
         .slice()
         .sort((a, b) => Number(b.act) - Number(a.act))
         .forEach((entry) => host.appendChild(C.actResultCard(entry)));
-      return;
     }
-    if (state.scoresVisible) return;
-    host.appendChild(C.sealedNotice('team.scoresSealed'));
   }
 
   function renderHistory() {
@@ -405,6 +408,9 @@
     renderHeader();
     renderRoster();
     renderStage();
+    /* En fin de partie il n'y a plus de scène à afficher. La masquer retire
+       aussi sa marge, afin de conserver le même intervalle entre les cartes. */
+    stage.classList.toggle('hidden', stage.childElementCount === 0);
     renderDock();
     renderSealed();
     renderHistory();
@@ -504,7 +510,7 @@
     /* La session vient d'être supprimée : cette console n'anime plus rien. */
     socket.on('session:deleted', () => {
       toast(t('err.session_deleted'), 'error');
-      tableStore.remove(creds.teamId);
+      forgetSession(creds.sessionId);
       setTimeout(() => {
         window.location.href = '/';
       }, 1800);

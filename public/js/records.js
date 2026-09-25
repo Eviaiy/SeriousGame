@@ -2,7 +2,21 @@
 (function () {
   'use strict';
 
-  const { $, h, clear, api, download, toast, t, L, fmtSigned, signClass, fmtDateTime, fmtDuration } = window.SG;
+  const {
+    $,
+    h,
+    clear,
+    api,
+    download,
+    toast,
+    t,
+    L,
+    fmtSigned,
+    signClass,
+    fmtDateTime,
+    fmtDuration,
+    gameTitle,
+  } = window.SG;
   const C = window.CARDS;
 
   window.SG.initChrome();
@@ -56,7 +70,7 @@
             h('tr', { class: record.id === openId ? 'is-winner' : '' }, [
               h('td', { class: 'small', text: fmtDateTime(record.endedAt) }),
               h('td', {}, [
-                h('div', { text: record.name }),
+                h('div', { text: gameTitle(record.name) }),
                 h('div', {
                   class: 'small muted',
                   text: `${record.code}${record.facilitator ? ` · ${record.facilitator}` : ''}`,
@@ -162,7 +176,7 @@
         h('div', { class: 'panel-head' }, [
           h('div', {}, [
             h('div', { class: 'eyebrow', text: record.code }),
-            h('h2', { text: record.name }),
+            h('h2', { text: gameTitle(record.name) }),
             h('div', { class: 'small muted', text: fmtDateTime(record.endedAt) }),
           ]),
           h('div', { class: 'spacer' }),

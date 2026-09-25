@@ -241,7 +241,14 @@ async function main() {
 
   /* ------------------------------------ console de table par code de session */
   const claims = [];
-  for (let i = 0; i < 3; i += 1) claims.push(await post('/api/team-admin', { code: qrSession.code }));
+  for (let i = 0; i < 3; i += 1) {
+    claims.push(
+      await post('/api/team-admin', {
+        code: qrSession.code,
+        facilitatorName: `Animateur ${i + 1}`,
+      })
+    );
+  }
   assert.strictEqual(
     new Set(claims.map((c) => c.teamId)).size,
     3,
@@ -274,9 +281,15 @@ async function main() {
     sheet.tables.length === 3 && sheet.tables.every((x) => x.hosted),
     'les tables ouvertes sont signalées animées'
   );
-  assert.ok(
-    sheet.tables.every((x) => !x.adminCode),
-    'la liste publique ne porte aucun code de table'
+  assert.deepStrictEqual(
+    sheet.tables.map((x) => x.facilitatorName),
+    ['Animateur 1', 'Animateur 2', 'Animateur 3'],
+    'la liste publique affiche le nom de chaque animateur'
+  );
+  assert.deepStrictEqual(
+    sheet.tables.map((x) => x.adminCode),
+    claims.map((x) => x.adminCode),
+    'la liste des tables affiche leur code de reprise'
   );
   const elsewhere = await post('/api/team-admin', {
     code: qrSession.code,
@@ -679,6 +692,12 @@ async function main() {
   step('aucune statistique individuelle dans l’état des joueurs');
 
   /* ------------------------------------------------------------------ archive */
+  const archivedPlayerRemoved = new Promise((resolve) =>
+    playerConns[aPlayers[0].playerId].socket.once('session:deleted', resolve)
+  );
+  const archivedTableRemoved = new Promise((resolve) =>
+    admins[teamA].socket.once('session:deleted', resolve)
+  );
   const ended = await call(superSocket, 'super:endSession', {});
   assert.ok(ended.recordId, 'enregistrement créé');
   const playerAfterEnd = await waitForState(
@@ -687,6 +706,15 @@ async function main() {
     'session terminée côté joueur'
   );
   assert.strictEqual(playerAfterEnd.scoresVisible, false, 'archiver ne révèle pas de classement');
+  await Promise.all([archivedPlayerRemoved, archivedTableRemoved]);
+  const archivedSessionGone = await fetch(`${BASE}/api/sessions/${created.code}`);
+  assert.strictEqual(archivedSessionGone.status, 404, 'la session live disparaît après archivage');
+  const archivedTableGone = await fetch(`${BASE}/api/team-admin`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code: created.teams[0].adminCode }),
+  });
+  assert.strictEqual(archivedTableGone.status, 400, 'les codes de table archivés sont supprimés');
   step('session terminée et archivée');
 
   const list = await rest('/api/records');
@@ -709,10 +737,6 @@ async function main() {
   assert.ok(csvText.includes('COMPOSITION DES ÉQUIPES'), 'CSV : composition des équipes');
   assert.ok(csvText.includes('CLASSEMENT PAR ÉVÉNEMENT'), 'CSV : classement par événement');
   step('export CSV généré (classement, rosters, événements)');
-
-  await call(superSocket, 'super:reopenSession', {});
-  await waitForState(superTracker, (s) => s.session.status !== 'finished', 'session réouverte');
-  step('session réouverte par le super animateur');
 
   /* ------------------------------------------------- suppression d'une session */
   const doomed = await post('/api/sessions', {
@@ -773,12 +797,16 @@ async function main() {
     sessionId: archived.sessionId,
     superKey: archived.superKey,
   });
+  const archivedLiveRemoved = new Promise((resolve) =>
+    archiveSocket.once('session:deleted', resolve)
+  );
   const archiveEnd = await call(archiveSocket, 'super:endSession', {});
+  await archivedLiveRemoved;
   archiveSocket.close();
   await rest(`/api/records/${archiveEnd.recordId}`, { method: 'DELETE' });
   const afterPurge = await fetch(`${BASE}/api/sessions/${archived.code}`);
   assert.strictEqual(afterPurge.status, 404, 'la session terminée part avec son archive');
-  step('archive supprimée : la session terminée et ses tables partent avec elle');
+  step('archive supprimée après nettoyage de sa session live');
 
   /* ------------------------------------------------------------------- fin */
   superSocket.close();

@@ -303,7 +303,7 @@ const DEFAULT_EVENTS = [
 
 /** Récit d'ouverture lu avant le premier événement (script du kit de cartes). */
 const NARRATIVE = {
-  eyebrow: { fr: 'À lire à voix haute · Acte 1', en: 'Read aloud · Act 1' },
+  eyebrow: { fr: 'Acte 1', en: 'Act 1' },
   title: { fr: 'Comité de crise', en: 'Crisis committee' },
   lines: [
     { fr: 'Nous sommes le 8 octobre 2026.', en: 'It is 8 October 2026.' },

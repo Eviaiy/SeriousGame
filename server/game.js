@@ -125,13 +125,16 @@ function uniqueCode(taken = usedCodes()) {
 
 function createSession({ name, lang, facilitator, teamCount, teamSize } = {}) {
   const taken = usedCodes();
+  const sessionLang = lang === 'en' ? 'en' : 'fr';
   const session = {
     id: id('sess'),
     code: uniqueCode(taken),
     superKey: token(),
-    name: cleanText(name, 80) || 'Facturation électronique',
+    name:
+      cleanText(name, 80) ||
+      (sessionLang === 'en' ? 'E-invoicing' : 'Facturation électronique'),
     facilitator: cleanText(facilitator, 60),
-    lang: lang === 'en' ? 'en' : 'fr',
+    lang: sessionLang,
     status: 'lobby',
     createdAt: Date.now(),
     startedAt: null,
@@ -1321,7 +1324,7 @@ function buildRecord(session) {
       headcount: team.players.length,
       roster: team.players.map((p) => ({
         name: p.name,
-        role: (deck.roleById(p.roleId) || {}).name || null,
+        role: (sessionRole(session, p.roleId) || {}).name || null,
       })),
     })),
     events: rankings.map((entry) => ({
@@ -1373,8 +1376,45 @@ function publicEvent(event) {
   };
 }
 
-function publicPlayer(player, { self = false } = {}) {
-  const role = deck.roleById(player.roleId);
+/* ------------------------------------------------------------------ rôles */
+
+/** Rôle tel que la session le présente : le texte du jeu, retouché par la direction. */
+function sessionRole(session, roleId) {
+  const base = deck.roleById(roleId);
+  if (!base) return null;
+  const edits = (session && session.roleEdits && session.roleEdits[roleId]) || null;
+  return edits ? { ...base, ...edits } : base;
+}
+
+function sessionRoles(session) {
+  return deck.ROLES.map((role) => sessionRole(session, role.id));
+}
+
+const ROLE_FIELDS = ['name', 'mission', 'focus', 'quote', 'stance'];
+
+/** La direction de jeu réécrit le texte d'un rôle pour cette session. */
+function updateRole(session, roleId, input = {}) {
+  if (!deck.ROLES.some((role) => role.id === roleId)) {
+    throw new GameError('role_not_found', 'Rôle inconnu');
+  }
+  const edit = {};
+  for (const field of ROLE_FIELDS) {
+    const value = input[field] || {};
+    edit[field] = { fr: cleanText(value.fr, 400), en: cleanText(value.en, 400) };
+  }
+  if (!edit.name.fr && !edit.name.en) throw new GameError('bad_role', 'Nom du rôle requis');
+  /* Une langue laissée vide reprend l'autre plutôt que d'afficher un blanc. */
+  for (const field of ROLE_FIELDS) {
+    edit[field].fr = edit[field].fr || edit[field].en;
+    edit[field].en = edit[field].en || edit[field].fr;
+  }
+  session.roleEdits = { ...(session.roleEdits || {}), [roleId]: edit };
+  store.persistSessions();
+  return sessionRole(session, roleId);
+}
+
+function publicPlayer(player, { self = false, session = null } = {}) {
+  const role = sessionRole(session, player.roleId);
   return {
     id: player.id,
     name: player.name,
@@ -1503,7 +1543,7 @@ function stateFor(session, audience = {}) {
           headcount: team.players.length,
           online: team.players.filter((p) => p.sockets > 0).length,
           rolesAssigned: Boolean(team.rolesAssignedAt),
-          players: team.players.map((p) => publicPlayer(p)),
+          players: team.players.map((p) => publicPlayer(p, { session })),
           progress: teamProgress(session, team),
           round: roundStateFor(session, team, { canSeeScores: true, playerId: null }),
           history: team.history,
@@ -1522,7 +1562,7 @@ function stateFor(session, audience = {}) {
         2: profileLevels(deck.ACT2_PROFILES),
       },
       rankings: eventRankings(session),
-      roles: deck.ROLES,
+      roles: sessionRoles(session),
       twists: deck.TWISTS,
       log: session.log.slice(-140),
     };
@@ -1544,7 +1584,7 @@ function stateFor(session, audience = {}) {
     headcount: team.players.length,
     teamSize: session.settings.teamSize,
     rolesAssigned: Boolean(team.rolesAssignedAt),
-    players: team.players.map((p) => publicPlayer(p, { self: p.id === playerId })),
+    players: team.players.map((p) => publicPlayer(p, { self: p.id === playerId, session })),
     progress: teamProgress(session, team),
     // Les points restent masqués jusqu'au dévoilement, y compris pour l'animateur
     // d'équipe. L'Acte 1 peut toutefois être dévoilé seul, entre les deux actes.
@@ -1565,7 +1605,7 @@ function stateFor(session, audience = {}) {
   return {
     ...base,
     team: myTeam,
-    me: me ? publicPlayer(me, { self: true }) : null,
+    me: me ? publicPlayer(me, { self: true, session }) : null,
     isDg: Boolean(me && (deck.roleById(me.roleId) || {}).dg),
     actResults,
     round: roundStateFor(session, team, { canSeeScores, playerId }),
@@ -1626,6 +1666,7 @@ module.exports = {
   requireTeam,
   renameTeam,
   removeTeam,
+  updateRole,
   regenTeamCode,
   joinPlayer,
   assignRoles,

@@ -114,6 +114,16 @@
     return `${Math.floor(min / 60)} h ${String(min % 60).padStart(2, '0')}`;
   }
 
+  /** Les deux titres par défaut représentent le même jeu et suivent la langue
+      de l'interface. Un éventuel titre personnalisé reste inchangé. */
+  function gameTitle(name) {
+    const value = String(name || '').trim();
+    if (!value || value === 'Facturation électronique' || value === 'E-invoicing') {
+      return t('app.title');
+    }
+    return value;
+  }
+
   /* Les animateurs annoncent une durée en minutes, jamais en secondes. Les
      champs de saisie sont donc en minutes ; le moteur reste en secondes. */
   function toMinutes(seconds) {
@@ -184,6 +194,12 @@
           store.all().filter((s) => s[idField] !== id)
         );
       },
+      removeSession(sessionId) {
+        LS.set(
+          lsKey,
+          store.all().filter((entry) => entry.sessionId !== sessionId)
+        );
+      },
     };
     return store;
   }
@@ -191,6 +207,13 @@
   const superStore = makeStore('sg.super.sessions', 'sessionId');
   const tableStore = makeStore('sg.table.sessions', 'teamId');
   const playerStore = makeStore('sg.player.sessions', 'playerId');
+
+  /** Oublie tous les accès locaux liés à une session supprimée. Un même
+      navigateur peut avoir servi de direction, de table et de joueur. */
+  function forgetSession(sessionId) {
+    if (!sessionId) return;
+    for (const store of [superStore, tableStore, playerStore]) store.removeSession(sessionId);
+  }
 
   /* --------------------------------------------------------------- REST API */
 
@@ -532,12 +555,14 @@
     fmtDateTime,
     fmtTimeOnly,
     fmtDuration,
+    gameTitle,
     toMinutes,
     toSeconds,
     LS,
     superStore,
     tableStore,
     playerStore,
+    forgetSession,
     passStore,
     api,
     download,

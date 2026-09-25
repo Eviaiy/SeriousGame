@@ -1,9 +1,22 @@
-/* Accueil : trois entrées — joueur, animateur de table, direction de jeu. */
+/* Accueil : la partie en cours et ses accès, ou la création d'une partie. */
 (function () {
   'use strict';
 
-  const { $, $$, h, clear, api, toast, superStore, tableStore, playerStore, t, fmtDateTime, qs } =
-    window.SG;
+  const {
+    $,
+    $$,
+    h,
+    clear,
+    api,
+    toast,
+    superStore,
+    tableStore,
+    playerStore,
+    t,
+    fmtDateTime,
+    gameTitle,
+    qs,
+  } = window.SG;
 
   window.SG.initChrome();
 
@@ -37,62 +50,67 @@
   /* ------------------------------------------------- portes (une à la fois) */
 
   const doors = {
-    player: { panel: $('#door-player'), firstInput: '#join-code' },
-    table: { panel: $('#door-table'), firstInput: '#table-code' },
-    super: { panel: $('#door-super'), firstInput: '#session-name' },
+    player: { panel: $('#door-player'), firstInput: '#player-name' },
+    table: { panel: $('#door-table'), firstInput: '#table-host-name' },
   };
-  let openDoor = 'player';
+  let openDoor = null;
 
-  function setDoor(which) {
-    openDoor = openDoor === which ? null : which;
+  /* Une seule porte visible et dépliée ; `null` les masque toutes. */
+  function openOnly(which) {
+    openDoor = which;
     for (const [name, door] of Object.entries(doors)) {
-      const isOpen = name === openDoor;
+      const isOpen = name === which;
+      door.panel.classList.toggle('hidden', !isOpen);
       door.panel.classList.toggle('is-open', isOpen);
-      door.panel.classList.toggle('is-dim', Boolean(openDoor) && !isOpen);
       door.panel.querySelector('.door-face').setAttribute('aria-expanded', String(isOpen));
     }
-    if (openDoor) {
-      const input = $(doors[openDoor].firstInput);
+    /* Aucun formulaire ouvert : le conteneur disparaît, sans laisser d'espace. */
+    $('.doors').classList.toggle('hidden', !which);
+    $('#btn-join-player').classList.toggle('is-active', which === 'player');
+    $('#btn-join-table').classList.toggle('is-active', which === 'table');
+    if (which === 'table' && tableCode.value.trim().length === 6) lookupTables();
+    if (which) {
+      const input = $(doors[which].firstInput);
       /* On attend la fin du dépliage pour ne pas casser l'animation par le scroll. */
       setTimeout(() => input && input.focus({ preventScroll: true }), 260);
     }
-    /* Une table a pu être prise depuis le dernier affichage. */
-    if (openDoor === 'table' && tableCode.value.trim().length === 6) lookupTables();
-    if (openDoor === 'super') loadActiveGames();
   }
 
-  $$('[data-door]').forEach((btn) => {
-    btn.addEventListener('click', () => setDoor(btn.getAttribute('data-door')));
-  });
+  /* Partie en cours : les boutons ouvrent le formulaire voulu, un second clic
+     le referme. */
+  $('#btn-join-player').addEventListener('click', () =>
+    openOnly(openDoor === 'player' ? null : 'player')
+  );
+  $('#btn-join-table').addEventListener('click', () =>
+    openOnly(openDoor === 'table' ? null : 'table')
+  );
 
-  /* Deux accueils, jamais mélangés :
+  /* Code de session déjà connu (QR, ou partie en cours) : inutile de le
+     redemander, les formulaires ne gardent que le nom. */
+  function hideCodeFields(known) {
+    $('#join-code-field').classList.toggle('hidden', known);
+    $('#table-code-field').classList.toggle('hidden', known);
+  }
+
+  /* Trois accueils :
      - avec un code de session (QR / lien d'inscription) : seul le formulaire
-       joueur est montré, les accès animateur et direction ne le concernent pas ;
-     - sans code (accueil « nu ») : c'est la porte de la direction de jeu et des
-       animateurs de table. Rejoindre la partie passe uniquement par le QR, donc
-       la porte joueur n'a pas sa place ici. */
+       joueur, déjà ouvert ;
+     - sans code, une partie en cours : la partie, puis ses trois accès
+       (joueur, animateur de table, direction de jeu) ;
+     - sans code, aucune partie : « Démarrer une partie », puis deux réglages. */
+  openOnly(null);
   if (prefill) {
-    doors.table.panel.classList.add('hidden');
-    doors.super.panel.classList.add('hidden');
+    hideCodeFields(true);
+    openOnly('player');
     const steps = $('.steps');
     if (steps) steps.classList.add('hidden');
-  } else {
-    /* Accueil « nu » : un seul appel à l'action, « Démarrer une partie », qui
-       dévoile les accès direction de jeu et animateur de table. Tant qu'il n'est
-       pas cliqué, la page reste épurée. */
-    doors.player.panel.classList.add('hidden');
-    doors.table.panel.classList.add('hidden');
-    doors.super.panel.classList.add('hidden');
-    const cta = $('#landing-cta');
-    if (cta) cta.classList.remove('hidden');
-    $('#btn-start-game').addEventListener('click', () => {
-      if (cta) cta.classList.add('hidden');
-      doors.table.panel.classList.remove('hidden');
-      doors.super.panel.classList.remove('hidden');
-      if (tableStore.all().length) setDoor('table');
-      else setDoor('super');
-    });
   }
+
+  $('#btn-start-game').addEventListener('click', () => {
+    $('#landing-cta').classList.add('hidden');
+    $('#new-game').classList.remove('hidden');
+    setTimeout(() => $('#team-count').focus({ preventScroll: true }), 50);
+  });
 
   /* ------------------------------------------------------- listes mémorisées */
 
@@ -169,16 +187,6 @@
       href: (e) => `/play.html?p=${encodeURIComponent(e.playerId)}`,
       cta: 'home.resumePlayer',
     });
-    renderList({
-      store: tableStore,
-      idField: 'teamId',
-      boxId: '#table-resume',
-      listId: '#table-list',
-      title: (e) => e.teamName || t('nav.team'),
-      sub: (e) => `${e.adminCode} · ${fmtDateTime(e.ts)}`,
-      href: (e) => `/team.html?tid=${encodeURIComponent(e.teamId)}`,
-      cta: 'home.resumeTable',
-    });
   }
 
   renderAll();
@@ -195,14 +203,10 @@
     if (code.length !== 6) return;
     try {
       const res = await api(`/api/sessions/${encodeURIComponent(code)}`);
-      const seats = Math.max(0, res.teamCount * res.teamSize - res.playerCount);
-      const table = wantedTable ? (res.tables || []).find((x) => x.id === wantedTable) : null;
-      joinInfo.textContent = !res.joinOpen
-        ? `${res.name} — ${t('err.join_closed')}`
-        : table
-          ? `${res.name} — ${t('home.joiningTable', { name: table.name })}`
-          : `${res.name} — ${t('home.seats', { n: seats })}`;
-      joinInfo.classList.remove('hidden');
+      if (!res.joinOpen) {
+        joinInfo.textContent = `${gameTitle(res.name)} — ${t('err.join_closed')}`;
+        joinInfo.classList.remove('hidden');
+      }
     } catch (err) {
       joinInfo.textContent = err.message;
       joinInfo.classList.remove('hidden');
@@ -307,16 +311,20 @@
     tableSheet.classList.toggle('hidden', !tables.length);
     for (const table of tables) {
       const mine = tableStore.find(table.id);
-      const status = t(table.hosted ? 'home.tableHosted' : 'home.tableFree');
+      const status = table.hosted
+        ? table.facilitatorName
+          ? t('home.tableHostedBy', { name: table.facilitatorName })
+          : t('home.tableHosted')
+        : t('home.tableFree');
+      const details = [status, table.adminCode];
+      if (table.headcount) details.push(t('home.tablePlayers', { n: table.headcount }));
       host.appendChild(
         h('div', { class: 'list-item' }, [
           h('div', { class: 'grow' }, [
             h('div', { class: 'title', text: table.name }),
             h('div', {
               class: 'small muted',
-              text: table.headcount
-                ? `${status} · ${t('home.tablePlayers', { n: table.headcount })}`
-                : status,
+              text: details.filter(Boolean).join(' • '),
             }),
           ]),
           h('button', {
@@ -353,27 +361,17 @@
   });
   window.I18N.onChange(renderTables);
 
-  /* Le code de session déjà connu de ce navigateur est prérempli : l'animateur
-     voit ses tables sans rien retaper. On garde l'accès le plus récent, sinon
-     une session tout juste créée serait masquée par un atelier précédent. */
-  const lastAccess = [tableStore.latest(), superStore.latest()]
-    .filter(Boolean)
-    .sort((a, b) => (b.ts || 0) - (a.ts || 0))[0];
-  const knownCode = (lastAccess || {}).code || prefill;
-  if (knownCode && !tableCode.value) {
-    tableCode.value = knownCode;
-    lookupTables();
-  }
   /* Les tables se prennent et se remplissent pendant que la porte est ouverte :
      on rafraîchit l'état tant qu'elle reste affichée. */
   setInterval(() => {
     if (openDoor === 'table' && tableCode.value.trim().length === 6) lookupTables();
-    if (openDoor === 'super') loadActiveGames();
+    if (!prefill) loadActiveGame();
   }, 8000);
 
-  /* ----------------------------------------------------- direction de jeu */
+  /* ------------------------------------------------------- partie en cours */
 
-  let activeGames = [];
+  /** La partie en cours : la plus récente des sessions non terminées. */
+  let activeGame = null;
 
   async function resumeDirection(code, button) {
     if (button) button.disabled = true;
@@ -393,50 +391,59 @@
     return undefined;
   }
 
-  function renderActiveGames() {
-    const host = clear($('#active-games-list'));
-    const empty = $('#active-games-empty');
-    empty.classList.toggle('hidden', activeGames.length > 0);
-    for (const game of activeGames) {
-      host.appendChild(
-        h('div', { class: 'list-item' }, [
-          h('div', { class: 'grow' }, [
-            h('div', { class: 'title', text: game.name }),
-            h('div', {
-              class: 'small muted',
-              text: t('home.activeGameMeta', {
-                code: game.code,
-                status: t(`admin.status.${game.status}`),
-                tables: game.teamCount,
-                players: game.playerCount,
-              }),
-            }),
-          ]),
-          h('button', {
-            class: 'btn btn-sm btn-primary',
-            type: 'button',
-            text: t('home.resumeDirection'),
-            onClick: (event) => resumeDirection(game.code, event.currentTarget),
-          }),
-        ])
-      );
+  function renderActiveGame() {
+    if (prefill) return;
+    const game = activeGame;
+    const creating = !$('#new-game').classList.contains('hidden');
+    $('#active-game').classList.toggle('hidden', !game);
+    /* Pas de partie : l'appel à l'action, sauf si le formulaire est déjà ouvert. */
+    $('#landing-cta').classList.toggle('hidden', Boolean(game) || creating);
+    if (game) $('#new-game').classList.add('hidden');
+    $$('.home-action').forEach((btn) => btn.classList.toggle('hidden', !game));
+    /* Les actes sont repris dans le bloc de la partie : pas de doublon. */
+    $('.hero .acts').classList.toggle('hidden', Boolean(game));
+    /* Sous les boutons, seul le formulaire compte : pas de carte d'en-tête. */
+    $('.doors').classList.toggle('doors-compact', Boolean(game));
+    hideCodeFields(Boolean(game));
+    if (!game) {
+      if (openDoor) openOnly(null);
+      return;
+    }
+    $('#active-game-name').textContent = gameTitle(game.name);
+    $('#active-game-meta').textContent = t('home.activeGameMeta', {
+      code: game.code,
+      tables: game.teamCount,
+      players: game.playerCount,
+    });
+    /* Les deux portes visent cette partie : son code est prérempli. */
+    if (joinCode.value !== game.code) {
+      joinCode.value = game.code;
+      lookupSession();
+    }
+    if (tableCode.value !== game.code) {
+      tableCode.value = game.code;
+      lookupTables();
     }
   }
 
-  async function loadActiveGames() {
+  async function loadActiveGame() {
     try {
       const res = await api('/api/sessions');
-      activeGames = res.sessions || [];
-      renderActiveGames();
+      activeGame = (res.sessions || [])[0] || null;
     } catch (err) {
-      activeGames = [];
-      renderActiveGames();
+      activeGame = null;
       if (err.code !== 'unauthorized') toast(err.message, 'error');
     }
+    renderActiveGame();
   }
 
-  loadActiveGames();
-  window.I18N.onChange(renderActiveGames);
+  /* Direction de jeu : pas de formulaire, on entre directement dans la console. */
+  $('#btn-go-admin').addEventListener('click', (event) => {
+    if (activeGame) resumeDirection(activeGame.code, event.currentTarget);
+  });
+
+  if (!prefill) loadActiveGame();
+  window.I18N.onChange(renderActiveGame);
 
   $('#create-form').addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -446,8 +453,6 @@
       const res = await api('/api/sessions', {
         method: 'POST',
         body: {
-          name: $('#session-name').value.trim(),
-          facilitator: $('#facilitator').value.trim(),
           lang: window.I18N.getLang(),
           teamCount: Number($('#team-count').value) || 3,
           teamSize: Number($('#team-size').value) || 6,

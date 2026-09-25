@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0a0a0d" />
     <title>Résultats — Serious Game</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/css/app.css" />
     <script>
       /* Thème posé avant le rendu : évite le clignotement au chargement. */
@@ -26,8 +27,8 @@
   <body class="results-page">
     <header class="topbar">
       <div class="brand">
-        <span class="tag" data-i18n="app.name">Serious Game</span>
-        <span id="results-game-name" data-i18n="app.name">Serious Game</span>
+        <a class="tag" href="/" data-i18n="app.name" aria-label="Serious Game">Serious Game</a>
+        <a class="brand-home" href="/" data-i18n="app.name">Serious Game</a>
       </div>
       <div class="spacer"></div>
       <a class="btn btn-sm btn-ghost" id="btn-back" data-i18n="results.back">Retour à la direction</a>
@@ -54,18 +55,18 @@
       <!-- profils en contexte : où se situe chaque table sur l'échelle de l'acte -->
       <section class="panel">
         <div class="panel-head">
-          <h2 data-i18n="results.profile2">Profil Acte 2 en contexte</h2>
-        </div>
-        <div id="results-profile-2"></div>
-      </section>
-      <section class="panel">
-        <div class="panel-head">
           <h2 data-i18n="results.profile1">Profil Acte 1 en contexte</h2>
         </div>
         <div id="results-profile-1"></div>
       </section>
+      <section class="panel">
+        <div class="panel-head">
+          <h2 data-i18n="results.profile2">Profil Acte 2 en contexte</h2>
+        </div>
+        <div id="results-profile-2"></div>
+      </section>
 
-      <!-- toutes les décisions, acte 2 puis acte 1, une colonne par table -->
+      <!-- toutes les décisions, acte 1 puis acte 2, une colonne par table -->
       <section class="panel">
         <div class="panel-head">
           <h2 data-i18n="results.decisions">Décisions de toutes les tables</h2>

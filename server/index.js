@@ -162,6 +162,12 @@ function dropSession(session) {
 /** Au démarrage : réarme les minuteurs, ferme les manches expirées pendant l'arrêt. */
 function resumeAfterRestart() {
   for (const session of Object.values(store.state.sessions)) {
+    /* Depuis qu'une archive est autonome, une session terminée ne doit plus
+       conserver de tables, joueurs ou codes après un redémarrage. */
+    if (session.status === 'finished' && session.archivedRecordId) {
+      game.deleteSession(session);
+      continue;
+    }
     /* Recalcule les cumuls par acte : les parties écrites avant le barème
        unique n'ont pas encore les champs act1 / act2. */
     game.recomputeAllScores(session);
@@ -293,14 +299,14 @@ app.get('/api/sessions/:code', (req, res) => {
     teamCount: session.teams.length,
     playerCount: session.teams.reduce((sum, t) => sum + t.players.length, 0),
     teamSize: session.settings.teamSize,
-    /* Le QR d'une table porte son identifiant : l'accueil doit pouvoir nommer
-       la table avant l'inscription, et la porte animateur dire lesquelles sont
-       déjà tenues. Aucun code d'animateur ici : la porte désigne une table par
-       son identifiant. */
+    /* Le QR d'une table porte son identifiant. L'accueil nomme chaque table,
+       son animateur et son code afin qu'un autre appareil puisse la reprendre. */
     tables: session.teams.map((t) => ({
       id: t.id,
       name: t.name,
+      adminCode: t.adminCode,
       hosted: Boolean(t.hostClaimedAt),
+      facilitatorName: t.facilitatorName || '',
       headcount: t.players.length,
     })),
   });
@@ -841,6 +847,12 @@ io.on('connection', (socket) => {
     },
   });
 
+  handle('super:updateRole', {
+    run: (session, p) => {
+      game.updateRole(session, p.roleId, p.role);
+    },
+  });
+
   handle('super:removeEvent', {
     run: (session, p) => {
       game.removeEvent(session, p.eventId);
@@ -871,6 +883,10 @@ io.on('connection', (socket) => {
       for (const team of session.teams) clearTeamTimer(session.id, team.id);
       const record = game.finishSession(session);
       notify(session, { type: 'session_ended' });
+      /* L'enveloppe commune diffuse d'abord le dernier état et accuse réception.
+         Au tour de boucle suivant, l'archive reste mais toute la session live
+         (tables, joueurs et codes) est supprimée. */
+      setTimeout(() => dropSession(session), 0);
       return { recordId: record.id };
     },
   });
