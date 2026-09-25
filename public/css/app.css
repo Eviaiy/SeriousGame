@@ -311,8 +311,8 @@ textarea {
 }
 
 .divider {
-  height: 1px;
-  background: var(--line);
+  height: 0;
+  background: transparent;
   margin: 16px 0;
 }
 
@@ -348,8 +348,6 @@ textarea {
   background: color-mix(in srgb, var(--bg) 86%, transparent);
   backdrop-filter: saturate(1.4) blur(12px);
   border-bottom: 1px solid var(--line);
-  /* filet doré du kit, en haut de chaque écran */
-  box-shadow: inset 0 3px 0 var(--gold);
 }
 
 /* La barre est collante : tout élément visé par scrollIntoView garde sa place. */
@@ -390,6 +388,7 @@ textarea {
 }
 .tag::after {
   content: 'SG';
+  display: block;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -548,7 +547,7 @@ textarea {
 .panel {
   position: relative;
   background: var(--surface);
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: var(--r-md);
   padding: 20px;
   box-shadow: var(--shadow-1);
@@ -566,6 +565,22 @@ textarea {
 }
 .panel-head h2 {
   min-width: 0;
+}
+
+.admin-game-title {
+  margin-bottom: 8px;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 640;
+  line-height: 1.2;
+}
+
+.table-card-heading {
+  align-items: baseline;
+}
+.game-name {
+  color: var(--c-amber);
+  text-align: right;
 }
 
 /* --------------------------------------------------------------- étiquettes */
@@ -861,7 +876,7 @@ input::placeholder {
   gap: 12px;
   flex-wrap: wrap;
   padding: 12px 14px;
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: var(--r-sm);
   background: var(--surface-2);
   transition: border-color 0.15s var(--ease), background 0.15s var(--ease);
@@ -883,14 +898,11 @@ input::placeholder {
   gap: 6px;
   flex: 0 0 auto;
 }
-/* Déroulé : les icônes de gestion restent sur la ligne du titre, « Lancer »
-   descend seul en dessous — c'est l'action principale, elle ne se noie pas
-   dans une file de boutons. */
-.deck-row > .row-icons {
+/* Déroulé : icônes de gestion puis « Lancer », tout à droite sur la ligne du
+   titre. Faute de place, « Lancer » passe seul à la ligne, toujours à droite. */
+.deck-row > .deck-actions {
   margin-left: auto;
-}
-.deck-row > .row-main {
-  flex: 1 0 100%;
+  flex-wrap: wrap;
   justify-content: flex-end;
 }
 /* Les quatre boutons de gestion sont carrés et de même taille : une rangée
@@ -900,12 +912,26 @@ input::placeholder {
   min-width: 32px;
   padding: 0;
 }
+.option-reveal-editor {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+.option-reveal-editor textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+.act1-only,
+.act2-only {
+  min-width: 0;
+}
 
 /* -------------------------------------------------------------- indicateurs */
 
 .metric {
   padding: 12px 14px;
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: var(--r-sm);
   background: var(--surface-2);
   min-width: 0;
@@ -927,20 +953,19 @@ input::placeholder {
   font-size: 1.15rem;
 }
 
-/* Bandeau de score : une ligne de quatre chiffres, sans cadre sur téléphone
+/* Bandeau de score : une ligne de trois chiffres, sans cadre sur téléphone
    (la carte doit rester l'élément principal de l'écran). */
 .score-strip {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0;
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: var(--r-sm);
   background: var(--surface-2);
   overflow: hidden;
 }
 .score-strip .metric {
   border: 0;
-  border-left: 1px solid var(--line);
   border-radius: 0;
   background: none;
   padding: 9px 10px;
@@ -955,6 +980,12 @@ input::placeholder {
 .score-strip .v.small {
   font-size: 1.05rem;
   font-weight: 660;
+}
+.game-completed-overview {
+  scroll-margin-top: 18px;
+}
+.game-completed-profiles {
+  margin-top: 14px;
 }
 
 .team-title {
@@ -1016,11 +1047,6 @@ input::placeholder {
 .table tbody tr.is-winner td.rank {
   color: var(--accent);
 }
-.win-star {
-  color: var(--c-amber);
-  white-space: nowrap;
-}
-
 .table tbody tr.is-me {
   background: var(--accent-weak);
 }
@@ -1214,6 +1240,8 @@ input::placeholder {
 
 .chev {
   flex: none;
+  /* Toujours calée à droite, quelle que soit la longueur du texte. */
+  margin-left: auto;
   color: var(--text-3);
   font-size: 1.05rem;
   transition: transform 0.25s var(--ease), color 0.2s var(--ease);
@@ -1243,17 +1271,18 @@ input::placeholder {
 }
 
 .steps {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px 22px;
-  max-width: 640px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  width: fit-content;
+  max-width: 720px;
   margin: 26px auto 0;
   color: var(--text-3);
   font-size: 0.86rem;
 }
 .steps > span {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
   align-items: center;
   gap: 8px;
 }
@@ -1262,6 +1291,7 @@ input::placeholder {
   place-items: center;
   width: 20px;
   height: 20px;
+  flex: none;
   border-radius: 50%;
   background: var(--surface-3);
   color: var(--text-2);
@@ -1295,7 +1325,7 @@ input::placeholder {
 .gcard {
   overflow: hidden;
   background: var(--surface);
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: var(--r-md);
   box-shadow: var(--shadow-card);
 }
@@ -1305,7 +1335,6 @@ input::placeholder {
   --hue: var(--c-red);
   position: relative;
   padding: 18px 20px 14px;
-  border-bottom: 1px solid var(--line);
   /* la classe de couleur porte le filet, pas le texte du titre */
   color: var(--text);
 }
@@ -1319,11 +1348,7 @@ input::placeholder {
   --hue: var(--c-amber);
 }
 .gcard-head::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 3px;
-  background: var(--hue);
+  display: none;
 }
 /* l'or plein ne sert que de filet : en texte il ne tient pas le contraste */
 .gcard-head.gold::before {
@@ -1365,6 +1390,19 @@ input::placeholder {
 @media (min-width: 900px) {
   .gcard-body.two-col {
     grid-template-columns: minmax(0, 1fr) minmax(300px, 0.85fr);
+    grid-template-areas:
+      'context choices'
+      'revelations choices';
+    align-items: start;
+  }
+  .gcard-body.two-col > .gcard-context {
+    grid-area: context;
+  }
+  .gcard-body.two-col > .choice-box {
+    grid-area: choices;
+  }
+  .gcard-body.two-col > .gcard-revelations {
+    grid-area: revelations;
   }
 }
 
@@ -1456,7 +1494,7 @@ input::placeholder {
   flex-direction: column;
   gap: 10px;
   padding: 16px;
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: var(--r-sm);
   background: var(--surface-2);
 }
@@ -1493,7 +1531,7 @@ input::placeholder {
   gap: 12px;
   min-height: 58px;
   padding: 10px 14px;
-  border: 1px solid var(--line-2);
+  border: 0;
   border-radius: var(--r-sm);
   background: var(--surface);
   backface-visibility: hidden;
@@ -1623,7 +1661,6 @@ input::placeholder {
 }
 .reveal-list > div {
   padding-left: 12px;
-  border-left: 2px solid var(--line-2);
 }
 .reveal-list b {
   color: var(--text);
@@ -1859,7 +1896,7 @@ input::placeholder {
   gap: 10px;
   padding: clamp(28px, 6vh, 54px) 20px;
   text-align: center;
-  border: 1px dashed var(--line-2);
+  border: 0;
   border-radius: var(--r-md);
   background: var(--surface);
 }
@@ -1937,16 +1974,13 @@ input::placeholder {
   position: relative;
   overflow: hidden;
   padding: 16px;
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: var(--r-md);
   background: var(--surface);
   box-shadow: var(--shadow-1);
 }
 .stripe {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  background: var(--accent);
+  display: none;
 }
 .stripe.orange {
   background: var(--c-amber);
@@ -1970,7 +2004,7 @@ input::placeholder {
 
 .role-card {
   padding: 14px;
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: var(--r-sm);
   background: var(--surface-2);
 }
@@ -1980,7 +2014,6 @@ input::placeholder {
 .role-card .q {
   margin-top: 8px;
   padding-left: 10px;
-  border-left: 2px solid var(--accent-line);
   color: var(--text-3);
   font-size: 0.84rem;
   font-style: italic;
@@ -2053,17 +2086,10 @@ input::placeholder {
   position: relative;
   overflow: hidden;
   padding: 20px;
-  border: 1px solid var(--accent-line);
+  border: 0;
   border-radius: var(--r-md);
   background: var(--surface);
   box-shadow: var(--shadow-2);
-}
-.role-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--gold), var(--gold-2));
 }
 .role-head {
   display: flex;
@@ -2104,7 +2130,6 @@ input::placeholder {
   gap: 12px;
   margin-top: 14px;
   padding-top: 14px;
-  border-top: 1px solid var(--line);
 }
 
 .role-brief {
@@ -2130,13 +2155,19 @@ input::placeholder {
 .brief-quote {
   margin: 2px 0 0;
   padding: 10px 14px;
-  border-left: 3px solid var(--gold);
-  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  border-radius: var(--r-sm);
   background: var(--surface-2);
   font-family: var(--font-display);
   font-size: 1rem;
   font-style: italic;
   color: var(--text);
+}
+.brief-quote + .role-brief {
+  margin-top: 14px;
+}
+.role-instruction {
+  margin: 12px 0 0;
+  font-style: italic;
 }
 
 /* ======================================================= composition d'équipe */
@@ -2156,7 +2187,7 @@ input::placeholder {
   align-items: center;
   gap: 11px;
   padding: 9px 12px;
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: var(--r-sm);
   background: var(--surface-2);
 }
@@ -2272,9 +2303,8 @@ input::placeholder {
   display: grid;
   gap: 12px;
   padding: 20px clamp(16px, 4vw, 30px);
-  border: 1px solid var(--line);
-  border-left: 3px solid var(--gold);
-  border-radius: 0 var(--r-md) var(--r-md) 0;
+  border: 0;
+  border-radius: var(--r-md);
   background: var(--surface);
 }
 .narrative h2 {
@@ -2289,7 +2319,6 @@ input::placeholder {
 }
 .narrative .punch {
   padding-top: 12px;
-  border-top: 1px solid var(--line);
   color: var(--text);
   font-size: 1.12rem;
   font-style: italic;
@@ -2304,11 +2333,25 @@ input::placeholder {
   border: 1px solid var(--gold);
   border-radius: var(--r-md);
   background: var(--accent-weak);
+  /* Colonne rétrécissable : un long intitulé d'option ne doit pas élargir le
+     panneau au-delà de l'écran du téléphone. */
+  grid-template-columns: minmax(0, 1fr);
 }
 .arb-choices {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+/* Les choix reprennent l'intitulé complet de l'option : il passe à la ligne. */
+.arb-choices .btn {
+  max-width: 100%;
+  min-height: 34px;
+  height: auto;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  white-space: normal;
+  text-align: left;
+  justify-content: flex-start;
 }
 
 /* =========================================== scores sous scellés / dévoilement */
@@ -2318,7 +2361,7 @@ input::placeholder {
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  border: 1px dashed var(--line-2);
+  border: 0;
   border-radius: var(--r-md);
   background: var(--surface-2);
   color: var(--text-2);
@@ -2328,6 +2371,159 @@ input::placeholder {
   height: 22px;
   flex: none;
   color: var(--text-3);
+}
+
+/* =========================================================== bilan d'un acte */
+
+.act-result {
+  overflow: hidden;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+.act-result-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 18px;
+  background: var(--c-amber);
+  color: #17110b;
+  font-size: 0.76rem;
+  font-weight: 750;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.act-result-body {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+}
+.act-result-rounds {
+  display: grid;
+  gap: 10px;
+}
+.act-result-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(110px, 0.65fr) minmax(76px, 0.35fr);
+  align-items: center;
+  gap: 18px;
+  padding: 13px 16px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+.act-result-event {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.act-result-event strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.act-result-round {
+  flex: none;
+  color: var(--text-3);
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+.act-result-choice,
+.act-result-points {
+  display: grid;
+  gap: 2px;
+}
+.act-result-choice strong,
+.act-result-points strong {
+  font-size: 1.05rem;
+}
+.act-result-points {
+  text-align: right;
+}
+.act-result-summary {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.55fr) minmax(0, 1.45fr);
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: var(--r-sm);
+  background: var(--accent-weak);
+}
+.act-result-summary > div,
+.act-result-profile {
+  display: grid;
+  align-content: center;
+  gap: 3px;
+}
+.act-result-summary .meta-label {
+  color: var(--accent);
+}
+.act-result-total,
+.act-result-profile strong {
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  line-height: 1.15;
+}
+.act-profile-scale {
+  display: grid;
+  gap: 10px;
+  margin-top: 2px;
+}
+.act-profile-levels {
+  display: grid;
+  gap: 8px;
+}
+.act-profile-level {
+  display: grid;
+  grid-template-columns: 12px 70px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--text-2);
+  opacity: 0.72;
+  transition: opacity 0.2s var(--ease), background 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.act-profile-level.is-current {
+  background: color-mix(in srgb, var(--c-amber-weak) 78%, var(--surface));
+  color: var(--text);
+  opacity: 1;
+  transform: translateX(4px);
+  box-shadow: var(--shadow-1);
+}
+.level-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--c-red);
+}
+.level-2 .level-dot {
+  background: var(--c-amber);
+}
+.level-3 .level-dot {
+  background: var(--gold);
+}
+.level-4 .level-dot {
+  background: var(--c-green);
+}
+.level-range {
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 1rem;
+}
+.level-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.level-copy > strong {
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+}
+.act-result-section-title {
+  margin: 4px 0 -4px;
 }
 
 /* ============================================ suivi des tables (super animateur) */
@@ -2344,28 +2540,44 @@ input::placeholder {
   grid-template-columns: minmax(0, 1fr);
   gap: 10px;
   padding: 14px;
+  /* Les tuiles sont posées sur un panneau de même fond : bordure et fond
+     décalé les détachent. */
   border: 1px solid var(--line);
   border-radius: var(--r-md);
-  background: var(--surface);
+  background: var(--surface-2);
   box-shadow: var(--shadow-1);
 }
 .team-tile.is-live {
-  border-color: var(--accent-line);
+  background: color-mix(in srgb, var(--accent-weak) 45%, var(--surface-2));
 }
 .team-tile.is-done {
-  border-color: color-mix(in srgb, var(--c-green) 45%, var(--line));
+  background: color-mix(in srgb, var(--c-green-weak) 45%, var(--surface-2));
 }
 .tile-head {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   gap: 8px;
 }
-/* Le nom d'une table commence par celui de la session : tronquer masquerait
-   justement son numéro, on le laisse donc passer à la ligne. */
-.tile-head .team-title {
+/* Nom de la table et son statut, puis l'animateur en dessous. */
+.tile-name {
   flex: 1;
   min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.tile-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tile-head .team-title {
+  min-width: 0;
   overflow-wrap: anywhere;
+}
+.tile-settings {
+  flex: none;
+  color: var(--text-2);
 }
 .progress-track {
   height: 6px;
@@ -2440,6 +2652,54 @@ input::placeholder {
 }
 
 /* =============================================================== responsive */
+
+/* ============================================================ résultats */
+
+/* Écran projeté : toute la largeur, et une grille de tables lisible de loin. */
+.results-shell {
+  max-width: none;
+  display: grid;
+  gap: 18px;
+}
+.results-shell > .panel {
+  border: 1px solid var(--line);
+}
+/* Tables placées sur un niveau de profil : leurs étiquettes à droite. */
+.level-teams {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.results-page .act-profile-level {
+  opacity: 0.6;
+}
+.results-page .act-profile-level.is-current {
+  opacity: 1;
+}
+/* Tableau des décisions : une ligne d'acte sépare les deux blocs. */
+.results-decisions .results-act-row th {
+  padding-top: 16px;
+  color: var(--accent);
+  text-align: left;
+}
+.results-decisions th.center,
+.results-decisions td.center {
+  text-align: center;
+}
+.results-choice {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.results-points {
+  margin-left: 8px;
+  font-size: 0.9rem;
+}
+/* En plein écran, la barre ne garde que de quoi en sortir. */
+.results-page.is-fullscreen #btn-back {
+  display: none;
+}
 
 @media (max-width: 1080px) {
   .split {
@@ -2536,17 +2796,41 @@ body:has(.vote-dock:not(.hidden)) .toasts {
   }
 }
 
-/* Entête sur une seule ligne : le titre de page est déjà répété dans le corps,
-   seul le monogramme reste à gauche pour laisser passer thème et langues. */
 @media (max-width: 560px) {
-  .brand > span[data-i18n]:not(.tag) {
-    display: none;
-  }
   /* Le chrono de départage n'a d'intérêt que sur l'écran projeté : sur
      téléphone la colonne pousse le tableau hors cadre. */
   .results-table th:nth-child(4),
   .results-table td:nth-child(4) {
     display: none;
+  }
+  .act-result-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 12px;
+  }
+  .act-result-event {
+    grid-column: 1 / -1;
+  }
+  .act-result-points {
+    min-width: 58px;
+  }
+  .act-result-summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .act-profile-level {
+    grid-template-columns: 10px 58px minmax(0, 1fr);
+    gap: 9px;
+    padding: 10px;
+  }
+  .act-profile-level .badge {
+    grid-column: 3;
+    justify-self: start;
+  }
+  .act-profile-level .level-teams {
+    grid-column: 3;
+    justify-content: flex-start;
+  }
+  .act-profile-level.is-current {
+    transform: none;
   }
 }
 

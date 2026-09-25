@@ -58,6 +58,7 @@
     }
     /* Une table a pu être prise depuis le dernier affichage. */
     if (openDoor === 'table' && tableCode.value.trim().length === 6) lookupTables();
+    if (openDoor === 'super') loadActiveGames();
   }
 
   $$('[data-door]').forEach((btn) => {
@@ -178,17 +179,6 @@
       href: (e) => `/team.html?tid=${encodeURIComponent(e.teamId)}`,
       cta: 'home.resumeTable',
     });
-    renderList({
-      store: superStore,
-      idField: 'sessionId',
-      boxId: '#super-resume',
-      listId: '#super-list',
-      title: (e) => e.name || t('app.title'),
-      sub: (e) => `${e.code} · ${fmtDateTime(e.ts)}`,
-      href: (e) => `/admin.html?s=${encodeURIComponent(e.sessionId)}`,
-      cta: 'nav.admin',
-      onRemove: deleteSession,
-    });
   }
 
   renderAll();
@@ -262,9 +252,22 @@
 
   async function openTable(code, button, teamId) {
     if (code.length !== 6) return toast(t('err.team_not_found'), 'error');
+    const facilitatorName = $('#table-host-name').value.trim();
+    if (!facilitatorName) {
+      $('#table-host-name').focus();
+      return toast(t('err.name_required'), 'error');
+    }
+    try {
+      localStorage.setItem('sg.hostName', facilitatorName);
+    } catch (err) {
+      /* ignore */
+    }
     if (button) button.disabled = true;
     try {
-      const res = await api('/api/team-admin', { method: 'POST', body: { code, teamId } });
+      const res = await api('/api/team-admin', {
+        method: 'POST',
+        body: { code, teamId, facilitatorName },
+      });
       tableStore.save({
         sessionId: res.sessionId,
         code: res.code,
@@ -281,6 +284,13 @@
       if (button) button.disabled = false;
     }
     return undefined;
+  }
+
+  /* Le nom saisi la dernière fois sur cet appareil est proposé d'office. */
+  try {
+    $('#table-host-name').value = localStorage.getItem('sg.hostName') || '';
+  } catch (err) {
+    /* ignore */
   }
 
   $('#table-form').addEventListener('submit', (event) => {
@@ -354,14 +364,79 @@
     tableCode.value = knownCode;
     lookupTables();
   }
-
   /* Les tables se prennent et se remplissent pendant que la porte est ouverte :
      on rafraîchit l'état tant qu'elle reste affichée. */
   setInterval(() => {
     if (openDoor === 'table' && tableCode.value.trim().length === 6) lookupTables();
+    if (openDoor === 'super') loadActiveGames();
   }, 8000);
 
   /* ----------------------------------------------------- direction de jeu */
+
+  let activeGames = [];
+
+  async function resumeDirection(code, button) {
+    if (button) button.disabled = true;
+    try {
+      const res = await api('/api/super-admin', { method: 'POST', body: { code } });
+      superStore.save({
+        sessionId: res.sessionId,
+        code: res.code,
+        superKey: res.superKey,
+        name: res.name,
+      });
+      window.location.href = `/admin.html?s=${encodeURIComponent(res.sessionId)}`;
+    } catch (err) {
+      toast(err.message, 'error');
+      if (button) button.disabled = false;
+    }
+    return undefined;
+  }
+
+  function renderActiveGames() {
+    const host = clear($('#active-games-list'));
+    const empty = $('#active-games-empty');
+    empty.classList.toggle('hidden', activeGames.length > 0);
+    for (const game of activeGames) {
+      host.appendChild(
+        h('div', { class: 'list-item' }, [
+          h('div', { class: 'grow' }, [
+            h('div', { class: 'title', text: game.name }),
+            h('div', {
+              class: 'small muted',
+              text: t('home.activeGameMeta', {
+                code: game.code,
+                status: t(`admin.status.${game.status}`),
+                tables: game.teamCount,
+                players: game.playerCount,
+              }),
+            }),
+          ]),
+          h('button', {
+            class: 'btn btn-sm btn-primary',
+            type: 'button',
+            text: t('home.resumeDirection'),
+            onClick: (event) => resumeDirection(game.code, event.currentTarget),
+          }),
+        ])
+      );
+    }
+  }
+
+  async function loadActiveGames() {
+    try {
+      const res = await api('/api/sessions');
+      activeGames = res.sessions || [];
+      renderActiveGames();
+    } catch (err) {
+      activeGames = [];
+      renderActiveGames();
+      if (err.code !== 'unauthorized') toast(err.message, 'error');
+    }
+  }
+
+  loadActiveGames();
+  window.I18N.onChange(renderActiveGames);
 
   $('#create-form').addEventListener('submit', async (event) => {
     event.preventDefault();

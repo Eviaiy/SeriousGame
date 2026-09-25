@@ -232,6 +232,51 @@ app.post('/api/sessions', requirePass, (req, res) => {
   }
 });
 
+/** Les parties en cours sont visibles depuis tout appareil relié au même serveur. */
+app.get('/api/sessions', requirePass, (req, res) => {
+  const sessions = Object.values(store.state.sessions)
+    .filter((session) => session.status !== 'finished')
+    /* Les parties créées par une ancienne version n'ont pas de liste de joueurs
+       par table : elles ne peuvent plus être reprises, on ne les propose pas. */
+    .filter(
+      (session) =>
+        Array.isArray(session.teams) && session.teams.every((team) => Array.isArray(team.players))
+    )
+    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+    .map((session) => ({
+      sessionId: session.id,
+      code: session.code,
+      name: session.name,
+      facilitator: session.facilitator,
+      status: session.status,
+      teamCount: session.teams.length,
+      playerCount: session.teams.reduce((sum, team) => sum + team.players.length, 0),
+      createdAt: session.createdAt,
+    }));
+  res.json({ ok: true, sessions });
+});
+
+/**
+ * Reprise de la direction depuis un nouvel appareil. Le code de session sert de
+ * relais lorsque le navigateur d'origine n'est plus disponible. Sur un serveur
+ * protégé, la phrase ADMIN_PASSPHRASE reste requise.
+ */
+app.post('/api/super-admin', requirePass, (req, res) => {
+  try {
+    const session = game.findByCode((req.body || {}).code);
+    if (!session) throw new game.GameError('session_not_found', 'Session introuvable');
+    res.json({
+      ok: true,
+      sessionId: session.id,
+      code: session.code,
+      superKey: session.superKey,
+      name: session.name,
+    });
+  } catch (err) {
+    sendError(res, err);
+  }
+});
+
 /** Écran d'accueil joueur : le code existe-t-il, et les inscriptions sont-elles ouvertes ? */
 app.get('/api/sessions/:code', (req, res) => {
   const session = game.findByCode(req.params.code);
@@ -312,7 +357,7 @@ app.post('/api/sessions/:code/players', (req, res) => {
  */
 app.post('/api/team-admin', (req, res) => {
   try {
-    const { code, teamId } = req.body || {};
+    const { code, teamId, facilitatorName } = req.body || {};
     const found = game.findByTeamCode(code);
     let session = found ? found.session : null;
     let team = found ? found.team : null;
@@ -326,6 +371,9 @@ app.post('/api/team-admin', (req, res) => {
       /* Table choisie dans la liste : elle compte aussi comme animée. */
       game.markTeamHosted(session, team);
     }
+    /* Le formulaire d'accueil demande le nom ; un lien ou un QR de table ne le
+       porte pas, la console le demandera alors elle-même. */
+    if (String(facilitatorName || '').trim()) game.setFacilitatorName(session, team, facilitatorName);
     broadcast(session);
     res.json({
       ok: true,
@@ -403,7 +451,6 @@ function recordToCsv(record) {
     'Acte 2',
     'Ajustements',
     'Total',
-    'Événements gagnés',
     'Profil Acte 1',
     'Profil Acte 2',
   ]);
@@ -415,7 +462,6 @@ function recordToCsv(record) {
       row.act2,
       row.adjust,
       row.total,
-      row.wins,
       row.act1Profile ? row.act1Profile.label.fr : '',
       row.act2Profile ? row.act2Profile.label.fr : '',
     ]);
@@ -479,7 +525,10 @@ app.get('/join/:code', (req, res) => {
   const code = encodeURIComponent(String(req.params.code || '').toUpperCase());
   /* ?t=<table> vient du QR posé sur une table : on le garde jusqu'au formulaire. */
   const table = String(req.query.t || '').slice(0, 40);
-  res.redirect(`/play.html?code=${code}${table ? `&t=${encodeURIComponent(table)}` : ''}`);
+  /* L'inscription doit toujours passer par un nouveau formulaire. Envoyer le
+     lien vers play.html pouvait rouvrir le dernier joueur mémorisé sur cet
+     appareil avant même de lire la table ciblée. */
+  res.redirect(`/?code=${code}${table ? `&t=${encodeURIComponent(table)}` : ''}`);
 });
 
 app.get('/table/:code', (req, res) => {
@@ -616,6 +665,13 @@ io.on('connection', (socket) => {
       }
     });
   }
+
+  handle('teamAdmin:setName', {
+    scope: 'admin',
+    run: (session, p, a, teamId) => {
+      game.setFacilitatorName(session, game.requireTeam(session, teamId), p.name);
+    },
+  });
 
   /* -------------------------------------------------- manche (les deux rôles) */
 
@@ -800,20 +856,6 @@ io.on('connection', (socket) => {
   handle('super:updateSettings', {
     run: (session, p) => {
       game.updateSettings(session, p.settings || p);
-    },
-  });
-
-  handle('super:revealAct1', {
-    run: (session) => {
-      game.revealAct1(session);
-      notify(session, { type: 'act1_revealed' });
-    },
-  });
-
-  handle('super:reveal', {
-    run: (session) => {
-      game.revealScores(session);
-      notify(session, { type: 'scores_revealed' });
     },
   });
 

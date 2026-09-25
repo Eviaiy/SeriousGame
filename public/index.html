@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0a0a0d" />
-    <title>Serious Game — Facturation électronique</title>
+    <title>Facturation électronique</title>
     <link rel="stylesheet" href="/css/app.css" />
     <script>
       /* Thème posé avant le rendu : évite le clignotement au chargement. */
@@ -27,7 +27,7 @@
     <header class="topbar">
       <div class="brand">
         <span class="tag" data-i18n="app.name">Serious Game</span>
-        <span data-i18n="app.title">Facturation électronique</span>
+        <span data-i18n="app.name">Serious Game</span>
       </div>
       <div class="spacer"></div>
       <a class="btn btn-sm btn-ghost" href="/records.html" data-i18n="nav.records">Historique</a>
@@ -131,6 +131,17 @@
               <div class="door-inner">
                 <form id="table-form" autocomplete="off">
                   <label class="field">
+                    <span data-i18n="home.facilitatorName">Votre nom</span>
+                    <input
+                      type="text"
+                      id="table-host-name"
+                      maxlength="40"
+                      autocomplete="name"
+                      data-i18n-placeholder="home.facilitatorNamePh"
+                      placeholder="Prénom Nom"
+                    />
+                  </label>
+                  <label class="field">
                     <span data-i18n="home.tableCode">Code de session</span>
                     <input
                       type="text"
@@ -189,6 +200,14 @@
           <div class="door-body">
             <div>
               <div class="door-inner">
+                <div class="label" data-i18n="home.activeGames">Parties actives</div>
+                <div class="list" id="active-games-list" style="margin-top: 10px"></div>
+                <p class="small muted hidden" id="active-games-empty" style="margin: 10px 0 0" data-i18n="home.noActiveGames">
+                  Aucune partie active.
+                </p>
+
+                <div class="divider"></div>
+                <div class="label" data-i18n="home.newGame">Nouvelle partie</div>
                 <form id="create-form" autocomplete="off">
                   <label class="field">
                     <span data-i18n="home.sessionName">Nom de la session</span>
@@ -213,11 +232,6 @@
                   </button>
                 </form>
 
-                <div id="super-resume" class="hidden">
-                  <div class="divider"></div>
-                  <div class="label" data-i18n="home.existing">Accès ouverts sur ce navigateur</div>
-                  <div class="list" id="super-list"></div>
-                </div>
               </div>
             </div>
           </div>

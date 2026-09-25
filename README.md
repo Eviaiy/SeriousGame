@@ -1,4 +1,4 @@
-# Serious Game — Facturation électronique
+# Facturation électronique
 
 Plateforme web pour animer le jeu **« Le vrai match commence après le go-live »** :
 Acte 1 *Comité de crise* et Acte 2 *Choose your transformation*.
@@ -34,6 +34,11 @@ Les tables vivent sur le serveur, pas dans un navigateur : la liste est la même
 depuis n’importe quel appareil, et une table ouverte sur un téléphone se reprend
 sur un ordinateur sans rien retaper. Corollaire assumé : qui connaît le code de
 session peut ouvrir une console de table.
+
+La **direction de jeu** peut elle aussi être reprise depuis un autre appareil :
+son volet d’accueil affiche toutes les parties actives du serveur. Un clic reprend
+la session choisie. Si `ADMIN_PASSPHRASE` est configuré, la phrase d’accès reste
+demandée avant d’afficher la liste et de reprendre la partie.
 
 Chaque table garde un code propre, qui n’est plus écrit nulle part. Il vit dans le
 **QR de la fiche de table**, côté direction de jeu (*Vue d’ensemble*), et dans le
@@ -81,8 +86,8 @@ npm run check      # = npm run lint:ui && npm run smoke
 
 1. **Direction de jeu → « Ouvrir la session »** : nom de la session, nom de
    l’animateur, nombre de tables (1 à 12), joueurs par table (2 à 10). Les tables
-   sont créées aussitôt et portent le nom de la session suivi de leur numéro —
-   « Atelier EY · Table 1 ». La console affiche le code de session, son QR à
+   sont créées aussitôt et portent simplement leur numéro — « Table 1 ». La
+   console affiche le code de session, son QR à
    projeter et de quoi copier le lien joueurs.
 2. **Les animateurs prennent leur table** : *Animer une table* → code de session.
    La porte liste les tables de la session, *libre* ou *déjà animée* ; l’animateur
@@ -102,7 +107,7 @@ npm run check      # = npm run lint:ui && npm run smoke
 5. **Récit d’ouverture** : la crise est posée sur l’écran de chaque joueur avant
    la première carte.
 6. **Chaque table avance à son rythme** : son animateur lance la carte suivante
-   (5 min par défaut, réglable par demi-minutes), peut ajouter du temps, mettre
+   (6 min par défaut, réglable par demi-minutes), peut ajouter du temps, mettre
    en pause, clore le vote plus tôt ou annuler l’événement. La direction de jeu
    peut aussi lancer une même carte sur plusieurs tables d’un coup.
 7. **Vote** : chaque joueur choisit A, B ou C sur son téléphone. Sur téléphone,

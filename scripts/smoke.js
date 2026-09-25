@@ -127,6 +127,16 @@ async function main() {
   assert.strictEqual(new Set(created.teams.map((t) => t.adminCode)).size, 3, 'codes de table distincts');
   step(`session créée (${created.code}) avec 3 tables et leurs codes animateur`);
 
+  const recoveredDirection = await post('/api/super-admin', { code: created.code });
+  assert.strictEqual(recoveredDirection.sessionId, created.sessionId, 'la reprise retrouve la même session');
+  assert.strictEqual(recoveredDirection.superKey, created.superKey, 'la reprise restitue le même accès direction');
+  const activeGames = await rest('/api/sessions');
+  assert.ok(
+    activeGames.sessions.some((session) => session.sessionId === created.sessionId),
+    'la partie active est proposée à tous les appareils'
+  );
+  step('direction de jeu récupérable depuis la liste des parties actives');
+
   /* --------------------------------------------------------------- joueurs */
   const names = ['Ana', 'Bob', 'Cleo', 'Dan', 'Eve', 'Finn', 'Gaia', 'Hugo', 'Iris'];
   const players = [];
@@ -154,18 +164,29 @@ async function main() {
     teamSize: 2,
   });
   const wanted = qrSession.teams[2];
+  const targetedLink = await fetch(
+    `${BASE}/join/${qrSession.code}?t=${encodeURIComponent(wanted.id)}`,
+    { redirect: 'manual' }
+  );
+  assert.strictEqual(targetedLink.status, 302, 'le lien joueur redirige vers le formulaire');
+  assert.strictEqual(
+    targetedLink.headers.get('location'),
+    `/?code=${qrSession.code}&t=${encodeURIComponent(wanted.id)}`,
+    'la redirection conserve la table ciblée'
+  );
   const scanned = await post(`/api/sessions/${qrSession.code}/players`, {
     name: 'Zoe',
     teamId: wanted.id,
   });
   assert.strictEqual(scanned.teamId, wanted.id, 'le QR d’une table y assoit le joueur');
-  const strayed = await post(`/api/sessions/${qrSession.code}/players`, {
-    name: 'Yann',
-    teamId: 'tm_inconnue',
-  });
-  assert.ok(
-    qrSession.teams.some((x) => x.id === strayed.teamId),
-    'table inconnue : retour à la répartition automatique'
+  await assert.rejects(
+    () =>
+      post(`/api/sessions/${qrSession.code}/players`, {
+        name: 'Yann',
+        teamId: 'tm_inconnue',
+      }),
+    /team_not_found|400/,
+    'une table ciblée inconnue est refusée au lieu de répartir ailleurs'
   );
   const lookup = await rest(`/api/sessions/${qrSession.code}`);
   assert.ok(
@@ -177,6 +198,46 @@ async function main() {
     'aucune table n’est signalée animée avant qu’un animateur ne l’ouvre'
   );
   step('QR de table : le joueur est assis à la table scannée');
+
+  /* ------------------------ arrivée tardive : rôle libre puis Participant */
+  const lateSession = await post('/api/sessions', {
+    name: 'Smoke late join',
+    facilitator: 'QA',
+    lang: 'fr',
+    teamCount: 1,
+    teamSize: 10,
+  });
+  const lateTeam = lateSession.teams[0];
+  for (const name of ['Lou', 'Max']) {
+    await post(`/api/sessions/${lateSession.code}/players`, { name, teamId: lateTeam.id });
+  }
+  const lateAdmin = await post('/api/team-admin', { code: lateTeam.adminCode });
+  const lateSocket = await connect();
+  const lateTracker = track(lateSocket);
+  const lateJoined = await call(lateSocket, 'teamAdmin:join', {
+    sessionId: lateAdmin.sessionId,
+    teamId: lateAdmin.teamId,
+    adminToken: lateAdmin.adminToken,
+  });
+  lateTracker.state = lateJoined.state;
+  await call(lateSocket, 'team:assignRoles', {});
+  for (const name of ['Noa', 'Oli', 'Paz', 'Rui']) {
+    await post(`/api/sessions/${lateSession.code}/players`, { name, teamId: lateTeam.id });
+  }
+  await post(`/api/sessions/${lateSession.code}/players`, { name: 'Sam', teamId: lateTeam.id });
+  const lateState = await waitForState(
+    lateTracker,
+    (s) => s.team.players.length === 7,
+    'sept joueurs tardifs visibles'
+  );
+  const specialistRoles = lateState.team.players.slice(0, 6).map((player) => player.roleId);
+  assert.strictEqual(new Set(specialistRoles).size, 6, 'chaque rôle spécialiste reste unique');
+  assert.strictEqual(
+    lateState.team.players[6].roleId,
+    'role-participant',
+    'Participant utilisé quand tous les rôles sont pris'
+  );
+  step('arrivée tardive : rôle libre aléatoire, puis rôle Participant en dernier recours');
 
   /* ------------------------------------ console de table par code de session */
   const claims = [];
@@ -260,9 +321,9 @@ async function main() {
   step('places par table respectées : session complète au-delà');
 
   /* Nom des tables : celui de la session, suivi du numéro. */
-  assert.strictEqual(full.teams[0].name, 'Smoke places · Table 1', 'la table porte le nom de la session');
-  assert.strictEqual(full.teams[1].name, 'Smoke places · Table 2', 'et son numéro d’ordre');
-  step('tables nommées d’après la session');
+  assert.strictEqual(full.teams[0].name, 'Table 1', 'la table porte uniquement son numéro');
+  assert.strictEqual(full.teams[1].name, 'Table 2', 'et son numéro d’ordre');
+  step('tables nommées uniquement par leur numéro');
 
   /* Une table ouverte par son propre code compte comme animée : l'animateur
      suivant, arrivé avec le code de session, doit recevoir l'autre table. */
@@ -290,6 +351,15 @@ async function main() {
   assert.strictEqual(superJoined.state.role, 'super');
   assert.strictEqual(superJoined.state.events.length, 8, '8 événements par défaut (4 + 4)');
   assert.strictEqual(superJoined.state.teams.length, 3);
+  const act2Revelations = superJoined.state.events
+    .filter((event) => event.act === 2)
+    .map((event) => event.options.map((option) => option.reveal.fr));
+  assert.deepStrictEqual(act2Revelations, [
+    ['Rapide, mais dette cachée', 'Amélioration partielle', 'Effort élevé, base saine'],
+    ['Effet pansement', 'Contrôle mais incomplet', 'Sécurisation durable'],
+    ['Solution technique limitée', 'Compromis efficace', 'Transformation en profondeur'],
+    ['Conformité fragile', 'Trajectoire solide', 'Avantage compétitif'],
+  ]);
   step('super animateur connecté, deck par défaut chargé (8 événements)');
 
   await expectFail(superSocket, 'super:join', { sessionId: created.sessionId, superKey: 'nope' });
@@ -517,6 +587,62 @@ async function main() {
   assert.strictEqual(adminMid.scoresVisible, false, 'l’animateur de table ne voit pas les points');
   step('scores invisibles pour les joueurs et les animateurs de table');
 
+  /* --------------------------- bilan automatique à la dernière carte d'un acte */
+  const remainingAct1 = superTracker.state.events.filter(
+    (event) => event.act === 1 && event.id !== evt1.id
+  );
+  for (const event of remainingAct1) {
+    await call(admins[teamA].socket, 'round:start', { eventId: event.id, durationSec: 120 });
+    await call(admins[teamA].socket, 'round:close', {});
+    await call(admins[teamA].socket, 'round:finish', {});
+  }
+  const actRecap = await waitForState(
+    playerConns[aPlayers[0].playerId].tracker,
+    (s) => s.actResults && s.actResults.some((result) => result.act === 1),
+    'bilan acte 1 visible'
+  );
+  const act1Recap = actRecap.actResults.find((result) => result.act === 1);
+  assert.strictEqual(act1Recap.score, 2, 'le bilan expose le total de l’acte terminé');
+  assert.strictEqual(act1Recap.rounds.length, 4, 'le bilan détaille chaque round de l’acte');
+  assert.strictEqual(act1Recap.profile.id, 'firefighter', 'le bilan expose le profil final');
+  assert.deepStrictEqual(
+    act1Recap.levels.map((level) => level.range),
+    ['0–4', '5–8', '9–12', '13+'],
+    'le bilan expose toute l’échelle permettant de situer le profil'
+  );
+  assert.strictEqual(actRecap.scoresVisible, false, 'le classement global reste scellé');
+  assert.strictEqual(actRecap.actResults.some((result) => result.act === 2), false);
+  assert.strictEqual(
+    admins[teamA].tracker.state.actResults[0].score,
+    2,
+    'le même bilan est visible par l’animateur de table'
+  );
+  step('dernière carte rangée : décisions, score et profil de l’acte dévoilés à la table');
+
+  /* Le dernier bilan ajoute une synthèse des deux actes, sans ouvrir le classement. */
+  const remainingAct2 = superTracker.state.events.filter(
+    (event) => event.act === 2 && event.id !== act2.id
+  );
+  for (const event of remainingAct2) {
+    await call(admins[teamA].socket, 'round:start', { eventId: event.id, durationSec: 120 });
+    await call(admins[teamA].socket, 'round:close', {});
+    await call(admins[teamA].socket, 'round:finish', {});
+  }
+  const completedRecap = await waitForState(
+    playerConns[aPlayers[0].playerId].tracker,
+    (s) => s.actResults && s.actResults.length === 2 && Number.isFinite(s.team.wins),
+    'vue d’ensemble finale visible'
+  );
+  assert.strictEqual(completedRecap.actResults.length, 2, 'les deux actes alimentent la synthèse');
+  assert.strictEqual(completedRecap.team.wins >= 0, true, 'les victoires sont disponibles sans rang');
+  assert.deepStrictEqual(completedRecap.leaderboard, [], 'le classement reste scellé');
+  assert.strictEqual(
+    admins[teamA].tracker.state.actResults.length,
+    2,
+    'la même synthèse est disponible pour l’animateur de table'
+  );
+  step('fin de l’acte 2 : vue d’ensemble avant les bilans des deux actes, sans rang');
+
   /* --------------------------------------------------------- ajustement manuel */
   await call(superSocket, 'super:adjustScore', { teamId: teamB, delta: 5, reason: 'Fair play' });
   await waitForState(superTracker, (s) => s.teams.find((t) => t.id === teamB).adjust === 5, 'ajout +5');
@@ -531,23 +657,20 @@ async function main() {
   await waitForState(superTracker, (s) => s.teams.find((t) => t.id === teamC).total === 2, 'C corrigé');
   step('correction de décision par le super animateur, scores recalculés');
 
-  /* --------------------------------------------------------------- dévoilement */
-  await call(superSocket, 'super:reveal', {});
-  const revealed = await waitForState(
-    playerConns[aPlayers[0].playerId].tracker,
-    (s) => s.scoresVisible === true,
-    'dévoilement joueur'
-  );
-  assert.ok(revealed.leaderboard.length === 3, 'classement général visible après dévoilement');
+  /* ----------------------- scores permanents côté direction, jamais de classement côté joueur */
+  const directionState = superTracker.state;
+  assert.strictEqual(directionState.scoresVisible, true, 'la direction voit toujours les scores');
+  assert.ok(directionState.leaderboard.length === 3, 'la direction voit le classement général');
   const finalByName = {};
-  for (const row of revealed.leaderboard) finalByName[row.name] = row;
+  for (const row of directionState.leaderboard) finalByName[row.name] = row;
   assert.strictEqual(finalByName[byName[teamA].name].total, 6, 'table A : 2 (acte 1) + 4 (acte 2)');
   assert.strictEqual(finalByName[byName[teamB].name].total, 7, 'table B : 4 (acte 1) + 3 (ajustements)');
   assert.strictEqual(finalByName[byName[teamC].name].total, 2, 'table C : 2 après correction');
-  assert.strictEqual(revealed.leaderboard[0].name, byName[teamB].name, 'table B première (7 pts)');
-  assert.ok(revealed.team.total !== undefined, 'le joueur voit enfin le total de son équipe');
-  assert.ok(revealed.team.act1Profile, 'profil acte 1 révélé');
-  step('dévoilement simultané : classement et profils visibles par tous');
+  assert.strictEqual(directionState.leaderboard[0].name, byName[teamB].name, 'table B première (7 pts)');
+  const playerPrivate = playerConns[aPlayers[0].playerId].tracker.state;
+  assert.strictEqual(playerPrivate.scoresVisible, false, 'le joueur ne reçoit aucun dévoilement global');
+  assert.deepStrictEqual(playerPrivate.leaderboard, [], 'aucun classement général côté joueur');
+  step('scores toujours visibles pour la direction, sans dévoilement global aux joueurs');
 
   /* --------------------------------------- aucune statistique individuelle nulle part */
   const playerFinal = playerConns[aPlayers[0].playerId].tracker.state;
@@ -558,6 +681,12 @@ async function main() {
   /* ------------------------------------------------------------------ archive */
   const ended = await call(superSocket, 'super:endSession', {});
   assert.ok(ended.recordId, 'enregistrement créé');
+  const playerAfterEnd = await waitForState(
+    playerConns[aPlayers[0].playerId].tracker,
+    (s) => s.session.status === 'finished',
+    'session terminée côté joueur'
+  );
+  assert.strictEqual(playerAfterEnd.scoresVisible, false, 'archiver ne révèle pas de classement');
   step('session terminée et archivée');
 
   const list = await rest('/api/records');

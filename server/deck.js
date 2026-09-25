@@ -453,8 +453,27 @@ function dgRole() {
   return ROLES.find((r) => r.dg) || ROLES[ROLES.length - 1];
 }
 
+const PARTICIPANT_ROLE = {
+  id: 'role-participant',
+  icon: 'users',
+  name: { fr: 'Participant', en: 'Participant' },
+  mission: {
+    fr: 'Contribuer aux échanges et défendre le choix collectif de la table.',
+    en: 'Contribute to the discussion and support the table’s collective choice.',
+  },
+  focus: { fr: 'Écouter, challenger et décider.', en: 'Listen, challenge and decide.' },
+  quote: {
+    fr: '« Je contribue à la décision collective. »',
+    en: '“I contribute to the collective decision.”',
+  },
+  stance: {
+    fr: 'Vous participez librement aux échanges et disposez d’une voix comme les autres joueurs.',
+    en: 'You take part in the discussion and have one vote like every other player.',
+  },
+};
+
 function roleById(roleId) {
-  return ROLES.find((r) => r.id === roleId) || null;
+  return ROLES.find((r) => r.id === roleId) || (roleId === PARTICIPANT_ROLE.id ? PARTICIPANT_ROLE : null);
 }
 
 /** Profils Acte 1 : bornes sur les points cumulés (0 à 16), comme l'Acte 2. */
@@ -634,6 +653,7 @@ module.exports = {
   DEFAULT_EVENTS,
   NARRATIVE,
   ROLES,
+  PARTICIPANT_ROLE,
   TWISTS,
   DEBRIEF,
   ACT1_PROFILES,

@@ -23,8 +23,8 @@ const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const MAX_TEAMS = 12;
 const MAX_EVENTS = 60;
 const MAX_PLAYERS_PER_TEAM = 10;
-/* 5 min par round ; l'animateur de table peut prolonger minute par minute. */
-const DEFAULT_DURATION = 300;
+/* 6 min par round ; l'animateur de table peut prolonger minute par minute. */
+const DEFAULT_DURATION = 360;
 const MIN_DURATION = 5;
 const DEFAULT_TEAM_SIZE = 6;
 const DEFAULT_TEAM_COUNT = 3;
@@ -129,16 +129,10 @@ function createSession({ name, lang, facilitator, teamCount, teamSize } = {}) {
     id: id('sess'),
     code: uniqueCode(taken),
     superKey: token(),
-    name: cleanText(name, 80) || 'Serious Game — Facturation électronique',
+    name: cleanText(name, 80) || 'Facturation électronique',
     facilitator: cleanText(facilitator, 60),
     lang: lang === 'en' ? 'en' : 'fr',
     status: 'lobby',
-    revealed: false,
-    revealedAt: null,
-    /* Dévoilement intermédiaire : les résultats de l'Acte 1 peuvent être
-       révélés entre les deux actes, sans lever le sceau sur l'Acte 2. */
-    act1Revealed: false,
-    act1RevealedAt: null,
     createdAt: Date.now(),
     startedAt: null,
     endedAt: null,
@@ -246,10 +240,9 @@ function addLog(session, type, params = {}) {
 
 /* ------------------------------------------------------------------ teams */
 
-/** Nom d'une table : celui de la session, suivi de son numéro d'ordre. */
+/** Le titre d'une table reste court et immédiatement identifiable. */
 function defaultTeamName(session, index) {
-  const base = (session.name || '').trim();
-  return base ? `${base} · Table ${index}` : `Table ${index}`;
+  return `Table ${index}`;
 }
 
 function createTeam(session, name, taken) {
@@ -265,6 +258,8 @@ function createTeam(session, name, taken) {
     /* Consoles de table actuellement ouvertes (présence en direct, éphémère) :
        distingue « animée en ce moment » de « déjà prise en charge un jour ». */
     hostSockets: 0,
+    /* Prénom de l'animateur de la table, saisi à l'ouverture de sa console. */
+    facilitatorName: '',
     createdAt: Date.now(),
     players: [],
     rolesAssignedAt: null,
@@ -326,6 +321,15 @@ function markTeamHosted(session, team) {
   if (team.hostClaimedAt) return team;
   team.hostClaimedAt = Date.now();
   addLog(session, 'table_claimed', { team: team.name });
+  store.persistSessions();
+  return team;
+}
+
+/** Nom de l'animateur affiché sur sa console et sur celle de la direction. */
+function setFacilitatorName(session, team, name) {
+  const clean = cleanText(name, 40);
+  if (!clean) throw new GameError('name_required', 'Nom requis');
+  team.facilitatorName = clean;
   store.persistSessions();
   return team;
 }
@@ -403,14 +407,17 @@ function pickTeamForJoin(session) {
 
 /**
  * Table demandée par le QR posé sur la table : le joueur est physiquement assis
- * là, sa demande passe donc avant la répartition automatique. Si elle a atteint
- * sa capacité, on retombe sur la table la moins remplie.
+ * là, sa demande passe donc avant la répartition automatique. Une cible périmée
+ * ou erronée ne doit jamais asseoir silencieusement le joueur à une autre table.
  */
 function teamForJoin(session, wantedId) {
   if (!wantedId) return pickTeamForJoin(session);
   const wanted = session.teams.find((t) => t.id === wantedId);
-  if (wanted && wanted.players.length < session.settings.teamSize) return wanted;
-  return pickTeamForJoin(session);
+  if (wanted && wanted.players.length >= session.settings.teamSize) {
+    throw new GameError('team_full', 'Cette table est complète');
+  }
+  if (wanted) return wanted;
+  throw new GameError('team_not_found', 'Table introuvable');
 }
 
 function joinPlayer(session, name, prefs = {}) {
@@ -423,11 +430,20 @@ function joinPlayer(session, name, prefs = {}) {
   }
 
   const team = teamForJoin(session, prefs.teamId);
+  const lateRoleMode = Boolean(
+    team.rolesAssignedAt || team.round || team.history.length || session.status === 'running'
+  );
+  let rolesJustAssigned = false;
+  if (lateRoleMode && !team.rolesAssignedAt && team.players.length) {
+    assignRoles(session, team.id);
+    rolesJustAssigned = true;
+  }
+  const lateRoleId = lateRoleMode ? spareRoleFor(team) : null;
   const player = {
     id: id('pl'),
     token: token(),
     name: clean,
-    roleId: null,
+    roleId: lateRoleId,
     sockets: 0,
     joinedAt: Date.now(),
   };
@@ -435,7 +451,6 @@ function joinPlayer(session, name, prefs = {}) {
   addLog(session, 'player_joined', { player: clean, team: team.name });
 
   // Table complète : on distribue les rôles sans attendre l'animateur.
-  let rolesJustAssigned = false;
   if (
     session.settings.autoAssignRoles &&
     !team.rolesAssignedAt &&
@@ -443,9 +458,6 @@ function joinPlayer(session, name, prefs = {}) {
   ) {
     assignRoles(session, team.id);
     rolesJustAssigned = true;
-  } else if (team.rolesAssignedAt) {
-    // Arrivée tardive : le retardataire reçoit un rôle libre, jamais celui du DG.
-    player.roleId = spareRoleFor(team);
   }
 
   store.persistSessions();
@@ -454,10 +466,8 @@ function joinPlayer(session, name, prefs = {}) {
 
 function spareRoleFor(team) {
   const taken = new Set(team.players.map((p) => p.roleId).filter(Boolean));
-  const free = deck.ROLES.filter((r) => !r.dg && !taken.has(r.id));
-  if (free.length) return shuffle(free)[0].id;
-  const others = deck.ROLES.filter((r) => !r.dg);
-  return shuffle(others)[0].id;
+  const free = deck.ROLES.filter((role) => !taken.has(role.id));
+  return free.length ? free[crypto.randomInt(free.length)].id : deck.PARTICIPANT_ROLE.id;
 }
 
 /**
@@ -651,6 +661,15 @@ function nextEventFor(session, team) {
 
 function teamDone(session, team) {
   return session.events.length > 0 && session.events.every((e) => teamPlayed(team, e.id));
+}
+
+/** Un acte n'est terminé qu'une fois toutes ses cartes jouées puis rangées. */
+function teamActDone(session, team, act) {
+  const events = session.events.filter((event) => toInt(event.act, 1) === act);
+  if (!events.length) return false;
+  const current = team.round && getEvent(session, team.round.eventId);
+  if (current && toInt(current.act, 1) === act) return false;
+  return events.every((event) => teamPlayed(team, event.id));
 }
 
 function activeTeams(session) {
@@ -1140,6 +1159,55 @@ function recomputeWins(session) {
   return session.teams;
 }
 
+/** Échelle d'un acte, niveau par niveau, avec la tranche de points de chacun. */
+function profileLevels(profiles) {
+  let rangeStart = 0;
+  return profiles.map((profile) => {
+    const max = Number.isFinite(profile.max) ? profile.max : null;
+    const level = {
+      id: profile.id,
+      label: profile.label,
+      desc: profile.desc,
+      range: max == null ? `${rangeStart}+` : `${rangeStart}–${max}`,
+    };
+    if (max != null) rangeStart = max + 1;
+    return level;
+  });
+}
+
+/**
+ * Bilans d'acte d'une table (score, profil, échelle, cartes jouées) : ceux que
+ * la table voit en fin d'acte, repris par l'écran de résultats de la direction.
+ */
+function actResultsFor(session, team) {
+  const totals = teamTotals(team);
+  const completedActs = [1, 2].filter((act) => teamActDone(session, team, act));
+  return completedActs.map((act) => {
+    const score = act === 1 ? totals.act1 : totals.act2;
+    const profiles = act === 1 ? deck.ACT1_PROFILES : deck.ACT2_PROFILES;
+    const levels = profileLevels(profiles);
+    return {
+      act,
+      score,
+      profile: deck.profileFor(profiles, score),
+      levels,
+      rounds: team.history
+        .filter((entry) => toInt(entry.act, 1) === act)
+        .map((entry) => {
+          const event = getEvent(session, entry.eventId);
+          return {
+            eventId: entry.eventId,
+            title: entry.eventTitle,
+            ref: entry.eventRef,
+            round: event ? event.round : entry.no,
+            decision: entry.decision,
+            points: entry.total,
+          };
+        }),
+    };
+  });
+}
+
 function leaderboard(session) {
   recomputeWins(session);
   return session.teams
@@ -1156,14 +1224,11 @@ function leaderboard(session) {
         act2Profile: deck.profileFor(deck.ACT2_PROFILES, totals.act2),
       };
     })
-    .sort((a, b) => {
-      if (b.total !== a.total) return b.total - a.total;
-      if (b.wins !== a.wins) return b.wins - a.wins;
-      return a.name.localeCompare(b.name);
-    })
+    /* Le total seul classe : deux tables à égalité partagent le rang. */
+    .sort((a, b) => (b.total !== a.total ? b.total - a.total : a.name.localeCompare(b.name)))
     .map((row, index, arr) => {
       const prev = arr[index - 1];
-      row.rank = prev && prev.total === row.total && prev.wins === row.wins ? prev.rank : index + 1;
+      row.rank = prev && prev.total === row.total ? prev.rank : index + 1;
       return row;
     });
 }
@@ -1204,34 +1269,13 @@ function act1Leaderboard(session) {
     });
 }
 
-/** Dévoile les résultats de l'Acte 1 à toutes les tables (l'Acte 2 reste scellé). */
-function revealAct1(session) {
-  if (session.act1Revealed || session.revealed) return session;
-  session.act1Revealed = true;
-  session.act1RevealedAt = Date.now();
-  addLog(session, 'act1_revealed', {});
-  store.persistSessions();
-  return session;
-}
-
-/** Dévoile les scores à toutes les tables, en même temps. */
-function revealScores(session) {
-  if (session.revealed) return session;
-  session.revealed = true;
-  session.revealedAt = Date.now();
-  recomputeWins(session);
-  addLog(session, 'scores_revealed', {});
-  store.persistSessions();
-  return session;
-}
-
 function finishSession(session) {
   for (const team of session.teams) {
     if (team.round) finishRound(session, team.id);
   }
   session.status = 'finished';
   session.endedAt = Date.now();
-  if (!session.revealed) revealScores(session);
+  recomputeWins(session);
   addLog(session, 'session_ended', {});
 
   const record = buildRecord(session);
@@ -1407,17 +1451,16 @@ function stateFor(session, audience = {}) {
     audience.role === 'super' ? 'super' : audience.role === 'teamAdmin' ? 'teamAdmin' : 'player';
   const teamId = audience.teamId || null;
   const playerId = audience.playerId || null;
-  const canSeeScores = role === 'super' || session.revealed;
-  /* L'Acte 1 est visible dès son dévoilement intermédiaire, même si l'Acte 2
-     et le total restent scellés jusqu'au dévoilement final. */
-  const act1Visible = canSeeScores || Boolean(session.act1Revealed);
+  /* La direction de jeu suit les scores en direct. Les autres écrans ne voient
+     que leurs bilans d'acte, jamais un classement général. */
+  const canSeeScores = role === 'super';
 
   const base = {
     serverNow: Date.now(),
     role,
     teamId,
     playerId,
-    act1Board: act1Visible ? act1Leaderboard(session) : [],
+    act1Board: role === 'super' ? act1Leaderboard(session) : [],
     session: {
       id: session.id,
       code: session.code,
@@ -1425,10 +1468,6 @@ function stateFor(session, audience = {}) {
       facilitator: session.facilitator,
       lang: session.lang,
       status: session.status,
-      revealed: session.revealed,
-      revealedAt: session.revealedAt,
-      act1Revealed: Boolean(session.act1Revealed),
-      act1RevealedAt: session.act1RevealedAt,
       createdAt: session.createdAt,
       startedAt: session.startedAt,
       endedAt: session.endedAt,
@@ -1460,6 +1499,7 @@ function stateFor(session, audience = {}) {
           /* « Animée » = une console de table est ouverte en ce moment, pas
              seulement une table prise en charge par le passé. */
           hosted: (team.hostSockets || 0) > 0,
+          facilitatorName: team.facilitatorName || '',
           headcount: team.players.length,
           online: team.players.filter((p) => p.sockets > 0).length,
           rolesAssigned: Boolean(team.rolesAssignedAt),
@@ -1472,9 +1512,15 @@ function stateFor(session, audience = {}) {
           wins: team.wins,
           act1Profile: deck.profileFor(deck.ACT1_PROFILES, totals.act1),
           act2Profile: deck.profileFor(deck.ACT2_PROFILES, totals.act2),
+          actResults: actResultsFor(session, team),
         };
       }),
       leaderboard: leaderboard(session),
+      /* Échelles des deux actes : l'écran des résultats y place chaque table. */
+      profileScales: {
+        1: profileLevels(deck.ACT1_PROFILES),
+        2: profileLevels(deck.ACT2_PROFILES),
+      },
       rankings: eventRankings(session),
       roles: deck.ROLES,
       twists: deck.TWISTS,
@@ -1486,9 +1532,15 @@ function stateFor(session, audience = {}) {
   if (!team) return { ...base, team: null };
 
   const totals = teamTotals(team);
+  const completedActs = [1, 2].filter((act) => teamActDone(session, team, act));
+  /* Le bilan de fin de parcours montre le nombre de victoires de la table sans
+     dévoiler le classement général. Il doit donc être à jour dès l'Acte 2 fini. */
+  if (completedActs.includes(2)) recomputeWins(session);
+  const actResults = actResultsFor(session, team);
   const myTeam = {
     id: team.id,
     name: team.name,
+    facilitatorName: team.facilitatorName || '',
     headcount: team.players.length,
     teamSize: session.settings.teamSize,
     rolesAssigned: Boolean(team.rolesAssignedAt),
@@ -1496,9 +1548,7 @@ function stateFor(session, audience = {}) {
     progress: teamProgress(session, team),
     // Les points restent masqués jusqu'au dévoilement, y compris pour l'animateur
     // d'équipe. L'Acte 1 peut toutefois être dévoilé seul, entre les deux actes.
-    ...(act1Visible
-      ? { act1: totals.act1, act1Profile: deck.profileFor(deck.ACT1_PROFILES, totals.act1) }
-      : {}),
+    ...(completedActs.includes(2) ? { wins: team.wins } : {}),
     ...(canSeeScores
       ? {
           act2: totals.act2,
@@ -1517,6 +1567,7 @@ function stateFor(session, audience = {}) {
     team: myTeam,
     me: me ? publicPlayer(me, { self: true }) : null,
     isDg: Boolean(me && (deck.roleById(me.roleId) || {}).dg),
+    actResults,
     round: roundStateFor(session, team, { canSeeScores, playerId }),
     nextEvent: role === 'teamAdmin' ? (nextEventFor(session, team) || null) : null,
     events:
@@ -1541,7 +1592,7 @@ function stateFor(session, audience = {}) {
       decidedBy: h.decidedBy,
       tally: h.tally,
       closedAt: h.closedAt,
-      ...(canSeeScores || (act1Visible && toInt(h.act, 1) === 1)
+      ...(canSeeScores || completedActs.includes(toInt(h.act, 1))
         ? { points: h.points, total: h.total }
         : {}),
     })),
@@ -1570,6 +1621,7 @@ module.exports = {
   claimTeamForHost,
   hostTeam,
   markTeamHosted,
+  setFacilitatorName,
   getTeam,
   requireTeam,
   renameTeam,
@@ -1608,8 +1660,6 @@ module.exports = {
   leaderboard,
   act1Leaderboard,
   eventRankings,
-  revealAct1,
-  revealScores,
   finishSession,
   reopenSession,
   buildRecord,

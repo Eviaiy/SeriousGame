@@ -117,12 +117,20 @@
       ]);
     }
 
-    const blocks = [
+    const openingBlocks = [
       role.mission ? ['play.mission', L(role.mission)] : null,
-      role.stance ? ['play.influence', L(role.stance)] : null,
       role.focus ? ['play.focus', L(role.focus)] : null,
+    ].filter(Boolean);
+    const closingBlocks = [
+      role.stance ? ['play.stance', L(role.stance)] : null,
       role.power ? ['play.dgPower', L(role.power)] : null,
     ].filter(Boolean);
+
+    const briefingBlock = ([key, text]) =>
+      h('div', { class: 'brief-block' }, [
+        h('div', { class: 'k', text: t(key) }),
+        h('p', { text }),
+      ]);
 
     const head = h('div', { class: 'role-head' }, [
       roleMedal(role, 'lg'),
@@ -133,17 +141,10 @@
       role.dg ? dgBadge() : null,
     ]);
     const brief = [
-      h(
-        'div',
-        { class: 'role-brief' },
-        blocks.map(([key, text]) =>
-          h('div', { class: 'brief-block' }, [
-            h('div', { class: 'k', text: t(key) }),
-            h('p', { text }),
-          ])
-        )
-      ),
+      h('div', { class: 'role-brief' }, openingBlocks.map(briefingBlock)),
       role.quote ? h('div', { class: 'brief-quote', text: L(role.quote) }) : null,
+      h('div', { class: 'role-brief' }, closingBlocks.map(briefingBlock)),
+      h('p', { class: 'small muted role-instruction', text: t('play.collectiveInstruction') }),
     ];
 
     /* Pendant une manche le briefing se replie : sur téléphone il occupait tout
@@ -339,13 +340,13 @@
       h('h2', { text: L(event.title) }),
     ]);
 
-    const left = h('div', { class: 'stack' }, [
+    const left = h('div', { class: 'stack gcard-context' }, [
       h('div', {}, [
         h('div', { class: 'meta-label', text: t('card.situation') }),
         h('div', { class: 'situation', text: L(event.situation) }),
       ]),
       event.motif && event.motif.length
-        ? h('div', {}, [
+        ? h('div', { class: 'gcard-revelations' }, [
             h('div', { class: 'meta-label', text: t('card.motif') }),
             h(
               'ul',
@@ -432,10 +433,14 @@
       ].filter(Boolean)
     );
 
+    const showRevelations = event.act === 2 || o.revealed;
     const revealBlock =
-      o.revealed && event.options.some((op) => op.reveal)
+      showRevelations && event.options.some((op) => op.reveal)
         ? h('div', {}, [
-            h('div', { class: 'meta-label', text: t('play.reveal') }),
+            h('div', {
+              class: 'meta-label',
+              text: t(event.act === 2 ? 'card.revelations' : 'play.reveal'),
+            }),
             h(
               'div',
               { class: 'reveal-list' },
@@ -446,11 +451,9 @@
           ])
         : null;
 
-    const right = h('div', { class: 'stack' }, [choices, revealBlock].filter(Boolean));
-
     const front = h('div', { class: 'gcard card-front' }, [
       head,
-      h('div', { class: 'gcard-body two-col' }, [left, right]),
+      h('div', { class: 'gcard-body two-col' }, [left, choices, revealBlock].filter(Boolean)),
     ]);
 
     const scene = h('div', { class: `card3d${o.flipIn ? '' : ' is-open'}` }, [
@@ -601,7 +604,6 @@
               h('td', { class: 'rank' }, [rankMedal(row.rank)]),
               h('td', {}, [
                 h('span', { text: row.teamName }),
-                row.rank === 1 ? h('span', { class: 'win-star', text: ' ★' }) : null,
               ]),
               h('td', {}, [
                 h('span', { text: row.decision || t('score.noAnswer') }),
@@ -633,16 +635,14 @@
           h('th', { text: t('score.rank') }),
           h('th', { text: t('score.team') }),
           h('th', { class: 'num', text: t('score.total') }),
-          h('th', { class: 'num', text: '★' }),
         ]
       : [
           h('th', { text: t('score.rank') }),
           h('th', { text: t('score.team') }),
           h('th', { class: 'num', text: t('score.act1') }),
           h('th', { class: 'num', text: t('score.act2') }),
-          h('th', { class: 'num', text: t('score.adjust') }),
+          o.noAdjust ? null : h('th', { class: 'num', text: t('score.adjust') }),
           h('th', { class: 'num', text: t('score.total') }),
-          h('th', { class: 'num', text: '★' }),
         ];
 
     return h('div', { class: 'table-wrap' }, [
@@ -668,7 +668,6 @@
                       : null,
                   ]),
                   h('td', { class: `num ${signClass(row.total)}`, text: fmtSigned(row.total) }),
-                  h('td', { class: 'num', text: row.wins || 0 }),
                 ]
               : [
                   h('td', { class: 'rank' }, [rankMedal(row.rank)]),
@@ -683,13 +682,14 @@
                   ]),
                   h('td', { class: `num ${signClass(row.act1)}`, text: fmtSigned(row.act1) }),
                   h('td', { class: `num ${signClass(row.act2)}`, text: fmtSigned(row.act2) }),
-                  h('td', { class: `num ${signClass(row.adjust)}`, text: fmtSigned(row.adjust) }),
+                  o.noAdjust
+                    ? null
+                    : h('td', { class: `num ${signClass(row.adjust)}`, text: fmtSigned(row.adjust) }),
                   h('td', {
                     class: `num ${signClass(row.total)}`,
                     style: 'font-weight:700',
                     text: fmtSigned(row.total),
                   }),
-                  h('td', { class: 'num', text: row.wins || 0 }),
                 ];
             return h('tr', { class: classes.join(' ') }, cells);
           })
@@ -776,6 +776,117 @@
             }
             return h('tr', {}, cells);
           })
+        ),
+      ]),
+    ]);
+  }
+
+  /* ---------------------------------------------------------- bilan d'acte */
+
+  /** Vue d'ensemble d'une table, affichée uniquement lorsque les deux actes sont terminés. */
+  function gameCompletedOverview(results) {
+    const act1 = (results || []).find((result) => Number(result.act) === 1);
+    const act2 = (results || []).find((result) => Number(result.act) === 2);
+    if (!act1 || !act2) return null;
+    const metric = (label, value) =>
+      h('div', { class: 'metric' }, [
+        h('div', { class: 'k', text: label }),
+        h('div', { class: 'v small', text: fmtSigned(value || 0) }),
+      ]);
+
+    return h('section', { class: 'panel game-completed-overview' }, [
+      h('div', { class: 'panel-head' }, [h('h2', { text: t('play.finalTitle') })]),
+      h('div', { class: 'score-strip' }, [
+        metric(t('score.total'), Number(act1.score || 0) + Number(act2.score || 0)),
+        metric(t('score.act1'), act1.score),
+        metric(t('score.act2'), act2.score),
+      ]),
+      h('div', { class: 'grid cols-2 game-completed-profiles' }, [
+        profileCard('score.profile1', act1.profile),
+        profileCard('score.profile2', act2.profile, 'blue'),
+      ]),
+    ]);
+  }
+
+  /** Résultat d'une table dès que la dernière carte de l'acte est rangée. */
+  function actResultCard(result) {
+    if (!result) return h('div', {});
+    const act = result.act || 1;
+    return h('section', { class: 'act-result' }, [
+      h('div', { class: 'act-result-head' }, [
+        h('span', { text: t('actResult.eyebrow', { act }) }),
+        h('span', { text: t('actResult.title', { act }) }),
+      ]),
+      h('div', { class: 'act-result-body' }, [
+        h('div', { class: 'act-result-summary' }, [
+          h('div', {}, [
+            h('span', { class: 'meta-label', text: t('actResult.score') }),
+            h('strong', { class: 'act-result-total', text: fmtSigned(result.score || 0) }),
+          ]),
+          h('div', { class: 'act-result-profile' }, [
+            h('span', { class: 'meta-label', text: t('actResult.profile') }),
+            h('strong', { text: result.profile ? L(result.profile.label) : '—' }),
+            result.profile
+              ? h('span', { class: 'small muted', text: L(result.profile.desc) })
+              : null,
+          ]),
+        ]),
+        result.levels && result.levels.length
+          ? h('div', { class: 'act-profile-scale' }, [
+              h('div', { class: 'meta-label', text: t('actResult.scaleTitle') }),
+              h(
+                'div',
+                { class: 'act-profile-levels' },
+                result.levels.map((level, index) => {
+                  const selected = result.profile && level.id === result.profile.id;
+                  return h(
+                    'div',
+                    {
+                      class: [
+                        'act-profile-level',
+                        `level-${index + 1}`,
+                        selected ? 'is-current' : '',
+                      ].filter(Boolean).join(' '),
+                    },
+                    [
+                      h('span', { class: 'level-dot', 'aria-hidden': 'true' }),
+                      h('strong', { class: 'level-range', text: level.range }),
+                      h('div', { class: 'level-copy' }, [
+                        h('strong', { text: L(level.label) }),
+                        h('span', { class: 'small muted', text: L(level.desc) }),
+                      ]),
+                      selected
+                        ? h('span', { class: 'badge orange', text: t('actResult.current') })
+                        : null,
+                    ]
+                  );
+                })
+              ),
+            ])
+          : null,
+        h('h3', { class: 'meta-label act-result-section-title', text: t('actResult.decisionsTitle') }),
+        h(
+          'div',
+          { class: 'act-result-rounds' },
+          (result.rounds || []).map((round, index) =>
+            h('div', { class: 'act-result-row' }, [
+              h('div', { class: 'act-result-event' }, [
+                h('span', {
+                  class: 'act-result-round',
+                  text: t('actResult.round', { n: round.round || index + 1 }),
+                }),
+                h('strong', { text: L(round.title) }),
+              ]),
+              h('div', { class: 'act-result-choice' }, [
+                h('span', { class: 'meta-label', text: t('actResult.decision') }),
+                h('strong', { text: round.decision || t('score.noAnswer') }),
+              ]),
+              h('div', { class: 'act-result-points' }, [
+                h('span', { class: 'meta-label', text: t('score.points') }),
+                h('strong', { text: fmtSigned(round.points || 0) }),
+              ]),
+            ])
+          )
         ),
       ]),
     ]);
@@ -900,6 +1011,8 @@
     leaderboardTable,
     actBoardTable,
     historyTable,
+    gameCompletedOverview,
+    actResultCard,
     profileCard,
     twistCard,
     debriefPanel,

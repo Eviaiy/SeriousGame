@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0a0a0d" />
+    <title>Résultats — Serious Game</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <script>
+      /* Thème posé avant le rendu : évite le clignotement au chargement. */
+      (function () {
+        var t;
+        try {
+          t = localStorage.getItem("sg.theme");
+        } catch (e) {}
+        if (t !== "light" && t !== "dark") {
+          t =
+            window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches
+              ? "light"
+              : "dark";
+        }
+        document.documentElement.setAttribute("data-theme", t);
+      })();
+    </script>
+  </head>
+  <body class="results-page">
+    <header class="topbar">
+      <div class="brand">
+        <span class="tag" data-i18n="app.name">Serious Game</span>
+        <span id="results-game-name" data-i18n="app.name">Serious Game</span>
+      </div>
+      <div class="spacer"></div>
+      <a class="btn btn-sm btn-ghost" id="btn-back" data-i18n="results.back">Retour à la direction</a>
+      <button class="btn btn-sm" id="btn-fullscreen" type="button" data-i18n="results.fullscreen">
+        Plein écran
+      </button>
+      <div class="row tight">
+        <button class="btn btn-lang" data-lang-btn="fr">FR</button>
+        <button class="btn btn-lang" data-lang-btn="en">EN</button>
+      </div>
+    </header>
+
+    <main class="shell results-shell">
+      <!-- classement général, toutes tables confondues -->
+      <section class="panel">
+        <div class="panel-head">
+          <h2 data-i18n="admin.leaderboard">Classement général</h2>
+          <div class="spacer"></div>
+          <span class="badge" id="results-status"></span>
+        </div>
+        <div class="table-wrap" id="results-board"></div>
+      </section>
+
+      <!-- profils en contexte : où se situe chaque table sur l'échelle de l'acte -->
+      <section class="panel">
+        <div class="panel-head">
+          <h2 data-i18n="results.profile2">Profil Acte 2 en contexte</h2>
+        </div>
+        <div id="results-profile-2"></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head">
+          <h2 data-i18n="results.profile1">Profil Acte 1 en contexte</h2>
+        </div>
+        <div id="results-profile-1"></div>
+      </section>
+
+      <!-- toutes les décisions, acte 2 puis acte 1, une colonne par table -->
+      <section class="panel">
+        <div class="panel-head">
+          <h2 data-i18n="results.decisions">Décisions de toutes les tables</h2>
+        </div>
+        <div class="table-wrap" id="results-decisions"></div>
+      </section>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/i18n.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/cards.js"></script>
+    <script src="/js/results.js"></script>
+  </body>
+</html>

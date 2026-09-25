@@ -27,7 +27,7 @@
     <header class="topbar">
       <div class="brand">
         <span class="tag" data-i18n="app.name">Serious Game</span>
-        <span id="session-name">—</span>
+        <span data-i18n="app.name">Serious Game</span>
       </div>
       <span class="badge" id="session-status">—</span>
       <div class="spacer"></div>
@@ -51,6 +51,7 @@
           <section class="panel">
             <div class="grid cols-2" style="align-items: center">
               <div>
+                <div class="admin-game-title" id="access-game-title">—</div>
                 <div class="label" data-i18n="admin.code">Code de session</div>
                 <div class="code-display" id="session-code">------</div>
                 <div class="row tight" style="margin-top: 8px">
@@ -104,43 +105,6 @@
             <div class="team-grid" id="teams-host"></div>
           </section>
 
-          <!-- classement par événement -->
-          <section class="panel">
-            <div class="panel-head">
-              <h2 data-i18n="admin.eventRanks">Classement par événement</h2>
-            </div>
-            <div id="ranks-host"></div>
-          </section>
-
-          <!-- déroulé -->
-          <section class="panel">
-            <div class="panel-head">
-              <h2 data-i18n="admin.deck">Déroulé des événements</h2>
-              <div class="spacer"></div>
-              <button class="btn btn-sm" id="btn-new-event" data-i18n="admin.newEvent">
-                Créer un événement
-              </button>
-            </div>
-            <div class="list" id="deck-host"></div>
-          </section>
-        </div>
-
-        <!-- =============================================== colonne droite -->
-        <div class="stack">
-          <!-- dévoilement et classement : le geste et son résultat au même endroit -->
-          <section class="panel" id="reveal-panel">
-            <div class="panel-head">
-              <h2 data-i18n="admin.overview">Vue d’ensemble</h2>
-            </div>
-            <div id="reveal-host"></div>
-            <div class="divider"></div>
-            <div class="label" style="margin-bottom: 10px" data-i18n="admin.leaderboard">
-              Classement général
-            </div>
-            <div class="table-wrap" id="board-host"></div>
-            <p class="small muted" style="margin: 10px 0 0" data-i18n="admin.noIndividual"></p>
-          </section>
-
           <!-- réglages -->
           <section class="panel">
             <div class="panel-head">
@@ -185,13 +149,43 @@
             </div>
           </section>
 
-          <!-- twists optionnels -->
+          <!-- déroulé -->
           <section class="panel">
             <div class="panel-head">
-              <h2 data-i18n="admin.twists">Twists optionnels</h2>
+              <h2 data-i18n="admin.deck">Déroulé des événements</h2>
+              <div class="spacer"></div>
+              <button class="btn btn-sm" id="btn-new-event" data-i18n="admin.newEvent">
+                Créer un événement
+              </button>
             </div>
-            <p class="small muted" style="margin: 0 0 10px" data-i18n="admin.twistsHint"></p>
-            <div class="list" id="twists-host"></div>
+            <div class="list" id="deck-host"></div>
+          </section>
+        </div>
+
+        <!-- =============================================== colonne droite -->
+        <div class="stack">
+          <!-- la direction de jeu voit les scores en continu -->
+          <section class="panel">
+            <div class="panel-head">
+              <h2 data-i18n="admin.overview">Vue d’ensemble</h2>
+              <div class="spacer"></div>
+              <a class="btn btn-sm" id="btn-results" target="_blank" rel="noopener" data-i18n="results.open">
+                Écran des résultats
+              </a>
+            </div>
+            <div class="label" style="margin-bottom: 10px" data-i18n="admin.leaderboard">
+              Classement général
+            </div>
+            <div class="table-wrap" id="board-host"></div>
+            <p class="small muted" style="margin: 10px 0 0" data-i18n="admin.noIndividual"></p>
+          </section>
+
+          <!-- classement par événement -->
+          <section class="panel">
+            <div class="panel-head">
+              <h2 data-i18n="admin.eventRanks">Classement par événement</h2>
+            </div>
+            <div id="ranks-host"></div>
           </section>
 
           <!-- débrief -->

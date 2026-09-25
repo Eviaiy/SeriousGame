@@ -1,5 +1,5 @@
 {
-  "savedAt": 1790163822296,
+  "savedAt": 1790351014803,
   "sessions": {
     "sess_3a20002942ee5574": {
       "id": "sess_3a20002942ee5574",
@@ -16158,12 +16158,12 @@
       "name": "test1",
       "facilitator": "Meriem",
       "lang": "fr",
-      "status": "lobby",
+      "status": "finished",
       "revealed": false,
       "revealedAt": null,
       "createdAt": 1789038195721,
       "startedAt": null,
-      "endedAt": null,
+      "endedAt": 1790348410534,
       "settings": {
         "defaultDuration": 300,
         "teamSize": 6,
@@ -16992,9 +16992,15 @@
             "player": "meriem",
             "team": "Table 1"
           }
+        },
+        {
+          "id": "log_4559c1752711cbb0",
+          "ts": 1790348410534,
+          "type": "session_ended",
+          "params": {}
         }
       ],
-      "archivedRecordId": null
+      "archivedRecordId": "rec_fd3e06c44b11ef2e"
     },
     "sess_24a30be5436613ef": {
       "id": "sess_24a30be5436613ef",
@@ -17003,12 +17009,12 @@
       "name": "test1",
       "facilitator": "meriem",
       "lang": "fr",
-      "status": "lobby",
+      "status": "finished",
       "revealed": false,
       "revealedAt": null,
       "createdAt": 1789051818885,
       "startedAt": null,
-      "endedAt": null,
+      "endedAt": 1790348410530,
       "settings": {
         "defaultDuration": 300,
         "teamSize": 6,
@@ -17819,9 +17825,15 @@
             "name": "test1",
             "teams": 2
           }
+        },
+        {
+          "id": "log_cb18ae77faffc027",
+          "ts": 1790348410530,
+          "type": "session_ended",
+          "params": {}
         }
       ],
-      "archivedRecordId": null
+      "archivedRecordId": "rec_0b7a4ff6fdf3d418"
     },
     "sess_ea564bff338decc3": {
       "id": "sess_ea564bff338decc3",
@@ -17830,12 +17842,12 @@
       "name": "test1",
       "facilitator": "meriem",
       "lang": "fr",
-      "status": "lobby",
+      "status": "finished",
       "revealed": false,
       "revealedAt": null,
       "createdAt": 1789066561919,
       "startedAt": null,
-      "endedAt": null,
+      "endedAt": 1790348410527,
       "settings": {
         "defaultDuration": 360,
         "teamSize": 6,
@@ -18490,9 +18502,15 @@
             "team": "Table 1",
             "players": 1
           }
+        },
+        {
+          "id": "log_f8adf976f2f348dd",
+          "ts": 1790348410527,
+          "type": "session_ended",
+          "params": {}
         }
       ],
-      "archivedRecordId": null
+      "archivedRecordId": "rec_2663acd2fc8039a5"
     },
     "sess_6c3bd8931fa498c9": {
       "id": "sess_6c3bd8931fa498c9",
@@ -18501,12 +18519,12 @@
       "name": "test",
       "facilitator": "",
       "lang": "fr",
-      "status": "lobby",
+      "status": "finished",
       "revealed": false,
       "revealedAt": null,
       "createdAt": 1789073578410,
       "startedAt": null,
-      "endedAt": null,
+      "endedAt": 1790348410525,
       "settings": {
         "defaultDuration": 300,
         "teamSize": 2,
@@ -19118,9 +19136,15 @@
             "name": "test",
             "teams": 2
           }
+        },
+        {
+          "id": "log_ce41756348b49f6f",
+          "ts": 1790348410525,
+          "type": "session_ended",
+          "params": {}
         }
       ],
-      "archivedRecordId": null
+      "archivedRecordId": "rec_2b63a5d8dfd77ad3"
     },
     "sess_7df427f9a7f53a06": {
       "id": "sess_7df427f9a7f53a06",
@@ -19129,12 +19153,12 @@
       "name": "test",
       "facilitator": "",
       "lang": "fr",
-      "status": "lobby",
+      "status": "finished",
       "revealed": false,
       "revealedAt": null,
       "createdAt": 1789074271005,
       "startedAt": null,
-      "endedAt": null,
+      "endedAt": 1790348410522,
       "settings": {
         "defaultDuration": 300,
         "teamSize": 6,
@@ -19754,9 +19778,15 @@
           "params": {
             "team": "Table 1"
           }
+        },
+        {
+          "id": "log_7f22fa81c9cdc708",
+          "ts": 1790348410522,
+          "type": "session_ended",
+          "params": {}
         }
       ],
-      "archivedRecordId": null
+      "archivedRecordId": "rec_6cb49695d56af9cb"
     },
     "sess_2805956f0dfce13f": {
       "id": "sess_2805956f0dfce13f",
@@ -19765,12 +19795,12 @@
       "name": "test",
       "facilitator": "",
       "lang": "fr",
-      "status": "lobby",
+      "status": "finished",
       "revealed": false,
       "revealedAt": null,
       "createdAt": 1789075137621,
       "startedAt": null,
-      "endedAt": null,
+      "endedAt": 1790348410520,
       "settings": {
         "defaultDuration": 300,
         "teamSize": 2,
@@ -20382,9 +20412,15 @@
             "name": "test",
             "teams": 2
           }
+        },
+        {
+          "id": "log_edcde999503457e8",
+          "ts": 1790348410520,
+          "type": "session_ended",
+          "params": {}
         }
       ],
-      "archivedRecordId": null
+      "archivedRecordId": "rec_4327bc0b752006b0"
     },
     "sess_347587a6c9bad493": {
       "id": "sess_347587a6c9bad493",
@@ -20393,12 +20429,12 @@
       "name": "test",
       "facilitator": "",
       "lang": "fr",
-      "status": "lobby",
+      "status": "finished",
       "revealed": false,
       "revealedAt": null,
       "createdAt": 1789075154065,
       "startedAt": null,
-      "endedAt": null,
+      "endedAt": 1790348410516,
       "settings": {
         "defaultDuration": 300,
         "teamSize": 6,
@@ -21018,9 +21054,15 @@
           "params": {
             "team": "Table 1"
           }
+        },
+        {
+          "id": "log_550d5b03551e7b0e",
+          "ts": 1790348410516,
+          "type": "session_ended",
+          "params": {}
         }
       ],
-      "archivedRecordId": null
+      "archivedRecordId": "rec_580f0c231ffeaa3d"
     },
     "sess_856505bef1cb740f": {
       "id": "sess_856505bef1cb740f",
@@ -21029,12 +21071,12 @@
       "name": "test",
       "facilitator": "",
       "lang": "fr",
-      "status": "lobby",
+      "status": "finished",
       "revealed": false,
       "revealedAt": null,
       "createdAt": 1789110754299,
       "startedAt": null,
-      "endedAt": null,
+      "endedAt": 1790348410512,
       "settings": {
         "defaultDuration": 300,
         "teamSize": 6,
@@ -21698,9 +21740,15 @@
           "params": {
             "team": "Table 2"
           }
+        },
+        {
+          "id": "log_e41c68a3b342369f",
+          "ts": 1790348410512,
+          "type": "session_ended",
+          "params": {}
         }
       ],
-      "archivedRecordId": null
+      "archivedRecordId": "rec_f3cdfc526546daa6"
     },
     "sess_b83b8024014049aa": {
       "id": "sess_b83b8024014049aa",
@@ -21709,14 +21757,14 @@
       "name": "test",
       "facilitator": "",
       "lang": "fr",
-      "status": "lobby",
+      "status": "finished",
       "revealed": false,
       "revealedAt": null,
       "act1Revealed": false,
       "act1RevealedAt": null,
       "createdAt": 1790067121032,
       "startedAt": null,
-      "endedAt": null,
+      "endedAt": 1790348410506,
       "settings": {
         "defaultDuration": 300,
         "teamSize": 6,
@@ -21729,7 +21777,7 @@
       "teams": [
         {
           "id": "team_824c1335bd7a11c2",
-          "name": "test · Table 1",
+          "name": "Table 1",
           "adminToken": "cc26ec4cfa9b0507bd38d6a41b9caaa5",
           "adminCode": "H26FJE",
           "hostClaimedAt": 1790067132639,
@@ -21748,7 +21796,7 @@
         },
         {
           "id": "team_f4ae5e9c7f24e85c",
-          "name": "test · Table 2",
+          "name": "Table 2",
           "adminToken": "de3a7f93c028ddc703965f6db8d5ea4e",
           "adminCode": "RE27JM",
           "hostClaimedAt": null,
@@ -21767,7 +21815,7 @@
         },
         {
           "id": "team_ba928ed6fe96ac08",
-          "name": "test · Table 3",
+          "name": "Table 3",
           "adminToken": "bef54f012413b889ad24279101751328",
           "adminCode": "26TPA5",
           "hostClaimedAt": null,
@@ -22355,27 +22403,29 @@
           "params": {
             "team": "test · Table 1"
           }
+        },
+        {
+          "id": "log_abb39135ada2c43b",
+          "ts": 1790348410506,
+          "type": "session_ended",
+          "params": {}
         }
       ],
-      "archivedRecordId": null
+      "archivedRecordId": "rec_5dae65c2e5e1ddc1"
     },
-    "sess_eee6d8413a410c2e": {
-      "id": "sess_eee6d8413a410c2e",
-      "code": "5BXEEX",
-      "superKey": "4116e77339e64083db8878dce509c16e",
-      "name": "Serious Game — Facturation électronique",
+    "sess_80d3403388fced62": {
+      "id": "sess_80d3403388fced62",
+      "code": "J6GCJC",
+      "superKey": "62a339cea51e244d47573787c3a43233",
+      "name": "Facturation électronique",
       "facilitator": "",
       "lang": "en",
-      "status": "lobby",
-      "revealed": false,
-      "revealedAt": null,
-      "act1Revealed": false,
-      "act1RevealedAt": null,
-      "createdAt": 1790163822045,
-      "startedAt": null,
+      "status": "running",
+      "createdAt": 1790348525058,
+      "startedAt": 1790350191557,
       "endedAt": null,
       "settings": {
-        "defaultDuration": 300,
+        "defaultDuration": 360,
         "teamSize": 6,
         "arbitrationSeconds": 90,
         "autoAssignRoles": true,
@@ -22385,52 +22435,510 @@
       },
       "teams": [
         {
-          "id": "team_acfb304fbf1ac277",
-          "name": "Serious Game — Facturation électronique · Table 1",
-          "adminToken": "4ff479a2411e300db79cf9b219ba7be0",
-          "adminCode": "Q7TAEN",
-          "hostClaimedAt": null,
-          "hostSockets": 0,
-          "createdAt": 1790163822045,
-          "players": [],
-          "rolesAssignedAt": null,
+          "id": "team_95a20daffc884ffd",
+          "name": "Table 1",
+          "adminToken": "bccfcce10712c917fa54134f4dc8ff7d",
+          "adminCode": "CNSW2J",
+          "hostClaimedAt": 1790349966373,
+          "hostSockets": 1,
+          "createdAt": 1790348525059,
+          "players": [
+            {
+              "id": "pl_b71ccf21fdc0ae88",
+              "token": "76045b5319471bb8dca6c5379888cbb0",
+              "name": "JET",
+              "roleId": "role-dg",
+              "sockets": 1,
+              "joinedAt": 1790350051917
+            },
+            {
+              "id": "pl_33bb03430a8702fa",
+              "token": "3f2eca48a9cf13fdbdc2f59f42a2503d",
+              "name": "BOB",
+              "roleId": "role-dsi",
+              "sockets": 1,
+              "joinedAt": 1790350116120
+            }
+          ],
+          "rolesAssignedAt": 1790350077066,
           "round": null,
-          "answers": {},
-          "history": [],
+          "answers": {
+            "act1-card1": {
+              "eventId": "act1-card1",
+              "eventTitle": {
+                "fr": "Factures rejetées",
+                "en": "Rejected invoices"
+              },
+              "eventRef": {
+                "fr": "Carte 1",
+                "en": "Card 1"
+              },
+              "act": 1,
+              "no": 1,
+              "startedAt": 1790350191557,
+              "closedAt": 1790350249882,
+              "durationSec": 360,
+              "decision": "B",
+              "decidedBy": "majority",
+              "tally": {
+                "A": 0,
+                "B": 2,
+                "C": 0
+              },
+              "voters": 2,
+              "headcount": 2,
+              "decisionMs": 58325,
+              "points": 2,
+              "total": 2
+            },
+            "act1-card2": {
+              "eventId": "act1-card2",
+              "eventTitle": {
+                "fr": "DGFIP — incohérences",
+                "en": "Tax authority — inconsistencies"
+              },
+              "eventRef": {
+                "fr": "Carte 2",
+                "en": "Card 2"
+              },
+              "act": 1,
+              "no": 2,
+              "startedAt": 1790350268188,
+              "closedAt": 1790350363851,
+              "durationSec": 360,
+              "decision": "B",
+              "decidedBy": "draw",
+              "tally": {
+                "A": 0,
+                "B": 1,
+                "C": 1
+              },
+              "voters": 2,
+              "headcount": 2,
+              "decisionMs": 95663,
+              "points": 2,
+              "total": 2
+            },
+            "act1-card3": {
+              "eventId": "act1-card3",
+              "eventTitle": {
+                "fr": "Alerte sur les contrôles",
+                "en": "Controls alert"
+              },
+              "eventRef": {
+                "fr": "Carte 3",
+                "en": "Card 3"
+              },
+              "act": 1,
+              "no": 3,
+              "startedAt": 1790350436170,
+              "closedAt": 1790350447838,
+              "durationSec": 360,
+              "decision": "C",
+              "decidedBy": "majority",
+              "tally": {
+                "A": 0,
+                "B": 0,
+                "C": 2
+              },
+              "voters": 2,
+              "headcount": 2,
+              "decisionMs": 11668,
+              "points": 4,
+              "total": 4
+            },
+            "act1-card4": {
+              "eventId": "act1-card4",
+              "eventTitle": {
+                "fr": "Article de presse",
+                "en": "Press article"
+              },
+              "eventRef": {
+                "fr": "Carte 4",
+                "en": "Card 4"
+              },
+              "act": 1,
+              "no": 4,
+              "startedAt": 1790350454661,
+              "closedAt": 1790350464479,
+              "durationSec": 360,
+              "decision": "B",
+              "decidedBy": "majority",
+              "tally": {
+                "A": 0,
+                "B": 2,
+                "C": 0
+              },
+              "voters": 2,
+              "headcount": 2,
+              "decisionMs": 9818,
+              "points": 2,
+              "total": 2
+            },
+            "act2-step1": {
+              "eventId": "act2-step1",
+              "eventTitle": {
+                "fr": "Stabiliser ou investir ?",
+                "en": "Stabilise or invest?"
+              },
+              "eventRef": {
+                "fr": "Étape 1/4",
+                "en": "Step 1/4"
+              },
+              "act": 2,
+              "no": 5,
+              "startedAt": 1790350784614,
+              "closedAt": 1790350790352,
+              "durationSec": 360,
+              "decision": "A",
+              "decidedBy": "majority",
+              "tally": {
+                "A": 2,
+                "B": 0,
+                "C": 0
+              },
+              "voters": 2,
+              "headcount": 2,
+              "decisionMs": 5738,
+              "points": 0,
+              "total": 0
+            },
+            "act2-step2": {
+              "eventId": "act2-step2",
+              "eventTitle": {
+                "fr": "Maîtrise ou réaction ?",
+                "en": "Control or reaction?"
+              },
+              "eventRef": {
+                "fr": "Étape 2/4",
+                "en": "Step 2/4"
+              },
+              "act": 2,
+              "no": 6,
+              "startedAt": 1790350796347,
+              "closedAt": 1790350889193,
+              "durationSec": 360,
+              "decision": "A",
+              "decidedBy": "dg",
+              "tally": {
+                "A": 1,
+                "B": 0,
+                "C": 1
+              },
+              "voters": 2,
+              "headcount": 2,
+              "decisionMs": 92846,
+              "points": 0,
+              "total": 0
+            },
+            "act2-step3": {
+              "eventId": "act2-step3",
+              "eventTitle": {
+                "fr": "Qui pilote ?",
+                "en": "Who is in charge?"
+              },
+              "eventRef": {
+                "fr": "Étape 3/4",
+                "en": "Step 3/4"
+              },
+              "act": 2,
+              "no": 7,
+              "startedAt": 1790350900845,
+              "closedAt": 1790350979037,
+              "durationSec": 360,
+              "decision": "B",
+              "decidedBy": "dg",
+              "tally": {
+                "A": 1,
+                "B": 1,
+                "C": 0
+              },
+              "voters": 2,
+              "headcount": 2,
+              "decisionMs": 78192,
+              "points": 2,
+              "total": 2
+            },
+            "act2-step4": {
+              "eventId": "act2-step4",
+              "eventTitle": {
+                "fr": "Ambitieux ou minimaliste ?",
+                "en": "Ambitious or minimalist?"
+              },
+              "eventRef": {
+                "fr": "Étape 4/4",
+                "en": "Step 4/4"
+              },
+              "act": 2,
+              "no": 8,
+              "startedAt": 1790350990803,
+              "closedAt": 1790351007037,
+              "durationSec": 360,
+              "decision": "C",
+              "decidedBy": "majority",
+              "tally": {
+                "A": 0,
+                "B": 0,
+                "C": 2
+              },
+              "voters": 2,
+              "headcount": 2,
+              "decisionMs": 16234,
+              "points": 4,
+              "total": 4
+            }
+          },
+          "history": [
+            {
+              "eventId": "act1-card1",
+              "eventTitle": {
+                "fr": "Factures rejetées",
+                "en": "Rejected invoices"
+              },
+              "eventRef": {
+                "fr": "Carte 1",
+                "en": "Card 1"
+              },
+              "act": 1,
+              "no": 1,
+              "startedAt": 1790350191557,
+              "closedAt": 1790350249882,
+              "durationSec": 360,
+              "decision": "B",
+              "decidedBy": "majority",
+              "tally": {
+                "A": 0,
+                "B": 2,
+                "C": 0
+              },
+              "voters": 2,
+              "headcount": 2,
+              "decisionMs": 58325,
+              "points": 2,
+              "total": 2
+            },
+            {
+              "eventId": "act1-card2",
+              "eventTitle": {
+                "fr": "DGFIP — incohérences",
+                "en": "Tax authority — inconsistencies"
+              },
+              "eventRef": {
+                "fr": "Carte 2",
+                "en": "Card 2"
+              },
+              "act": 1,
+              "no": 2,
+              "startedAt": 1790350268188,
+              "closedAt": 1790350363851,
+              "durationSec": 360,
+              "decision": "B",
+              "decidedBy": "draw",
+              "tally": {
+                "A": 0,
+                "B": 1,
+                "C": 1
+              },
+              "voters": 2,
+              "headcount": 2,
+              "decisionMs": 95663,
+              "points": 2,
+              "total": 2
+            },
+            {
+              "eventId": "act1-card3",
+              "eventTitle": {
+                "fr": "Alerte sur les contrôles",
+                "en": "Controls alert"
+              },
+              "eventRef": {
+                "fr": "Carte 3",
+                "en": "Card 3"
+              },
+              "act": 1,
+              "no": 3,
+              "startedAt": 1790350436170,
+              "closedAt": 1790350447838,
+              "durationSec": 360,
+              "decision": "C",
+              "decidedBy": "majority",
+              "tally": {
+                "A": 0,
+                "B": 0,
+                "C": 2
+              },
+              "voters": 2,
+              "headcount": 2,
+              "decisionMs": 11668,
+              "points": 4,
+              "total": 4
+            },
+            {
+              "eventId": "act1-card4",
+              "eventTitle": {
+                "fr": "Article de presse",
+                "en": "Press article"
+              },
+              "eventRef": {
+                "fr": "Carte 4",
+                "en": "Card 4"
+              },
+              "act": 1,
+              "no": 4,
+              "startedAt": 1790350454661,
+              "closedAt": 1790350464479,
+              "durationSec": 360,
+              "decision": "B",
+              "decidedBy": "majority",
+              "tally": {
+                "A": 0,
+                "B": 2,
+                "C": 0
+              },
+              "voters": 2,
+              "headcount": 2,
+              "decisionMs": 9818,
+              "points": 2,
+              "total": 2
+            },
+            {
+              "eventId": "act2-step1",
+              "eventTitle": {
+                "fr": "Stabiliser ou investir ?",
+                "en": "Stabilise or invest?"
+              },
+              "eventRef": {
+                "fr": "Étape 1/4",
+                "en": "Step 1/4"
+              },
+              "act": 2,
+              "no": 5,
+              "startedAt": 1790350784614,
+              "closedAt": 1790350790352,
+              "durationSec": 360,
+              "decision": "A",
+              "decidedBy": "majority",
+              "tally": {
+                "A": 2,
+                "B": 0,
+                "C": 0
+              },
+              "voters": 2,
+              "headcount": 2,
+              "decisionMs": 5738,
+              "points": 0,
+              "total": 0
+            },
+            {
+              "eventId": "act2-step2",
+              "eventTitle": {
+                "fr": "Maîtrise ou réaction ?",
+                "en": "Control or reaction?"
+              },
+              "eventRef": {
+                "fr": "Étape 2/4",
+                "en": "Step 2/4"
+              },
+              "act": 2,
+              "no": 6,
+              "startedAt": 1790350796347,
+              "closedAt": 1790350889193,
+              "durationSec": 360,
+              "decision": "A",
+              "decidedBy": "dg",
+              "tally": {
+                "A": 1,
+                "B": 0,
+                "C": 1
+              },
+              "voters": 2,
+              "headcount": 2,
+              "decisionMs": 92846,
+              "points": 0,
+              "total": 0
+            },
+            {
+              "eventId": "act2-step3",
+              "eventTitle": {
+                "fr": "Qui pilote ?",
+                "en": "Who is in charge?"
+              },
+              "eventRef": {
+                "fr": "Étape 3/4",
+                "en": "Step 3/4"
+              },
+              "act": 2,
+              "no": 7,
+              "startedAt": 1790350900845,
+              "closedAt": 1790350979037,
+              "durationSec": 360,
+              "decision": "B",
+              "decidedBy": "dg",
+              "tally": {
+                "A": 1,
+                "B": 1,
+                "C": 0
+              },
+              "voters": 2,
+              "headcount": 2,
+              "decisionMs": 78192,
+              "points": 2,
+              "total": 2
+            },
+            {
+              "eventId": "act2-step4",
+              "eventTitle": {
+                "fr": "Ambitieux ou minimaliste ?",
+                "en": "Ambitious or minimalist?"
+              },
+              "eventRef": {
+                "fr": "Étape 4/4",
+                "en": "Step 4/4"
+              },
+              "act": 2,
+              "no": 8,
+              "startedAt": 1790350990803,
+              "closedAt": 1790351007037,
+              "durationSec": 360,
+              "decision": "C",
+              "decidedBy": "majority",
+              "tally": {
+                "A": 0,
+                "B": 0,
+                "C": 2
+              },
+              "voters": 2,
+              "headcount": 2,
+              "decisionMs": 16234,
+              "points": 4,
+              "total": 4
+            }
+          ],
           "adjustments": [],
-          "act1": 0,
-          "act2": 0,
+          "act1": 10,
+          "act2": 6,
           "adjust": 0,
-          "wins": 0
+          "wins": 8,
+          "facilitatorName": "Tulika"
         },
         {
-          "id": "team_b8dc1239f8831ea6",
-          "name": "Serious Game — Facturation électronique · Table 2",
-          "adminToken": "c9861f99f6e0c12c41a4fa276811c8c3",
-          "adminCode": "7V35QN",
+          "id": "team_c490810d48116e51",
+          "name": "Table 2",
+          "adminToken": "408808c614bff16f23a0d9de6c8769ef",
+          "adminCode": "LCZ6V7",
           "hostClaimedAt": null,
           "hostSockets": 0,
-          "createdAt": 1790163822046,
-          "players": [],
-          "rolesAssignedAt": null,
-          "round": null,
-          "answers": {},
-          "history": [],
-          "adjustments": [],
-          "act1": 0,
-          "act2": 0,
-          "adjust": 0,
-          "wins": 0
-        },
-        {
-          "id": "team_dddff0e7c74d02fe",
-          "name": "Serious Game — Facturation électronique · Table 3",
-          "adminToken": "01f4c95c9aaa212ed05e873397b768f6",
-          "adminCode": "QEKQHG",
-          "hostClaimedAt": null,
-          "hostSockets": 0,
-          "createdAt": 1790163822046,
-          "players": [],
+          "createdAt": 1790348525059,
+          "players": [
+            {
+              "id": "pl_dac3ff470c8418eb",
+              "token": "e5b9482d5e4ead67e21e6d7e000cf0e8",
+              "name": "TJ",
+              "roleId": null,
+              "sockets": 1,
+              "joinedAt": 1790349999754
+            }
+          ],
           "rolesAssignedAt": null,
           "round": null,
           "answers": {},
@@ -22997,12 +23505,286 @@
       ],
       "log": [
         {
-          "id": "log_2ce25c1f9c79e562",
-          "ts": 1790163822046,
+          "id": "log_bef1cc01662b4637",
+          "ts": 1790348525059,
           "type": "session_created",
           "params": {
-            "name": "Serious Game — Facturation électronique",
+            "name": "Facturation électronique",
             "teams": 3
+          }
+        },
+        {
+          "id": "log_ed7f537c6cb21866",
+          "ts": 1790348671557,
+          "type": "table_claimed",
+          "params": {
+            "team": "Table 3"
+          }
+        },
+        {
+          "id": "log_020c7ad0a458b1c6",
+          "ts": 1790349627674,
+          "type": "team_removed",
+          "params": {
+            "team": "Table 3"
+          }
+        },
+        {
+          "id": "log_51b1924913b450c6",
+          "ts": 1790349966373,
+          "type": "table_claimed",
+          "params": {
+            "team": "Table 1"
+          }
+        },
+        {
+          "id": "log_c19feeee8f0d3784",
+          "ts": 1790349999755,
+          "type": "player_joined",
+          "params": {
+            "player": "TJ",
+            "team": "Table 2"
+          }
+        },
+        {
+          "id": "log_a0cfe91540a7a172",
+          "ts": 1790350051917,
+          "type": "player_joined",
+          "params": {
+            "player": "JET",
+            "team": "Table 1"
+          }
+        },
+        {
+          "id": "log_2fa6fdca082b24d9",
+          "ts": 1790350077066,
+          "type": "roles_assigned",
+          "params": {
+            "team": "Table 1",
+            "players": 1
+          }
+        },
+        {
+          "id": "log_88469becaec64e2d",
+          "ts": 1790350116120,
+          "type": "player_joined",
+          "params": {
+            "player": "BOB",
+            "team": "Table 1"
+          }
+        },
+        {
+          "id": "log_7413352c02607413",
+          "ts": 1790350191557,
+          "type": "round_started",
+          "params": {
+            "team": "Table 1",
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices",
+            "seconds": 360
+          }
+        },
+        {
+          "id": "log_bb1cbd8e46fd3621",
+          "ts": 1790350249882,
+          "type": "round_decided",
+          "params": {
+            "team": "Table 1",
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices",
+            "choice": "B",
+            "by": "majority"
+          }
+        },
+        {
+          "id": "log_50e7b0c19bc454e1",
+          "ts": 1790350268188,
+          "type": "round_started",
+          "params": {
+            "team": "Table 1",
+            "event": "DGFIP — incohérences",
+            "eventEn": "Tax authority — inconsistencies",
+            "seconds": 360
+          }
+        },
+        {
+          "id": "log_e9598a5c67427047",
+          "ts": 1790350273825,
+          "type": "round_tied",
+          "params": {
+            "team": "Table 1",
+            "options": "B / C",
+            "dg": "JET"
+          }
+        },
+        {
+          "id": "log_5b3f98075149da05",
+          "ts": 1790350363852,
+          "type": "round_decided",
+          "params": {
+            "team": "Table 1",
+            "event": "DGFIP — incohérences",
+            "eventEn": "Tax authority — inconsistencies",
+            "choice": "B",
+            "by": "draw"
+          }
+        },
+        {
+          "id": "log_dc406976bd0f08dc",
+          "ts": 1790350436170,
+          "type": "round_started",
+          "params": {
+            "team": "Table 1",
+            "event": "Alerte sur les contrôles",
+            "eventEn": "Controls alert",
+            "seconds": 360
+          }
+        },
+        {
+          "id": "log_3bc6f12d30564098",
+          "ts": 1790350447838,
+          "type": "round_decided",
+          "params": {
+            "team": "Table 1",
+            "event": "Alerte sur les contrôles",
+            "eventEn": "Controls alert",
+            "choice": "C",
+            "by": "majority"
+          }
+        },
+        {
+          "id": "log_98c93a75fc4e9320",
+          "ts": 1790350454661,
+          "type": "round_started",
+          "params": {
+            "team": "Table 1",
+            "event": "Article de presse",
+            "eventEn": "Press article",
+            "seconds": 360
+          }
+        },
+        {
+          "id": "log_e90e91301121dd71",
+          "ts": 1790350464479,
+          "type": "round_decided",
+          "params": {
+            "team": "Table 1",
+            "event": "Article de presse",
+            "eventEn": "Press article",
+            "choice": "B",
+            "by": "majority"
+          }
+        },
+        {
+          "id": "log_1b83c1d10654c4f1",
+          "ts": 1790350784614,
+          "type": "round_started",
+          "params": {
+            "team": "Table 1",
+            "event": "Stabiliser ou investir ?",
+            "eventEn": "Stabilise or invest?",
+            "seconds": 360
+          }
+        },
+        {
+          "id": "log_a3e282a09da70dc8",
+          "ts": 1790350790352,
+          "type": "round_decided",
+          "params": {
+            "team": "Table 1",
+            "event": "Stabiliser ou investir ?",
+            "eventEn": "Stabilise or invest?",
+            "choice": "A",
+            "by": "majority"
+          }
+        },
+        {
+          "id": "log_6aa30c0ac0849927",
+          "ts": 1790350796347,
+          "type": "round_started",
+          "params": {
+            "team": "Table 1",
+            "event": "Maîtrise ou réaction ?",
+            "eventEn": "Control or reaction?",
+            "seconds": 360
+          }
+        },
+        {
+          "id": "log_0c3329f02abe2201",
+          "ts": 1790350815620,
+          "type": "round_tied",
+          "params": {
+            "team": "Table 1",
+            "options": "A / C",
+            "dg": "JET"
+          }
+        },
+        {
+          "id": "log_f0dcbacb6bc1d529",
+          "ts": 1790350889193,
+          "type": "round_decided",
+          "params": {
+            "team": "Table 1",
+            "event": "Maîtrise ou réaction ?",
+            "eventEn": "Control or reaction?",
+            "choice": "A",
+            "by": "dg"
+          }
+        },
+        {
+          "id": "log_94fcbb896d326072",
+          "ts": 1790350900845,
+          "type": "round_started",
+          "params": {
+            "team": "Table 1",
+            "event": "Qui pilote ?",
+            "eventEn": "Who is in charge?",
+            "seconds": 360
+          }
+        },
+        {
+          "id": "log_0d10bd7debf8fd75",
+          "ts": 1790350959971,
+          "type": "round_tied",
+          "params": {
+            "team": "Table 1",
+            "options": "A / B",
+            "dg": "JET"
+          }
+        },
+        {
+          "id": "log_9d472a38be87144a",
+          "ts": 1790350979037,
+          "type": "round_decided",
+          "params": {
+            "team": "Table 1",
+            "event": "Qui pilote ?",
+            "eventEn": "Who is in charge?",
+            "choice": "B",
+            "by": "dg"
+          }
+        },
+        {
+          "id": "log_9f590a5a2127bfc0",
+          "ts": 1790350990803,
+          "type": "round_started",
+          "params": {
+            "team": "Table 1",
+            "event": "Ambitieux ou minimaliste ?",
+            "eventEn": "Ambitious or minimalist?",
+            "seconds": 360
+          }
+        },
+        {
+          "id": "log_689d2d2acd864142",
+          "ts": 1790351007037,
+          "type": "round_decided",
+          "params": {
+            "team": "Table 1",
+            "event": "Ambitieux ou minimaliste ?",
+            "eventEn": "Ambitious or minimalist?",
+            "choice": "C",
+            "by": "majority"
           }
         }
       ],

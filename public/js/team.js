@@ -2,11 +2,29 @@
 (function () {
   'use strict';
 
-  const { $, h, clear, api, toast, tableStore, t, L, connect, startTicker, qs, toMinutes, toSeconds } =
-    window.SG;
+  const {
+    $,
+    h,
+    clear,
+    api,
+    toast,
+    tableStore,
+    t,
+    L,
+    connect,
+    startTicker,
+    qs,
+    toMinutes,
+    toSeconds,
+    joinUrl,
+    resolveOrigin,
+    copyText,
+    modal,
+  } = window.SG;
   const C = window.CARDS;
 
   window.SG.initChrome();
+  resolveOrigin();
 
   const stage = $('#stage');
   const dock = $('#dock');
@@ -20,6 +38,35 @@
   /** Numéro de manche déjà affiché : sert à ne rejouer les animations qu'une fois. */
   let shownRound = null;
   let shownClosed = null;
+
+  function openPlayerQrModal() {
+    if (!state || !state.team) return;
+    const url = joinUrl(state.session.code, state.team.id);
+    const title = t('admin.playerTableQrTitle', { table: state.team.name });
+    const body = h('div', { class: 'qr-full' }, [
+      h('div', { class: 'row' }, [
+        h('div', { class: 'eyebrow', text: title }),
+        h('div', { class: 'spacer' }),
+        h('button', {
+          class: 'btn btn-sm btn-ghost',
+          type: 'button',
+          text: '×',
+          onClick: () => dialog.close(),
+        }),
+      ]),
+      h('div', { class: 'team-title center', text: state.team.name }),
+      h('div', { class: 'qr-canvas' }, [window.QR.element(url, { label: title })]),
+      h('div', { class: 'join-url center', text: url }),
+      h('p', { class: 'small muted center', text: t('admin.playerTableQrHint') }),
+      h('button', {
+        class: 'btn btn-sm',
+        type: 'button',
+        text: t('admin.playerTableQrCopy'),
+        onClick: (e) => copyText(url, e.target),
+      }),
+    ]);
+    const dialog = modal(body);
+  }
 
   /* ------------------------------------------------------------ identification */
 
@@ -66,9 +113,10 @@
   function renderHeader() {
     const team = state.team;
     const progress = team.progress;
-    $('#team-name').textContent = team.name;
-    $('#team-title').textContent = team.name;
-    $('#progress-count').textContent = `${progress.played}/${progress.total}`;
+    $('#team-title').textContent = team.facilitatorName
+      ? `${team.name} • ${team.facilitatorName}`
+      : team.name;
+    $('#table-game-name').textContent = state.session.name;
     $('#progress-fill').style.width = `${
       progress.total ? Math.round((progress.played / progress.total) * 100) : 0
     }%`;
@@ -106,6 +154,23 @@
 
   function renderSealed() {
     const host = clear($('#sealed-host'));
+    const lastHistory = state.history && state.history[state.history.length - 1];
+    const results = state.actResults || [];
+    const result = results.slice(-1)[0];
+    const isCurrentResult =
+      !state.round &&
+      result &&
+      lastHistory &&
+      Number(lastHistory.act) === Number(result.act);
+    if (isCurrentResult) {
+      const overview = C.gameCompletedOverview(results);
+      if (overview) host.appendChild(overview);
+      results
+        .slice()
+        .sort((a, b) => Number(b.act) - Number(a.act))
+        .forEach((entry) => host.appendChild(C.actResultCard(entry)));
+      return;
+    }
     if (state.scoresVisible) return;
     host.appendChild(C.sealedNotice('team.scoresSealed'));
   }
@@ -119,14 +184,9 @@
 
   function startPanel() {
     const next = state.nextEvent;
-    if (!next) {
-      return h('div', { class: 'stage-empty' }, [
-        h('div', { class: 'eyebrow', text: t('admin.tableDone') }),
-        h('h2', { text: t('team.done') }),
-      ]);
-    }
+    if (!next) return null;
 
-    const defaultSec = state.session.settings.defaultDuration || 300;
+    const defaultSec = state.session.settings.defaultDuration || 360;
     const input = h('input', {
       type: 'number',
       id: 'duration',
@@ -244,7 +304,8 @@
         );
         return;
       }
-      stage.appendChild(startPanel());
+      const panel = startPanel();
+      if (panel) stage.appendChild(panel);
       return;
     }
 
@@ -352,6 +413,55 @@
   function applyState(next) {
     state = next;
     render();
+    if (state && state.team && !state.team.facilitatorName) askName();
+  }
+
+  /* Arrivé par le QR ou le lien de la table, l'animateur n'a pas encore donné
+     son nom : on le lui demande une fois, sans pouvoir l'ignorer. */
+  let nameDialog = null;
+  function askName() {
+    if (nameDialog) return;
+    const input = h('input', { type: 'text', maxlength: '40', autocomplete: 'name' });
+    try {
+      input.value = localStorage.getItem('sg.hostName') || '';
+    } catch (err) {
+      /* ignore */
+    }
+    const submit = async (event) => {
+      event.preventDefault();
+      const name = input.value.trim();
+      if (!name) {
+        input.focus();
+        return;
+      }
+      const res = await socket.callSafe('teamAdmin:setName', { name });
+      if (!res) return;
+      try {
+        localStorage.setItem('sg.hostName', name);
+      } catch (err) {
+        /* ignore */
+      }
+      const dialog = nameDialog;
+      nameDialog = null;
+      dialog.close();
+    };
+    const form = h('form', { class: 'stack', autocomplete: 'off' }, [
+      h('h2', { text: t('team.askNameTitle') }),
+      h('p', { class: 'small muted', style: 'margin:0', text: t('team.askNameHint') }),
+      h('label', { class: 'field', style: 'margin:0' }, [
+        h('span', { text: t('home.facilitatorName') }),
+        input,
+      ]),
+      h('button', { class: 'btn btn-primary btn-block', type: 'submit', text: t('btn.save') }),
+    ]);
+    form.addEventListener('submit', submit);
+    nameDialog = window.SG.modal(form, {
+      /* Fermé sans nom (Échap, clic à côté) : on redemande au prochain état. */
+      onClose: () => {
+        nameDialog = null;
+      },
+    });
+    input.focus();
   }
 
   startTicker(() => {
@@ -362,6 +472,7 @@
   /* --------------------------------------------------------------- démarrage */
 
   window.I18N.onChange(() => render());
+  $('#btn-player-qr').addEventListener('click', openPlayerQrModal);
 
   (async function boot() {
     try {

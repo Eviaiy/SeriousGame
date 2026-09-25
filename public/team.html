@@ -27,7 +27,7 @@
     <header class="topbar">
       <div class="brand">
         <span class="tag" data-i18n="app.name">Serious Game</span>
-        <span id="team-name">—</span>
+        <span data-i18n="app.name">Serious Game</span>
       </div>
       <span class="badge" id="session-status">—</span>
       <div class="spacer"></div>
@@ -44,17 +44,18 @@
     <main class="shell narrow dock-pad">
       <!-- entête de table -->
       <section class="panel tight">
-        <div class="row">
-          <div class="grow">
-            <div class="label" data-i18n="team.myTable">Ma table</div>
-            <div class="team-title" id="team-title">—</div>
-            <div class="small muted" data-i18n="team.facilitatorRole"></div>
-          </div>
-          <div class="center">
-            <div class="label" data-i18n="admin.progress">Avancement</div>
-            <div class="rank-big" id="progress-count">0</div>
-          </div>
+        <div class="row table-card-heading">
+          <div class="title" id="team-title">—</div>
+          <div class="spacer"></div>
+          <div class="title game-name" id="table-game-name">—</div>
         </div>
+        <div class="small muted" style="margin-top: 6px" data-i18n="team.facilitatorRole"></div>
+        <div style="margin-top: 16px">
+          <button class="btn btn-sm" id="btn-player-qr" type="button" data-i18n="admin.playerTableQrButton">
+            QR joueurs
+          </button>
+        </div>
+        <div class="label" style="margin-top: 12px" data-i18n="admin.progress">Avancement</div>
         <div class="progress-track" style="margin-top: 12px">
           <i class="progress-fill" id="progress-fill" style="width: 0%"></i>
         </div>
@@ -68,6 +69,9 @@
       <!-- scène : ce que l'animateur pilote doit rester au-dessus du pli -->
       <section id="stage" class="stack" style="margin-top: 16px"></section>
 
+      <!-- bilan de l'acte terminé / scores encore scellés -->
+      <section id="sealed-host" class="stack" style="margin-top: 16px"></section>
+
       <!-- composition -->
       <section class="panel" style="margin-top: 16px">
         <div class="panel-head">
@@ -77,9 +81,6 @@
         <div class="small muted" data-i18n="team.rosterHint"></div>
         <div style="margin-top: 12px" id="roster-host"></div>
       </section>
-
-      <!-- scores scellés -->
-      <section id="sealed-host" style="margin-top: 16px"></section>
 
       <!-- historique -->
       <section class="panel" style="margin-top: 16px">
@@ -105,6 +106,7 @@
     <script src="/js/i18n.js"></script>
     <script src="/js/common.js"></script>
     <script src="/js/cards.js"></script>
+    <script src="/js/qr.js"></script>
     <script src="/js/team.js"></script>
   </body>
 </html>

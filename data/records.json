@@ -1,4 +1,1237 @@
 {
-  "savedAt": 1789074262456,
-  "records": []
+  "savedAt": 1790348410758,
+  "records": [
+    {
+      "id": "rec_fd3e06c44b11ef2e",
+      "sessionId": "sess_1177b1f57f095be7",
+      "code": "BGAZYA",
+      "name": "test1",
+      "facilitator": "Meriem",
+      "lang": "fr",
+      "createdAt": 1789038195721,
+      "startedAt": null,
+      "endedAt": 1790348410534,
+      "teamCount": 2,
+      "playerCount": 1,
+      "eventCount": 0,
+      "winner": {
+        "name": "Table 1",
+        "total": 0
+      },
+      "leaderboard": [
+        {
+          "teamId": "team_798104c76d7dd66e",
+          "name": "Table 1",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 1,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        },
+        {
+          "teamId": "team_b651f525eca28359",
+          "name": "Table 2",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 0,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        }
+      ],
+      "teams": [
+        {
+          "name": "Table 1",
+          "headcount": 1,
+          "roster": [
+            {
+              "name": "meriem",
+              "role": null
+            }
+          ]
+        },
+        {
+          "name": "Table 2",
+          "headcount": 0,
+          "roster": []
+        }
+      ],
+      "events": [],
+      "adjustments": [],
+      "log": [
+        {
+          "id": "log_c671b6f1dc386f3b",
+          "ts": 1789038195723,
+          "type": "session_created",
+          "params": {
+            "name": "test1",
+            "teams": 2
+          }
+        },
+        {
+          "id": "log_c178c820b09c466a",
+          "ts": 1789038214789,
+          "type": "player_joined",
+          "params": {
+            "player": "meriem",
+            "team": "Table 1"
+          }
+        },
+        {
+          "id": "log_4559c1752711cbb0",
+          "ts": 1790348410534,
+          "type": "session_ended",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "rec_0b7a4ff6fdf3d418",
+      "sessionId": "sess_24a30be5436613ef",
+      "code": "FR7GJP",
+      "name": "test1",
+      "facilitator": "meriem",
+      "lang": "fr",
+      "createdAt": 1789051818885,
+      "startedAt": null,
+      "endedAt": 1790348410530,
+      "teamCount": 2,
+      "playerCount": 0,
+      "eventCount": 0,
+      "winner": {
+        "name": "Table 1",
+        "total": 0
+      },
+      "leaderboard": [
+        {
+          "teamId": "team_53790eefab3b7a72",
+          "name": "Table 1",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 0,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        },
+        {
+          "teamId": "team_55a8869a709b9d3d",
+          "name": "Table 2",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 0,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        }
+      ],
+      "teams": [
+        {
+          "name": "Table 1",
+          "headcount": 0,
+          "roster": []
+        },
+        {
+          "name": "Table 2",
+          "headcount": 0,
+          "roster": []
+        }
+      ],
+      "events": [],
+      "adjustments": [],
+      "log": [
+        {
+          "id": "log_43f8a4ef4207e5f8",
+          "ts": 1789051818887,
+          "type": "session_created",
+          "params": {
+            "name": "test1",
+            "teams": 2
+          }
+        },
+        {
+          "id": "log_cb18ae77faffc027",
+          "ts": 1790348410530,
+          "type": "session_ended",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "rec_2663acd2fc8039a5",
+      "sessionId": "sess_ea564bff338decc3",
+      "code": "8SZZJS",
+      "name": "test1",
+      "facilitator": "meriem",
+      "lang": "fr",
+      "createdAt": 1789066561919,
+      "startedAt": null,
+      "endedAt": 1790348410527,
+      "teamCount": 2,
+      "playerCount": 2,
+      "eventCount": 0,
+      "winner": {
+        "name": "Table 1",
+        "total": 0
+      },
+      "leaderboard": [
+        {
+          "teamId": "team_081d707477cbef44",
+          "name": "Table 1",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 1,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        },
+        {
+          "teamId": "team_258019044759091f",
+          "name": "Table 2",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 1,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        }
+      ],
+      "teams": [
+        {
+          "name": "Table 1",
+          "headcount": 1,
+          "roster": [
+            {
+              "name": "ms",
+              "role": {
+                "fr": "Direction générale / Communication",
+                "en": "CEO / Communications"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Table 2",
+          "headcount": 1,
+          "roster": [
+            {
+              "name": "mmm",
+              "role": null
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "adjustments": [],
+      "log": [
+        {
+          "id": "log_cdef2c5ca1649ce3",
+          "ts": 1789066561919,
+          "type": "session_created",
+          "params": {
+            "name": "test1",
+            "teams": 2
+          }
+        },
+        {
+          "id": "log_f641cbea768ea93d",
+          "ts": 1789070867691,
+          "type": "player_joined",
+          "params": {
+            "player": "ms",
+            "team": "Table 1"
+          }
+        },
+        {
+          "id": "log_4ac4f09ae3d4fb51",
+          "ts": 1789070928015,
+          "type": "player_joined",
+          "params": {
+            "player": "mmm",
+            "team": "Table 2"
+          }
+        },
+        {
+          "id": "log_abe757622dccc3ab",
+          "ts": 1789071068204,
+          "type": "roles_assigned",
+          "params": {
+            "team": "Table 1",
+            "players": 1
+          }
+        },
+        {
+          "id": "log_f8adf976f2f348dd",
+          "ts": 1790348410527,
+          "type": "session_ended",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "rec_2b63a5d8dfd77ad3",
+      "sessionId": "sess_6c3bd8931fa498c9",
+      "code": "KZ8N97",
+      "name": "test",
+      "facilitator": "",
+      "lang": "fr",
+      "createdAt": 1789073578410,
+      "startedAt": null,
+      "endedAt": 1790348410525,
+      "teamCount": 2,
+      "playerCount": 0,
+      "eventCount": 0,
+      "winner": {
+        "name": "Table 1",
+        "total": 0
+      },
+      "leaderboard": [
+        {
+          "teamId": "team_c9fb27a54b3ee409",
+          "name": "Table 1",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 0,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        },
+        {
+          "teamId": "team_eef88ccd1a0e3a52",
+          "name": "Table 2",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 0,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        }
+      ],
+      "teams": [
+        {
+          "name": "Table 1",
+          "headcount": 0,
+          "roster": []
+        },
+        {
+          "name": "Table 2",
+          "headcount": 0,
+          "roster": []
+        }
+      ],
+      "events": [],
+      "adjustments": [],
+      "log": [
+        {
+          "id": "log_ca08b06995069ef6",
+          "ts": 1789073578410,
+          "type": "session_created",
+          "params": {
+            "name": "test",
+            "teams": 2
+          }
+        },
+        {
+          "id": "log_ce41756348b49f6f",
+          "ts": 1790348410525,
+          "type": "session_ended",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "rec_6cb49695d56af9cb",
+      "sessionId": "sess_7df427f9a7f53a06",
+      "code": "8GQQ99",
+      "name": "test",
+      "facilitator": "",
+      "lang": "fr",
+      "createdAt": 1789074271005,
+      "startedAt": null,
+      "endedAt": 1790348410522,
+      "teamCount": 2,
+      "playerCount": 0,
+      "eventCount": 0,
+      "winner": {
+        "name": "Table 1",
+        "total": 0
+      },
+      "leaderboard": [
+        {
+          "teamId": "team_067b7f44567a9e46",
+          "name": "Table 1",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 0,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        },
+        {
+          "teamId": "team_ca086fa2413bb0d5",
+          "name": "Table 2",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 0,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        }
+      ],
+      "teams": [
+        {
+          "name": "Table 1",
+          "headcount": 0,
+          "roster": []
+        },
+        {
+          "name": "Table 2",
+          "headcount": 0,
+          "roster": []
+        }
+      ],
+      "events": [],
+      "adjustments": [],
+      "log": [
+        {
+          "id": "log_4a7c140708827621",
+          "ts": 1789074271006,
+          "type": "session_created",
+          "params": {
+            "name": "test",
+            "teams": 2
+          }
+        },
+        {
+          "id": "log_a0f88b8ea72f9b4a",
+          "ts": 1789074298763,
+          "type": "table_claimed",
+          "params": {
+            "team": "Table 1"
+          }
+        },
+        {
+          "id": "log_7f22fa81c9cdc708",
+          "ts": 1790348410522,
+          "type": "session_ended",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "rec_4327bc0b752006b0",
+      "sessionId": "sess_2805956f0dfce13f",
+      "code": "365HFF",
+      "name": "test",
+      "facilitator": "",
+      "lang": "fr",
+      "createdAt": 1789075137621,
+      "startedAt": null,
+      "endedAt": 1790348410520,
+      "teamCount": 2,
+      "playerCount": 0,
+      "eventCount": 0,
+      "winner": {
+        "name": "Table 1",
+        "total": 0
+      },
+      "leaderboard": [
+        {
+          "teamId": "team_da5a668b9bededc7",
+          "name": "Table 1",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 0,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        },
+        {
+          "teamId": "team_8fedca28241ca55d",
+          "name": "Table 2",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 0,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        }
+      ],
+      "teams": [
+        {
+          "name": "Table 1",
+          "headcount": 0,
+          "roster": []
+        },
+        {
+          "name": "Table 2",
+          "headcount": 0,
+          "roster": []
+        }
+      ],
+      "events": [],
+      "adjustments": [],
+      "log": [
+        {
+          "id": "log_e792d1435fec3022",
+          "ts": 1789075137621,
+          "type": "session_created",
+          "params": {
+            "name": "test",
+            "teams": 2
+          }
+        },
+        {
+          "id": "log_edcde999503457e8",
+          "ts": 1790348410520,
+          "type": "session_ended",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "rec_580f0c231ffeaa3d",
+      "sessionId": "sess_347587a6c9bad493",
+      "code": "98FE6Q",
+      "name": "test",
+      "facilitator": "",
+      "lang": "fr",
+      "createdAt": 1789075154065,
+      "startedAt": null,
+      "endedAt": 1790348410516,
+      "teamCount": 2,
+      "playerCount": 0,
+      "eventCount": 0,
+      "winner": {
+        "name": "Table 1",
+        "total": 0
+      },
+      "leaderboard": [
+        {
+          "teamId": "team_f5cb85b15dec5464",
+          "name": "Table 1",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 0,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        },
+        {
+          "teamId": "team_462b35429531eb35",
+          "name": "Table 2",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 0,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        }
+      ],
+      "teams": [
+        {
+          "name": "Table 1",
+          "headcount": 0,
+          "roster": []
+        },
+        {
+          "name": "Table 2",
+          "headcount": 0,
+          "roster": []
+        }
+      ],
+      "events": [],
+      "adjustments": [],
+      "log": [
+        {
+          "id": "log_b8bab54fe312590f",
+          "ts": 1789075154065,
+          "type": "session_created",
+          "params": {
+            "name": "test",
+            "teams": 2
+          }
+        },
+        {
+          "id": "log_a6708b8013f69f7c",
+          "ts": 1789075181030,
+          "type": "table_claimed",
+          "params": {
+            "team": "Table 1"
+          }
+        },
+        {
+          "id": "log_550d5b03551e7b0e",
+          "ts": 1790348410516,
+          "type": "session_ended",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "rec_f3cdfc526546daa6",
+      "sessionId": "sess_856505bef1cb740f",
+      "code": "A2ARS7",
+      "name": "test",
+      "facilitator": "",
+      "lang": "fr",
+      "createdAt": 1789110754299,
+      "startedAt": null,
+      "endedAt": 1790348410512,
+      "teamCount": 2,
+      "playerCount": 2,
+      "eventCount": 0,
+      "winner": {
+        "name": "Table 1",
+        "total": 0
+      },
+      "leaderboard": [
+        {
+          "teamId": "team_66f8cb0d0ed5b696",
+          "name": "Table 1",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 1,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        },
+        {
+          "teamId": "team_12ca7f951eb53b9a",
+          "name": "Table 2",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 1,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        }
+      ],
+      "teams": [
+        {
+          "name": "Table 1",
+          "headcount": 1,
+          "roster": [
+            {
+              "name": "mer1",
+              "role": null
+            }
+          ]
+        },
+        {
+          "name": "Table 2",
+          "headcount": 1,
+          "roster": [
+            {
+              "name": "test2",
+              "role": null
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "adjustments": [],
+      "log": [
+        {
+          "id": "log_9258bb274850004e",
+          "ts": 1789110754299,
+          "type": "session_created",
+          "params": {
+            "name": "test",
+            "teams": 2
+          }
+        },
+        {
+          "id": "log_319537befd4637f9",
+          "ts": 1789110796281,
+          "type": "player_joined",
+          "params": {
+            "player": "mer1",
+            "team": "Table 1"
+          }
+        },
+        {
+          "id": "log_da103bce5fdc5183",
+          "ts": 1789110812395,
+          "type": "player_joined",
+          "params": {
+            "player": "test2",
+            "team": "Table 2"
+          }
+        },
+        {
+          "id": "log_f9bdac56800f07bb",
+          "ts": 1789110840079,
+          "type": "table_claimed",
+          "params": {
+            "team": "Table 1"
+          }
+        },
+        {
+          "id": "log_235f3dcbeb020c25",
+          "ts": 1789110855263,
+          "type": "table_claimed",
+          "params": {
+            "team": "Table 2"
+          }
+        },
+        {
+          "id": "log_e41c68a3b342369f",
+          "ts": 1790348410512,
+          "type": "session_ended",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "rec_5dae65c2e5e1ddc1",
+      "sessionId": "sess_b83b8024014049aa",
+      "code": "KK5EHB",
+      "name": "test",
+      "facilitator": "",
+      "lang": "fr",
+      "createdAt": 1790067121032,
+      "startedAt": null,
+      "endedAt": 1790348410506,
+      "teamCount": 3,
+      "playerCount": 0,
+      "eventCount": 0,
+      "winner": {
+        "name": "Table 1",
+        "total": 0
+      },
+      "leaderboard": [
+        {
+          "teamId": "team_824c1335bd7a11c2",
+          "name": "Table 1",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 0,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        },
+        {
+          "teamId": "team_f4ae5e9c7f24e85c",
+          "name": "Table 2",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 0,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        },
+        {
+          "teamId": "team_ba928ed6fe96ac08",
+          "name": "Table 3",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 0,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        }
+      ],
+      "teams": [
+        {
+          "name": "Table 1",
+          "headcount": 0,
+          "roster": []
+        },
+        {
+          "name": "Table 2",
+          "headcount": 0,
+          "roster": []
+        },
+        {
+          "name": "Table 3",
+          "headcount": 0,
+          "roster": []
+        }
+      ],
+      "events": [],
+      "adjustments": [],
+      "log": [
+        {
+          "id": "log_f13e7fbef55c7743",
+          "ts": 1790067121032,
+          "type": "session_created",
+          "params": {
+            "name": "test",
+            "teams": 3
+          }
+        },
+        {
+          "id": "log_d1855262ec439574",
+          "ts": 1790067132640,
+          "type": "table_claimed",
+          "params": {
+            "team": "test · Table 1"
+          }
+        },
+        {
+          "id": "log_abb39135ada2c43b",
+          "ts": 1790348410506,
+          "type": "session_ended",
+          "params": {}
+        }
+      ]
+    }
+  ]
 }

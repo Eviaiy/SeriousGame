@@ -115,7 +115,7 @@
   /* Repeint la fiche de table ouverte, s'il y en a une. */
   let repaintSheet = null;
 
-  const playerLink = (code) => joinUrl(code);
+  const playerLink = (code, teamId) => joinUrl(code, teamId);
 
   function renderQr(url) {
     if (qrFor === url) return; // le QR ne dépend que du lien : inutile de le refaire à chaque état
@@ -141,7 +141,6 @@
       h('div', { class: 'code-display', text: state.session.code }),
       h('div', { class: 'qr-canvas' }, [window.QR.element(url, { label: t('admin.qrTitle') })]),
       h('div', { class: 'join-url center', text: url }),
-      h('p', { class: 'small muted center', text: t('admin.projectHint') }),
     ]);
     const dialog = modal(body);
   }
@@ -206,11 +205,62 @@
     const dialog = modal(body);
   }
 
+  /** QR joueur ciblé : l'inscription conserve cette table au lieu de répartir. */
+  function playerTableQrPanel(team) {
+    const url = playerLink(state.session.code, team.id);
+    const title = t('admin.playerTableQrTitle', { table: team.name });
+    const tile = h('button', { class: 'qr-tile', type: 'button', title });
+    try {
+      tile.appendChild(window.QR.element(url, { label: title }));
+    } catch (err) {
+      return null;
+    }
+    tile.addEventListener('click', () => openPlayerTableQrModal(team));
+    return h('div', { class: 'panel tight' }, [
+      h('div', { class: 'qr-block' }, [
+        tile,
+        h('div', { class: 'grow' }, [
+          h('div', { class: 'label', text: title }),
+          h('p', { class: 'small muted', style: 'margin:0', text: t('admin.playerTableQrHint') }),
+          h('button', {
+            class: 'btn btn-sm',
+            type: 'button',
+            style: 'margin-top:8px',
+            text: t('admin.playerTableQrCopy'),
+            onClick: (e) => copyText(url, e.target),
+          }),
+        ]),
+      ]),
+    ]);
+  }
+
+  function openPlayerTableQrModal(team) {
+    const url = playerLink(state.session.code, team.id);
+    const title = t('admin.playerTableQrTitle', { table: team.name });
+    const body = h('div', { class: 'qr-full' }, [
+      h('div', { class: 'row' }, [
+        h('div', { class: 'eyebrow', text: title }),
+        h('div', { class: 'spacer' }),
+        h('button', {
+          class: 'btn btn-sm btn-ghost',
+          type: 'button',
+          text: '×',
+          onClick: () => dialog.close(),
+        }),
+      ]),
+      h('div', { class: 'team-title center', text: team.name }),
+      h('div', { class: 'qr-canvas' }, [window.QR.element(url, { label: title })]),
+      h('div', { class: 'join-url center', text: url }),
+      h('p', { class: 'small muted center', text: t('admin.playerTableQrHint') }),
+    ]);
+    const dialog = modal(body);
+  }
+
   /* --------------------------------------------------------------- entêtes */
 
   function renderHeader() {
     const s = state.session;
-    $('#session-name').textContent = s.name;
+    $('#access-game-title').textContent = s.name;
     $('#session-code').textContent = s.code;
     renderQr(playerLink(s.code));
 
@@ -275,8 +325,44 @@
 
     return h('div', { class: classes.join(' ') }, [
       h('div', { class: 'tile-head' }, [
-        h('span', { class: 'team-title', text: team.name }),
-        statusBadge,
+        h('div', { class: 'tile-name' }, [
+          h('div', { class: 'tile-title-row' }, [
+            h('span', { class: 'team-title', text: team.name }),
+            statusBadge,
+          ]),
+          h('div', {
+            class: `small ${team.facilitatorName ? '' : 'muted'}`.trim(),
+            text: team.facilitatorName || t('admin.tableFree'),
+          }),
+        ]),
+        /* Œil : la console de cette table dans un nouvel onglet, sans passer par
+           le code. Lien de même origine que cette page (localhost ou IP du
+           réseau), toujours joignable — contrairement au QR, calé sur l'adresse
+           réseau pour les téléphones. */
+        h(
+          'button',
+          {
+            class: 'btn btn-sm btn-ghost btn-icon tile-settings',
+            type: 'button',
+            title: t('nav.team'),
+            'aria-label': t('nav.team'),
+            onClick: () =>
+              window.open(`/table/${encodeURIComponent(team.adminCode)}`, '_blank', 'noopener'),
+          },
+          [eye()]
+        ),
+        /* La fiche de la table (accès, effectif, décisions) s'ouvre ici. */
+        h(
+          'button',
+          {
+            class: 'btn btn-sm btn-ghost btn-icon tile-settings',
+            type: 'button',
+            title: t('admin.overview'),
+            'aria-label': t('admin.overview'),
+            onClick: () => openTeamModal(team.id),
+          },
+          [gear()]
+        ),
       ]),
       /* Le décompte n'apparaît que pendant un vote : sinon la ligne resterait vide. */
       round && round.status === 'open'
@@ -306,40 +392,13 @@
             })
           : [h('span', { class: 'small muted', text: t('admin.waitingPlayers') })]
       ),
-      h('div', { class: 'row tight', style: 'gap:8px' }, [
-        /* Une table sans animateur ne jouera pas : elle se signale d'elle-même. */
-        h('span', {
-          class: `badge ${team.hosted ? '' : 'warn'}`.trim(),
-          text: t(team.hosted ? 'admin.tableHosted' : 'admin.tableFree'),
-        }),
-        h('span', {
-          class: `badge ${team.rolesAssigned ? 'green' : 'warn'}`,
-          text: team.rolesAssigned ? t('admin.rolesDone') : t('admin.rolesPending'),
-        }),
-        h('div', { class: 'spacer' }),
-        state.scoresVisible
-          ? h('span', { class: `num ${signClass(team.total)}`, text: fmtSigned(team.total) })
-          : h('span', { class: 'small muted', text: t('score.hidden') }),
-        /* Raccourci direct vers la console de cette table (nouvel onglet), sans
-           passer par le code : la porte animateur porte déjà le code de table.
-           On ouvre un lien de même origine que cette page (localhost ou IP du
-           réseau), toujours joignable — contrairement au QR, calé sur l'adresse
-           réseau pour les téléphones. */
-        h('button', {
-          class: 'btn btn-sm',
-          type: 'button',
-          text: t('nav.team'),
-          title: t('home.tableBtn'),
-          onClick: () =>
-            window.open(`/table/${encodeURIComponent(team.adminCode)}`, '_blank', 'noopener'),
-        }),
-        h('button', {
-          class: 'btn btn-sm',
-          type: 'button',
-          text: t('admin.overview'),
-          onClick: () => openTeamModal(team.id),
-        }),
-      ]),
+      /* Une fois les rôles distribués, les médaillons le montrent déjà : seul
+         le manque reste signalé. */
+      team.rolesAssigned
+        ? null
+        : h('div', { class: 'row tight', style: 'gap:8px' }, [
+            h('span', { class: 'badge warn', text: t('admin.rolesPending') }),
+          ]),
     ]);
   }
 
@@ -396,6 +455,52 @@
     );
   }
 
+  /** Œil : ouvre la console d'une table depuis sa tuile. */
+  function eye() {
+    return svg(
+      'svg',
+      {
+        viewBox: '0 0 24 24',
+        width: 17,
+        height: 17,
+        fill: 'none',
+        stroke: 'currentColor',
+        'stroke-width': 1.7,
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round',
+        'aria-hidden': 'true',
+      },
+      [
+        svg('path', { d: 'M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z' }),
+        svg('circle', { cx: 12, cy: 12, r: 3 }),
+      ]
+    );
+  }
+
+  /** Roue crantée : ouvre la fiche d'une table depuis sa tuile. */
+  function gear() {
+    return svg(
+      'svg',
+      {
+        viewBox: '0 0 24 24',
+        width: 17,
+        height: 17,
+        fill: 'none',
+        stroke: 'currentColor',
+        'stroke-width': 1.7,
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round',
+        'aria-hidden': 'true',
+      },
+      [
+        svg('circle', { cx: 12, cy: 12, r: 3 }),
+        svg('path', {
+          d: 'M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z',
+        }),
+      ]
+    );
+  }
+
   function renderDeck() {
     const host = clear($('#deck-host'));
     state.events.forEach((event, index) => {
@@ -407,56 +512,55 @@
             h('div', { class: 'title', text: L(event.title) }),
             h('div', {
               class: 'small muted',
-              text: `${L(event.tag)} · ${t('admin.progressOf', {
-                done: event.playedBy,
-                total: state.teams.length,
-              })}`,
+              text: L(event.tag),
             }),
           ]),
-          h('div', { class: 'row-actions row-icons' }, [
-            h('button', {
-              class: 'btn btn-sm btn-ghost',
-              type: 'button',
-              title: t('admin.edit'),
-              'aria-label': t('admin.edit'),
-              onClick: () => openEventModal(event),
-            }, [pencil()]),
-            h('button', {
-              class: 'btn btn-sm btn-ghost',
-              type: 'button',
-              text: '↑',
-              title: t('admin.moveUp'),
-              disabled: index === 0,
-              onClick: () => call('super:moveEvent', { eventId: event.id, direction: -1 }),
-            }),
-            h('button', {
-              class: 'btn btn-sm btn-ghost',
-              type: 'button',
-              text: '↓',
-              title: t('admin.moveDown'),
-              disabled: index === state.events.length - 1,
-              onClick: () => call('super:moveEvent', { eventId: event.id, direction: 1 }),
-            }),
-            h('button', {
-              class: 'btn btn-sm btn-ghost btn-danger',
-              type: 'button',
-              text: '×',
-              title: t('admin.deleteEvent'),
-              onClick: () => {
-                if (window.confirm(t('admin.deleteEventConfirm'))) {
-                  call('super:removeEvent', { eventId: event.id });
-                }
-              },
-            }),
-          ]),
-          h('div', { class: 'row-actions row-main' }, [
-            h('button', {
-              class: 'btn btn-sm btn-primary',
-              type: 'button',
-              text: t('admin.launch'),
-              disabled: !idle.length || state.session.status === 'finished',
-              onClick: () => openLaunchModal(event),
-            }),
+          h('div', { class: 'row-actions deck-actions' }, [
+            h('div', { class: 'row-actions row-icons' }, [
+              h('button', {
+                class: 'btn btn-sm btn-ghost',
+                type: 'button',
+                title: t('admin.edit'),
+                'aria-label': t('admin.edit'),
+                onClick: () => openEventModal(event),
+              }, [pencil()]),
+              h('button', {
+                class: 'btn btn-sm btn-ghost',
+                type: 'button',
+                text: '↑',
+                title: t('admin.moveUp'),
+                disabled: index === 0,
+                onClick: () => call('super:moveEvent', { eventId: event.id, direction: -1 }),
+              }),
+              h('button', {
+                class: 'btn btn-sm btn-ghost',
+                type: 'button',
+                text: '↓',
+                title: t('admin.moveDown'),
+                disabled: index === state.events.length - 1,
+                onClick: () => call('super:moveEvent', { eventId: event.id, direction: 1 }),
+              }),
+              h('button', {
+                class: 'btn btn-sm btn-ghost btn-danger',
+                type: 'button',
+                text: '×',
+                title: t('admin.deleteEvent'),
+                onClick: () => {
+                  if (window.confirm(t('admin.deleteEventConfirm'))) {
+                    call('super:removeEvent', { eventId: event.id });
+                  }
+                },
+              }),
+            ]),
+            h('div', { class: 'row-actions row-main' }, [
+              h('button', {
+                class: 'btn btn-sm btn-primary',
+                type: 'button',
+                text: t('admin.launch'),
+                disabled: !idle.length || state.session.status === 'finished',
+                onClick: () => openLaunchModal(event),
+              }),
+            ]),
           ]),
         ])
       );
@@ -523,66 +627,6 @@
     );
   }
 
-  /* --------------------------------------------------------------- dévoilement */
-
-  function renderReveal() {
-    const host = clear($('#reveal-host'));
-    const s = state.session;
-    const pending = state.teams.filter((team) => !team.progress.done).length;
-
-    if (s.revealed) {
-      host.appendChild(
-        h('div', { class: 'row', style: 'gap:10px;align-items:center' }, [
-          h('span', { class: 'badge gold', text: t('admin.revealDone') }),
-          h('span', { class: 'small muted', text: fmtTimeOnly(s.revealedAt) }),
-        ])
-      );
-      return;
-    }
-
-    /* Dévoilement intermédiaire de l'Acte 1, entre les deux actes. */
-    if (s.act1Revealed) {
-      host.appendChild(
-        h('div', { class: 'row', style: 'gap:10px;align-items:center' }, [
-          h('span', { class: 'badge gold', text: t('admin.act1RevealDone') }),
-          h('span', { class: 'small muted', text: fmtTimeOnly(s.act1RevealedAt) }),
-        ])
-      );
-    } else {
-      host.appendChild(
-        h('div', { class: 'row', style: 'gap:10px;align-items:center' }, [
-          h('button', {
-            class: 'btn btn-sm',
-            type: 'button',
-            text: t('admin.revealAct1'),
-            onClick: () => {
-              if (window.confirm(t('admin.revealAct1Confirm'))) call('super:revealAct1');
-            },
-          }),
-          h('span', { class: 'small muted', text: t('admin.revealAct1Hint') }),
-        ])
-      );
-    }
-    host.appendChild(h('div', { class: 'divider' }));
-
-    host.appendChild(C.sealedNotice('admin.revealHint'));
-    host.appendChild(
-      h('div', { class: 'row', style: 'margin-top:12px;gap:10px;align-items:center' }, [
-        h('button', {
-          class: 'btn btn-primary',
-          type: 'button',
-          text: t('admin.reveal'),
-          onClick: () => {
-            if (window.confirm(t('admin.revealConfirm'))) call('super:reveal');
-          },
-        }),
-        pending
-          ? h('span', { class: 'small warn', text: t('admin.revealNotReady', { n: pending }) })
-          : h('span', { class: 'small muted', text: t('admin.tableDone') }),
-      ])
-    );
-  }
-
   function renderBoard() {
     const host = clear($('#board-host'));
     /* Le classement vit dans la colonne latérale : la version détaillée y
@@ -607,7 +651,7 @@
   function pushSettings() {
     call('super:updateSettings', {
       settings: {
-        defaultDuration: toSeconds($('#set-duration').value) || 300,
+        defaultDuration: toSeconds($('#set-duration').value) || 360,
         arbitrationSeconds: toSeconds($('#set-arbitration').value) || 90,
         teamSize: Number($('#set-teamsize').value) || 6,
         autoAssignRoles: $('#set-autoassign').checked,
@@ -621,27 +665,6 @@
   function renderRoles() {
     const host = clear($('#roles-host'));
     host.appendChild(C.rolesGrid(state.roles));
-  }
-
-  function renderTwists() {
-    const host = clear($('#twists-host'));
-    (state.twists || []).forEach((tw) => {
-      host.appendChild(
-        h('div', { class: 'list-item' }, [
-          h('div', { class: 'grow' }, [
-            h('div', { class: 'title', text: L(tw.title) }),
-            h('div', { class: 'small muted', text: L(tw.desc) }),
-          ]),
-          h('button', {
-            class: 'btn btn-sm',
-            type: 'button',
-            text: t('admin.throwTwist'),
-            disabled: state.session.status === 'finished',
-            onClick: () => call('super:twist', { twistId: tw.id }),
-          }),
-        ])
-      );
-    });
   }
 
   function renderDebrief() {
@@ -670,13 +693,11 @@
     if (!state) return;
     tickers.clear();
     renderHeader();
-    renderReveal();
     renderTeams();
     renderRanks();
     renderDeck();
     renderBoard();
     renderSettings();
-    renderTwists();
     renderDebrief();
     renderRoles();
     renderLog();
@@ -727,6 +748,9 @@
       /* ------------------------------------------------- accès de l'animateur */
       const qrPanel = tableQrPanel(team);
       if (qrPanel) body.appendChild(qrPanel);
+
+      const playerQrPanel = playerTableQrPanel(team);
+      if (playerQrPanel) body.appendChild(playerQrPanel);
 
       /* ------------------------------------------------------------ effectif */
       body.appendChild(h('div', { class: 'label', text: t('team.roster') }));
@@ -820,54 +844,6 @@
         );
       }
 
-      /* ---------------------------------------------------------- ajustements */
-      const deltaInput = h('input', { type: 'number', value: '0', step: '1' });
-      const reasonInput = h('input', { type: 'text', maxlength: '80' });
-      body.appendChild(
-        h('div', { class: 'panel tight' }, [
-          h('div', { class: 'label', text: t('admin.adjust') }),
-          h('div', { class: 'row', style: 'gap:8px;align-items:flex-end;flex-wrap:wrap' }, [
-            h('label', { class: 'field', style: 'margin:0;width:110px' }, [
-              h('span', { text: t('admin.adjustHint') }),
-              deltaInput,
-            ]),
-            h('label', { class: 'field', style: 'margin:0;flex:1 1 160px' }, [
-              h('span', { text: t('admin.reason') }),
-              reasonInput,
-            ]),
-            h('button', {
-              class: 'btn btn-sm',
-              text: t('btn.add'),
-              onClick: () => {
-                const delta = Number(deltaInput.value);
-                if (!delta) return;
-                call('super:adjustScore', { teamId, delta, reason: reasonInput.value.trim() });
-                deltaInput.value = '0';
-                reasonInput.value = '';
-              },
-            }),
-          ]),
-          team.adjustments.length
-            ? h(
-                'div',
-                { class: 'list', style: 'margin-top:10px' },
-                team.adjustments.map((adj) =>
-                  h('div', { class: 'list-item' }, [
-                    h('span', { class: `num ${signClass(adj.delta)}`, text: fmtSigned(adj.delta) }),
-                    h('div', { class: 'grow small', text: adj.reason || '—' }),
-                    h('button', {
-                      class: 'btn btn-xs btn-ghost btn-danger',
-                      text: '×',
-                      onClick: () =>
-                        call('super:removeAdjustment', { teamId, adjustmentId: adj.id }),
-                    }),
-                  ])
-                )
-              )
-            : null,
-        ])
-      );
-
       /* ------------------------------------------------ décisions et correction */
       body.appendChild(h('div', { class: 'label', text: t('team.history') }));
       body.appendChild(
@@ -912,6 +888,22 @@
               })
             : [h('p', { class: 'muted small', text: t('team.noHistory') })]
         )
+      );
+
+      /* ------------------------------------------------------------ suppression */
+      body.appendChild(
+        h('div', { class: 'row', style: 'justify-content:flex-end;margin-top:6px' }, [
+          h('button', {
+            class: 'btn btn-sm btn-danger',
+            type: 'button',
+            text: t('admin.deleteTable'),
+            onClick: async () => {
+              if (!window.confirm(t('admin.deleteTableConfirm', { name: team.name }))) return;
+              const res = await call('super:removeTeam', { teamId });
+              if (res) dialog.close();
+            },
+          }),
+        ])
       );
 
       return undefined;
@@ -1043,13 +1035,13 @@
         type: 'number',
         value: option.points != null ? option.points : 0,
       });
-      f[`opt_${key}_reveal_fr`] = h('input', {
-        type: 'text',
+      f[`opt_${key}_reveal_fr`] = h('textarea', {
         value: (option.reveal && option.reveal.fr) || '',
+        text: (option.reveal && option.reveal.fr) || '',
       });
-      f[`opt_${key}_reveal_en`] = h('input', {
-        type: 'text',
+      f[`opt_${key}_reveal_en`] = h('textarea', {
         value: (option.reveal && option.reveal.en) || '',
+        text: (option.reveal && option.reveal.en) || '',
       });
 
       return h('div', { class: 'panel tight' }, [
@@ -1068,14 +1060,18 @@
           h('span', { text: t('admin.optPoints') }),
           f[`opt_${key}_points`],
         ]),
-        h('div', { class: 'grid cols-2', style: 'gap:8px' }, [
-          h('label', { class: 'field', style: 'margin:0' }, [
-            h('span', { text: `${t('admin.optReveal')} · FR` }),
-            f[`opt_${key}_reveal_fr`],
-          ]),
-          h('label', { class: 'field', style: 'margin:0' }, [
-            h('span', { text: `${t('admin.optReveal')} · EN` }),
-            f[`opt_${key}_reveal_en`],
+        h('div', { class: 'option-reveal-editor act2-only' }, [
+          h('div', { class: 'label', text: t('admin.optReveal') }),
+          h('div', { class: 'small muted', text: t('admin.optRevealHint') }),
+          h('div', { class: 'grid cols-2', style: 'gap:8px;margin-top:8px' }, [
+            h('label', { class: 'field', style: 'margin:0' }, [
+              h('span', { text: t('admin.frLabel') }),
+              f[`opt_${key}_reveal_fr`],
+            ]),
+            h('label', { class: 'field', style: 'margin:0' }, [
+              h('span', { text: t('admin.enLabel') }),
+              f[`opt_${key}_reveal_en`],
+            ]),
           ]),
         ]),
       ]);
@@ -1108,11 +1104,25 @@
     body.appendChild(pair('admin.eventTag', 'tag'));
     body.appendChild(pair('admin.eventTitle', 'title'));
     body.appendChild(pair('admin.eventSituation', 'situation', { textarea: true }));
-    body.appendChild(listPair('admin.eventMotif', 'motif'));
-    body.appendChild(listPair('admin.eventImpact', 'impact'));
-    body.appendChild(pair('admin.eventTension', 'tension'));
+    const motifEditor = listPair('admin.eventMotif', 'motif');
+    const impactEditor = listPair('admin.eventImpact', 'impact');
+    const tensionEditor = pair('admin.eventTension', 'tension');
+    motifEditor.classList.add('act1-only');
+    impactEditor.classList.add('act1-only');
+    tensionEditor.classList.add('act2-only');
+    body.appendChild(motifEditor);
+    body.appendChild(impactEditor);
+    body.appendChild(tensionEditor);
     body.appendChild(h('div', { class: 'label', text: t('admin.eventOptions') }));
     optionRows.forEach((row) => body.appendChild(row));
+
+    function syncActFields() {
+      const act2 = Number(actSelect.value) === 2;
+      body.querySelectorAll('.act1-only').forEach((node) => node.classList.toggle('hidden', act2));
+      body.querySelectorAll('.act2-only').forEach((node) => node.classList.toggle('hidden', !act2));
+    }
+    actSelect.addEventListener('change', syncActFields);
+    syncActFields();
 
     body.appendChild(
       h('div', { class: 'row', style: 'margin-top:6px' }, [
@@ -1163,9 +1173,9 @@
         tag: textPair('tag') || { fr: 'Événement', en: 'Event' },
         title: textPair('title') || { fr: 'Événement', en: 'Event' },
         situation: textPair('situation') || { fr: '', en: '' },
-        motif: listOf('motif'),
-        impact: listOf('impact'),
-        tension: textPair('tension'),
+        motif: act === 1 ? listOf('motif') : [],
+        impact: act === 1 ? listOf('impact') : [],
+        tension: act === 2 ? textPair('tension') : null,
         options: ['A', 'B', 'C'].map((key) => ({
           key,
           label: (function () {
@@ -1174,12 +1184,12 @@
             return { fr: fr || en || key, en: en || fr || key };
           })(),
           points: Number(f[`opt_${key}_points`].value) || 0,
-          reveal: (function () {
+          reveal: act === 2 ? (function () {
             const fr = f[`opt_${key}_reveal_fr`].value.trim();
             const en = f[`opt_${key}_reveal_en`].value.trim();
             if (!fr && !en) return null;
             return { fr: fr || en, en: en || fr };
-          })(),
+          })() : null,
         })),
       };
     }
@@ -1188,6 +1198,8 @@
   /* --------------------------------------------------------- branchements UI */
 
   $('#copy-code').addEventListener('click', (e) => copyText(state.session.code, e.target));
+  /* Écran des résultats : un onglet dédié, prêt à projeter en plein écran. */
+  $('#btn-results').href = `/results.html?s=${encodeURIComponent(sessionId)}`;
   $('#copy-link').addEventListener('click', (e) => copyText(playerLink(state.session.code), e.target));
   $('#qr-tile').addEventListener('click', () => {
     if (state) openQrModal();

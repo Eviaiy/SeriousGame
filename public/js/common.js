@@ -66,7 +66,8 @@
 
   function fmtSigned(n) {
     const value = Number(n) || 0;
-    return value > 0 ? `+${value}` : String(value);
+    /* Zéro s'écrit « +0 » : un gain nul se lit comme les autres gains. */
+    return value >= 0 ? `+${value}` : String(value);
   }
 
   function signClass(n) {
@@ -113,7 +114,7 @@
     return `${Math.floor(min / 60)} h ${String(min % 60).padStart(2, '0')}`;
   }
 
-  /* Les animateurs annoncent « cinq minutes », jamais « 300 secondes ». Les
+  /* Les animateurs annoncent une durée en minutes, jamais en secondes. Les
      champs de saisie sont donc en minutes ; le moteur reste en secondes. */
   function toMinutes(seconds) {
     return Math.round(((Number(seconds) || 0) / 60) * 10) / 10;

@@ -88,6 +88,14 @@ function load() {
   const records = readJson(RECORDS_FILE, { records: [] });
   state.sessions = (sessions && sessions.sessions) || {};
   state.records = (records && records.records) || [];
+  /* Les anciennes tables portaient le nom de la session en préfixe
+     (« Session · Table 1 ») : on ne garde que « Table 1 ». */
+  for (const session of Object.values(state.sessions)) {
+    for (const team of session.teams || []) {
+      const match = typeof team.name === 'string' && team.name.match(/ · (Table \d+)$/);
+      if (match) team.name = match[1];
+    }
+  }
   return state;
 }
 

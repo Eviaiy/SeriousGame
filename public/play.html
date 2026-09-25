@@ -27,7 +27,7 @@
     <header class="topbar">
       <div class="brand">
         <span class="tag" data-i18n="app.name">Serious Game</span>
-        <span id="player-name">—</span>
+        <span data-i18n="app.name">Serious Game</span>
       </div>
       <span class="badge" id="team-badge">—</span>
       <div class="spacer"></div>
@@ -51,12 +51,6 @@
       <!-- scène de jeu -->
       <section id="stage" class="stack" style="margin-top: 16px"></section>
 
-      <!-- résultats intermédiaires de l'Acte 1 -->
-      <section id="act1-host" style="margin-top: 16px"></section>
-
-      <!-- résultats finaux, après dévoilement -->
-      <section id="final-host" style="margin-top: 16px"></section>
-
       <!-- autour de la table -->
       <section class="panel" style="margin-top: 16px">
         <div class="panel-head">
@@ -66,16 +60,7 @@
         <div id="roster-host"></div>
       </section>
 
-      <!-- mes décisions -->
-      <section class="panel" style="margin-top: 16px">
-        <div class="panel-head">
-          <h2 data-i18n="play.history">Vos décisions</h2>
-        </div>
-        <div id="history-host"></div>
-      </section>
-
       <div class="row" style="margin-top: 18px">
-        <a class="btn btn-sm btn-ghost" href="/" data-i18n="nav.home">Accueil</a>
         <div class="spacer"></div>
         <button class="btn btn-sm btn-ghost btn-danger" id="btn-leave" data-i18n="play.leave">
           Quitter

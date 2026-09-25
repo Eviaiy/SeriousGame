@@ -38,7 +38,6 @@
   let shownRound = null;
   let shownClosed = null;
   let narrativeDone = false;
-  let revealShown = false;
 
   /* ------------------------------------------------------------ identification */
 
@@ -54,7 +53,6 @@
   /* ------------------------------------------------------------------ entête */
 
   function renderHeader() {
-    $('#player-name').textContent = (state.me && state.me.name) || creds.playerName || '—';
     const badge = $('#team-badge');
     badge.textContent = state.team.name;
     badge.className = 'badge accent';
@@ -105,103 +103,6 @@
     );
   }
 
-  function renderHistory() {
-    const host = clear($('#history-host'));
-    host.appendChild(C.historyTable(state.history, { showScores: state.scoresVisible }));
-  }
-
-  /* -------------------------------------------- résultats de l'Acte 1 (mi-parcours) */
-
-  function renderAct1() {
-    const host = clear($('#act1-host'));
-    /* Uniquement entre les deux actes : dès le dévoilement final, tout est dans
-       l'écran des résultats finaux. */
-    if (!state.session.act1Revealed || state.scoresVisible) return;
-    const me = (state.act1Board || []).find((row) => row.teamId === state.team.id);
-    host.appendChild(
-      h('div', { class: 'panel' }, [
-        h('div', { class: 'panel-head' }, [
-          h('h2', { text: t('play.act1Title') }),
-          me ? h('span', { class: 'badge gold', text: `${t('score.rank')} ${me.rank}` }) : null,
-        ]),
-        h('div', { class: 'score-strip' }, [
-          metric('score.act1', state.team.act1),
-        ]),
-        state.team.act1Profile
-          ? h('div', { style: 'margin-top:14px' }, [
-              C.profileCard('score.profile1', state.team.act1Profile),
-            ])
-          : null,
-        h('div', { style: 'margin-top:14px' }, [
-          h('div', { class: 'meta-label', text: t('play.act1Board') }),
-          C.actBoardTable(state.act1Board, { teamId: state.team.id }),
-        ]),
-        h('div', { class: 'small muted', style: 'margin-top:10px', text: t('play.act1Hint') }),
-      ])
-    );
-  }
-
-  /* -------------------------------------------------------- résultats finaux */
-
-  function renderFinal() {
-    const host = clear($('#final-host'));
-    if (!state.scoresVisible) {
-      host.appendChild(C.sealedNotice('play.scoresSealedHint'));
-      return;
-    }
-    /* Le dévoilement est le moment fort : on amène l'écran dessus une fois. */
-    if (!revealShown) {
-      revealShown = true;
-      requestAnimationFrame(() => host.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-    }
-
-    const me = (state.leaderboard || []).find((row) => row.teamId === state.team.id);
-    host.appendChild(
-      h('div', { class: 'panel' }, [
-        h('div', { class: 'panel-head' }, [
-          h('h2', { text: t('play.finalTitle') }),
-          me ? h('span', { class: 'badge gold', text: `${t('score.rank')} ${me.rank}` }) : null,
-        ]),
-        h('div', { class: 'score-strip' }, [
-          metric('score.total', state.team.total),
-          metric('score.act1', state.team.act1),
-          metric('score.act2', state.team.act2),
-          metric('score.wins', state.team.wins, true),
-        ]),
-        state.team.act1Profile
-          ? h('div', { class: 'grid cols-2', style: 'margin-top:14px' }, [
-              C.profileCard('score.profile1', state.team.act1Profile),
-              C.profileCard('score.profile2', state.team.act2Profile, 'blue'),
-            ])
-          : null,
-        h('div', { style: 'margin-top:14px' }, [
-          h('div', { class: 'meta-label', text: t('admin.leaderboard') }),
-          C.leaderboardTable(state.leaderboard, { compact: true, teamId: state.team.id }),
-        ]),
-        h('div', { class: 'small muted', style: 'margin-top:10px', text: t('play.noIndividual') }),
-      ])
-    );
-
-    if (state.debrief) {
-      host.appendChild(
-        h('div', { class: 'panel', style: 'margin-top:16px' }, [
-          h('div', { class: 'panel-head' }, [h('h2', { text: L(state.debrief.title) })]),
-          C.debriefPanel(state.debrief),
-        ])
-      );
-    }
-  }
-
-  function metric(labelKey, value, raw) {
-    return h('div', { class: 'metric' }, [
-      h('div', { class: 'k', text: t(labelKey) }),
-      h('div', {
-        class: 'v small',
-        text: raw ? String(value || 0) : window.SG.fmtSigned(value || 0),
-      }),
-    ]);
-  }
-
   /* ------------------------------------------------------------------ la scène */
 
   function waitingPanel() {
@@ -215,13 +116,6 @@
         h('div', { class: 'pulse-dot' }),
         h('h2', { text: t('play.waitingRole') }),
         h('div', { class: 'small muted', text: t('play.waitingRoleHint') }),
-      ]);
-    }
-    if (state.team.progress.done) {
-      return h('div', { class: 'stage-empty' }, [
-        h('div', { class: 'eyebrow', text: t('admin.tableDone') }),
-        h('h2', { text: t('play.done') }),
-        h('div', { class: 'small muted', text: t('play.doneHint') }),
       ]);
     }
     return h('div', { class: 'stage-empty' }, [
@@ -314,6 +208,22 @@
     if (!round) {
       shownRound = null;
       shownClosed = null;
+      /* Le bloc rôle porte déjà cet état : ne pas répéter le même message dans
+         une carte d'attente temporaire. */
+      if (!state.team.rolesAssigned) return;
+      const lastHistory = state.history && state.history[state.history.length - 1];
+      const results = state.actResults || [];
+      const result = results.slice(-1)[0];
+      if (result && lastHistory && Number(lastHistory.act) === Number(result.act)) {
+        const overview = C.gameCompletedOverview(results);
+        if (overview) stage.appendChild(overview);
+        results
+          .slice()
+          .sort((a, b) => Number(b.act) - Number(a.act))
+          .forEach((entry) => stage.appendChild(C.actResultCard(entry)));
+        return;
+      }
+      if (state.team.progress.done) return;
       stage.appendChild(waitingPanel());
       return;
     }
@@ -441,9 +351,12 @@
     renderDockChoices(round);
 
     if (round.status === 'arbitration') {
-      badge.textContent = t('play.tie');
-      badge.className = 'badge warn';
-      hint.textContent = state.isDg ? t('play.tieYouDecide') : t('play.tieWaitDg', { name: round.dgName || '' });
+      /* Sur téléphone la barre est étroite : un titre court et une consigne
+         courte, le détail reste dans le panneau d'arbitrage de la page. */
+      $('#dock-question').textContent = t('play.tie');
+      badge.textContent = '';
+      badge.className = 'badge hidden';
+      hint.textContent = state.isDg ? t('play.tieDockDg') : t('play.tieDockWait');
     } else if (round.status === 'closed') {
       badge.textContent = t('play.closed');
       badge.className = 'badge';
@@ -472,10 +385,7 @@
     renderRole();
     renderStage();
     renderDock();
-    renderAct1();
-    renderFinal();
     renderRoster();
-    renderHistory();
   }
 
   function applyState(next) {
@@ -502,15 +412,20 @@
   /* --------------------------------------------------------------- démarrage */
 
   (function boot() {
+    const code = (qs('code') || '').toUpperCase();
+    /* Compatibilité avec les anciens liens /play.html?code=… : leur intention
+       d'inscription prime sur le dernier joueur mémorisé dans ce navigateur. */
+    if (code) {
+      const table = qs('t');
+      const query = `?code=${encodeURIComponent(code)}${
+        table ? `&t=${encodeURIComponent(table)}` : ''
+      }`;
+      window.location.replace(`/${query}`);
+      return;
+    }
     creds = resolveCreds();
     if (!creds) {
-      const code = (qs('code') || '').toUpperCase();
-      /* Le QR d'une table ajoute ?t= : on le passe au formulaire d'inscription. */
-      const table = qs('t');
-      const query = code
-        ? `?code=${encodeURIComponent(code)}${table ? `&t=${encodeURIComponent(table)}` : ''}`
-        : '';
-      window.location.href = `/${query}`;
+      window.location.replace('/');
       return;
     }
     narrativeDone = seenList().includes(seenKey());
