@@ -1972,9 +1972,8 @@ input::placeholder {
   font-weight: 620;
   line-height: 1.25;
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .dock-line {
   display: flex;
