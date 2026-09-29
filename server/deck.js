@@ -270,7 +270,7 @@ const DEFAULT_EVENTS = [
     ref: { fr: 'Étape 4/4', en: 'Step 4/4' },
     tag: { fr: 'Transformation · Vision', en: 'Transformation · Vision' },
     color: 'blue',
-    title: { fr: 'Quelle est la stratégie à long terme ?', en: 'Ambitious or minimalist?' },
+    title: { fr: 'Quelle est la stratégie à long terme ?', en: 'What is the long-term strategy?' },
     situation: {
       fr: 'Trois trajectoires s’offrent à vous : stabiliser, optimiser ou transformer.',
       en: 'Three trajectories are open to you: stabilise, optimise or transform.',
@@ -284,7 +284,7 @@ const DEFAULT_EVENTS = [
     options: options([
       {
         key: 'A',
-        label: { fr: 'Stabilisation prudente', en: 'Minimal stabilisation' },
+        label: { fr: 'Stabilisation prudente', en: 'Cautious stabilisation' },
         reveal: { fr: 'Conformité fragile', en: 'Fragile compliance' },
       },
       {

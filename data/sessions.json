@@ -1,5 +1,5 @@
 {
-  "savedAt": 1790695727774,
+  "savedAt": 1790697388639,
   "sessions": {
     "sess_3a20002942ee5574": {
       "id": "sess_3a20002942ee5574",
@@ -9896,20 +9896,20 @@
       ],
       "archivedRecordId": null
     },
-    "sess_888056879947543d": {
-      "id": "sess_888056879947543d",
-      "code": "JNTXZE",
-      "superKey": "9b065ad35eadd56223018e1fb0e765ff",
+    "sess_b6da105a4bbc1a13": {
+      "id": "sess_b6da105a4bbc1a13",
+      "code": "AZMRR5",
+      "superKey": "874c0459d904cf00b49b3a8cb6781e23",
       "name": "Facturation électronique",
       "facilitator": "",
       "lang": "fr",
-      "status": "running",
-      "createdAt": 1790694830701,
-      "startedAt": 1790694856415,
+      "status": "lobby",
+      "createdAt": 1790697388387,
+      "startedAt": null,
       "endedAt": null,
       "settings": {
         "defaultDuration": 360,
-        "teamSize": 3,
+        "teamSize": 6,
         "arbitrationSeconds": 90,
         "autoAssignRoles": true,
         "autoCloseOnAllVotes": true,
@@ -9918,336 +9918,64 @@
       },
       "teams": [
         {
-          "id": "team_e1d3a8b512dfd19f",
+          "id": "team_ddca20db8ab1000b",
           "name": "Table 1",
-          "adminToken": "2b82589b799ee4d51ba8a311b542986d",
-          "adminCode": "V964QF",
-          "hostClaimedAt": 1790694849038,
-          "hostSockets": 1,
-          "facilitatorName": "HEYAh",
-          "createdAt": 1790694830702,
-          "players": [
-            {
-              "id": "pl_a3c3e373e754c821",
-              "token": "232a0c5120e5ce22d380a61d65f66339",
-              "name": "TJ",
-              "roleId": "role-dg",
-              "sockets": 1,
-              "joinedAt": 1790694841964
-            }
-          ],
-          "rolesAssignedAt": 1790694852507,
-          "round": {
-            "eventId": "act2-step1",
-            "no": 5,
-            "startedAt": 1790695367498,
-            "durationSec": 360,
-            "endsAt": 1790695727498,
-            "pausedAt": null,
-            "closedAt": 1790695727523,
-            "status": "closed",
-            "votes": {},
-            "tally": {
-              "A": 0,
-              "B": 0,
-              "C": 0
-            },
-            "tied": [],
-            "decision": null,
-            "decidedBy": "none",
-            "arbitrationEndsAt": null,
-            "replay": false,
-            "closeReason": "timeout"
-          },
-          "answers": {
-            "act1-card1": {
-              "eventId": "act1-card1",
-              "eventTitle": {
-                "fr": "Factures rejetées",
-                "en": "Rejected invoices"
-              },
-              "eventRef": {
-                "fr": "Carte 1",
-                "en": "Card 1"
-              },
-              "act": 1,
-              "no": 1,
-              "startedAt": 1790694856415,
-              "closedAt": 1790694860548,
-              "durationSec": 360,
-              "decision": "C",
-              "decidedBy": "majority",
-              "tally": {
-                "A": 0,
-                "B": 0,
-                "C": 1
-              },
-              "voters": 1,
-              "headcount": 1,
-              "decisionMs": 4133,
-              "points": 4,
-              "total": 4
-            },
-            "act1-card2": {
-              "eventId": "act1-card2",
-              "eventTitle": {
-                "fr": "DGFIP — incohérences",
-                "en": "Tax authority — inconsistencies"
-              },
-              "eventRef": {
-                "fr": "Carte 2",
-                "en": "Card 2"
-              },
-              "act": 1,
-              "no": 2,
-              "startedAt": 1790694862973,
-              "closedAt": 1790694884327,
-              "durationSec": 360,
-              "decision": "C",
-              "decidedBy": "majority",
-              "tally": {
-                "A": 0,
-                "B": 0,
-                "C": 1
-              },
-              "voters": 1,
-              "headcount": 1,
-              "decisionMs": 21354,
-              "points": 4,
-              "total": 4
-            },
-            "act1-card3": {
-              "eventId": "act1-card3",
-              "eventTitle": {
-                "fr": "Alerte sur les contrôles",
-                "en": "Controls alert"
-              },
-              "eventRef": {
-                "fr": "Carte 3",
-                "en": "Card 3"
-              },
-              "act": 1,
-              "no": 3,
-              "startedAt": 1790694887714,
-              "closedAt": 1790694893935,
-              "durationSec": 360,
-              "decision": "A",
-              "decidedBy": "majority",
-              "tally": {
-                "A": 1,
-                "B": 0,
-                "C": 0
-              },
-              "voters": 1,
-              "headcount": 1,
-              "decisionMs": 6221,
-              "points": 0,
-              "total": 0
-            },
-            "act1-card4": {
-              "eventId": "act1-card4",
-              "eventTitle": {
-                "fr": "Article de presse",
-                "en": "Press article"
-              },
-              "eventRef": {
-                "fr": "Carte 4",
-                "en": "Card 4"
-              },
-              "act": 1,
-              "no": 4,
-              "startedAt": 1790694897031,
-              "closedAt": 1790695256912,
-              "durationSec": 360,
-              "decision": null,
-              "decidedBy": "none",
-              "tally": {
-                "A": 0,
-                "B": 0,
-                "C": 0
-              },
-              "voters": 0,
-              "headcount": 1,
-              "decisionMs": 359881,
-              "points": 0,
-              "total": 0
-            },
-            "act2-step1": {
-              "eventId": "act2-step1",
-              "eventTitle": {
-                "fr": "Stabiliser ou investir ?",
-                "en": "Stabilise or invest?"
-              },
-              "eventRef": {
-                "fr": "Étape 1/4",
-                "en": "Step 1/4"
-              },
-              "act": 2,
-              "no": 5,
-              "startedAt": 1790695367498,
-              "closedAt": 1790695727523,
-              "durationSec": 360,
-              "decision": null,
-              "decidedBy": "none",
-              "tally": {
-                "A": 0,
-                "B": 0,
-                "C": 0
-              },
-              "voters": 0,
-              "headcount": 1,
-              "decisionMs": 360025,
-              "points": 0,
-              "total": 0
-            }
-          },
-          "history": [
-            {
-              "eventId": "act1-card1",
-              "eventTitle": {
-                "fr": "Factures rejetées",
-                "en": "Rejected invoices"
-              },
-              "eventRef": {
-                "fr": "Carte 1",
-                "en": "Card 1"
-              },
-              "act": 1,
-              "no": 1,
-              "startedAt": 1790694856415,
-              "closedAt": 1790694860548,
-              "durationSec": 360,
-              "decision": "C",
-              "decidedBy": "majority",
-              "tally": {
-                "A": 0,
-                "B": 0,
-                "C": 1
-              },
-              "voters": 1,
-              "headcount": 1,
-              "decisionMs": 4133,
-              "points": 4,
-              "total": 4
-            },
-            {
-              "eventId": "act1-card2",
-              "eventTitle": {
-                "fr": "DGFIP — incohérences",
-                "en": "Tax authority — inconsistencies"
-              },
-              "eventRef": {
-                "fr": "Carte 2",
-                "en": "Card 2"
-              },
-              "act": 1,
-              "no": 2,
-              "startedAt": 1790694862973,
-              "closedAt": 1790694884327,
-              "durationSec": 360,
-              "decision": "C",
-              "decidedBy": "majority",
-              "tally": {
-                "A": 0,
-                "B": 0,
-                "C": 1
-              },
-              "voters": 1,
-              "headcount": 1,
-              "decisionMs": 21354,
-              "points": 4,
-              "total": 4
-            },
-            {
-              "eventId": "act1-card3",
-              "eventTitle": {
-                "fr": "Alerte sur les contrôles",
-                "en": "Controls alert"
-              },
-              "eventRef": {
-                "fr": "Carte 3",
-                "en": "Card 3"
-              },
-              "act": 1,
-              "no": 3,
-              "startedAt": 1790694887714,
-              "closedAt": 1790694893935,
-              "durationSec": 360,
-              "decision": "A",
-              "decidedBy": "majority",
-              "tally": {
-                "A": 1,
-                "B": 0,
-                "C": 0
-              },
-              "voters": 1,
-              "headcount": 1,
-              "decisionMs": 6221,
-              "points": 0,
-              "total": 0
-            },
-            {
-              "eventId": "act1-card4",
-              "eventTitle": {
-                "fr": "Article de presse",
-                "en": "Press article"
-              },
-              "eventRef": {
-                "fr": "Carte 4",
-                "en": "Card 4"
-              },
-              "act": 1,
-              "no": 4,
-              "startedAt": 1790694897031,
-              "closedAt": 1790695256912,
-              "durationSec": 360,
-              "decision": null,
-              "decidedBy": "none",
-              "tally": {
-                "A": 0,
-                "B": 0,
-                "C": 0
-              },
-              "voters": 0,
-              "headcount": 1,
-              "decisionMs": 359881,
-              "points": 0,
-              "total": 0
-            },
-            {
-              "eventId": "act2-step1",
-              "eventTitle": {
-                "fr": "Stabiliser ou investir ?",
-                "en": "Stabilise or invest?"
-              },
-              "eventRef": {
-                "fr": "Étape 1/4",
-                "en": "Step 1/4"
-              },
-              "act": 2,
-              "no": 5,
-              "startedAt": 1790695367498,
-              "closedAt": 1790695727523,
-              "durationSec": 360,
-              "decision": null,
-              "decidedBy": "none",
-              "tally": {
-                "A": 0,
-                "B": 0,
-                "C": 0
-              },
-              "voters": 0,
-              "headcount": 1,
-              "decisionMs": 360025,
-              "points": 0,
-              "total": 0
-            }
-          ],
+          "adminToken": "c67d5e293b939ddf50db236108ddf5ef",
+          "adminCode": "96TVPK",
+          "hostClaimedAt": null,
+          "hostSockets": 0,
+          "facilitatorName": "",
+          "createdAt": 1790697388388,
+          "players": [],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
           "adjustments": [],
-          "act1": 8,
+          "act1": 0,
           "act2": 0,
           "adjust": 0,
-          "wins": 5
+          "wins": 0
+        },
+        {
+          "id": "team_cc3d594338d02c9a",
+          "name": "Table 2",
+          "adminToken": "b6b447e9a4cf10c17d6643e009fbc5ec",
+          "adminCode": "PPWAG4",
+          "hostClaimedAt": null,
+          "hostSockets": 0,
+          "facilitatorName": "",
+          "createdAt": 1790697388388,
+          "players": [],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "wins": 0
+        },
+        {
+          "id": "team_f92a7cfff34ac076",
+          "name": "Table 3",
+          "adminToken": "5130e437c831ec9e0251fc0dbb7da755",
+          "adminCode": "56Y8KS",
+          "hostClaimedAt": null,
+          "hostSockets": 0,
+          "facilitatorName": "",
+          "createdAt": 1790697388388,
+          "players": [],
+          "rolesAssignedAt": null,
+          "round": null,
+          "answers": {},
+          "history": [],
+          "adjustments": [],
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "wins": 0
         }
       ],
       "events": [
@@ -10750,8 +10478,8 @@
           },
           "color": "blue",
           "title": {
-            "fr": "Ambitieux ou minimaliste ?",
-            "en": "Ambitious or minimalist?"
+            "fr": "Quelle est la stratégie à long terme ?",
+            "en": "What is the long-term strategy?"
           },
           "situation": {
             "fr": "Trois trajectoires s’offrent à vous : stabiliser, optimiser ou transformer.",
@@ -10767,8 +10495,8 @@
             {
               "key": "A",
               "label": {
-                "fr": "Stabilisation minimale",
-                "en": "Minimal stabilisation"
+                "fr": "Stabilisation prudente",
+                "en": "Cautious stabilisation"
               },
               "points": 0,
               "reveal": {
@@ -10805,153 +10533,12 @@
       ],
       "log": [
         {
-          "id": "log_6bd9941970e8b154",
-          "ts": 1790694830702,
+          "id": "log_3760946fc7bd02fa",
+          "ts": 1790697388388,
           "type": "session_created",
           "params": {
             "name": "Facturation électronique",
-            "teams": 1
-          }
-        },
-        {
-          "id": "log_ac4f4b539f5630c2",
-          "ts": 1790694841964,
-          "type": "player_joined",
-          "params": {
-            "player": "TJ",
-            "team": "Table 1"
-          }
-        },
-        {
-          "id": "log_feffb06083ad347c",
-          "ts": 1790694849038,
-          "type": "table_claimed",
-          "params": {
-            "team": "Table 1"
-          }
-        },
-        {
-          "id": "log_24862d361d087710",
-          "ts": 1790694852507,
-          "type": "roles_assigned",
-          "params": {
-            "team": "Table 1",
-            "players": 1
-          }
-        },
-        {
-          "id": "log_7f35004cd6ad955f",
-          "ts": 1790694856415,
-          "type": "round_started",
-          "params": {
-            "team": "Table 1",
-            "event": "Factures rejetées",
-            "eventEn": "Rejected invoices",
-            "seconds": 360
-          }
-        },
-        {
-          "id": "log_73810f56d0ef91d5",
-          "ts": 1790694860548,
-          "type": "round_decided",
-          "params": {
-            "team": "Table 1",
-            "event": "Factures rejetées",
-            "eventEn": "Rejected invoices",
-            "choice": "C",
-            "by": "majority"
-          }
-        },
-        {
-          "id": "log_5b84f8711320b000",
-          "ts": 1790694862973,
-          "type": "round_started",
-          "params": {
-            "team": "Table 1",
-            "event": "DGFIP — incohérences",
-            "eventEn": "Tax authority — inconsistencies",
-            "seconds": 360
-          }
-        },
-        {
-          "id": "log_8bf53b5ecdce040b",
-          "ts": 1790694884327,
-          "type": "round_decided",
-          "params": {
-            "team": "Table 1",
-            "event": "DGFIP — incohérences",
-            "eventEn": "Tax authority — inconsistencies",
-            "choice": "C",
-            "by": "majority"
-          }
-        },
-        {
-          "id": "log_272cfa7c0d132d4c",
-          "ts": 1790694887714,
-          "type": "round_started",
-          "params": {
-            "team": "Table 1",
-            "event": "Alerte sur les contrôles",
-            "eventEn": "Controls alert",
-            "seconds": 360
-          }
-        },
-        {
-          "id": "log_5f7584c1cbe524fc",
-          "ts": 1790694893935,
-          "type": "round_decided",
-          "params": {
-            "team": "Table 1",
-            "event": "Alerte sur les contrôles",
-            "eventEn": "Controls alert",
-            "choice": "A",
-            "by": "majority"
-          }
-        },
-        {
-          "id": "log_6fa64e61d5bf5fb2",
-          "ts": 1790694897031,
-          "type": "round_started",
-          "params": {
-            "team": "Table 1",
-            "event": "Article de presse",
-            "eventEn": "Press article",
-            "seconds": 360
-          }
-        },
-        {
-          "id": "log_20fb9ce613cff441",
-          "ts": 1790695256912,
-          "type": "round_decided",
-          "params": {
-            "team": "Table 1",
-            "event": "Article de presse",
-            "eventEn": "Press article",
-            "choice": "—",
-            "by": "none"
-          }
-        },
-        {
-          "id": "log_ddafcf3a8bca4fdb",
-          "ts": 1790695367498,
-          "type": "round_started",
-          "params": {
-            "team": "Table 1",
-            "event": "Stabiliser ou investir ?",
-            "eventEn": "Stabilise or invest?",
-            "seconds": 360
-          }
-        },
-        {
-          "id": "log_e6d771b40b7469e5",
-          "ts": 1790695727523,
-          "type": "round_decided",
-          "params": {
-            "team": "Table 1",
-            "event": "Stabiliser ou investir ?",
-            "eventEn": "Stabilise or invest?",
-            "choice": "—",
-            "by": "none"
+            "teams": 3
           }
         }
       ],

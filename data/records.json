@@ -1,6 +1,549 @@
 {
-  "savedAt": 1790374853023,
+  "savedAt": 1790697385360,
   "records": [
+    {
+      "id": "rec_7f0e4dc578c15dfd",
+      "sessionId": "sess_77a9b6babb895a2a",
+      "code": "HTMPFR",
+      "name": "Facturation électronique",
+      "facilitator": "",
+      "lang": "fr",
+      "createdAt": 1790697358695,
+      "startedAt": null,
+      "endedAt": 1790697385107,
+      "teamCount": 3,
+      "playerCount": 0,
+      "eventCount": 0,
+      "winner": {
+        "name": "Table 1",
+        "total": 0
+      },
+      "leaderboard": [
+        {
+          "teamId": "team_8862b322fcaef738",
+          "name": "Table 1",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 0,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        },
+        {
+          "teamId": "team_a28733b2aa73c852",
+          "name": "Table 2",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 0,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        },
+        {
+          "teamId": "team_8d6e6f126f3f8b44",
+          "name": "Table 3",
+          "act1": 0,
+          "act2": 0,
+          "adjust": 0,
+          "total": 0,
+          "wins": 0,
+          "played": 0,
+          "headcount": 0,
+          "act1Profile": {
+            "id": "firefighter",
+            "label": {
+              "fr": "Firefighter",
+              "en": "Firefighter"
+            },
+            "desc": {
+              "fr": "Vous subissez la réforme",
+              "en": "The reform is happening to you"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        }
+      ],
+      "teams": [
+        {
+          "name": "Table 1",
+          "headcount": 0,
+          "roster": []
+        },
+        {
+          "name": "Table 2",
+          "headcount": 0,
+          "roster": []
+        },
+        {
+          "name": "Table 3",
+          "headcount": 0,
+          "roster": []
+        }
+      ],
+      "events": [],
+      "adjustments": [],
+      "log": [
+        {
+          "id": "log_fe97cd9d852d8571",
+          "ts": 1790697358696,
+          "type": "session_created",
+          "params": {
+            "name": "Facturation électronique",
+            "teams": 3
+          }
+        },
+        {
+          "id": "log_aa5178811657b131",
+          "ts": 1790697385107,
+          "type": "session_ended",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "rec_b8fa50556f278f8d",
+      "sessionId": "sess_888056879947543d",
+      "code": "JNTXZE",
+      "name": "Facturation électronique",
+      "facilitator": "",
+      "lang": "fr",
+      "createdAt": 1790694830701,
+      "startedAt": 1790694856415,
+      "endedAt": 1790697354123,
+      "teamCount": 1,
+      "playerCount": 1,
+      "eventCount": 5,
+      "winner": {
+        "name": "Table 1",
+        "total": 8
+      },
+      "leaderboard": [
+        {
+          "teamId": "team_e1d3a8b512dfd19f",
+          "name": "Table 1",
+          "act1": 8,
+          "act2": 0,
+          "adjust": 0,
+          "total": 8,
+          "wins": 5,
+          "played": 5,
+          "headcount": 1,
+          "act1Profile": {
+            "id": "conforme-fragile",
+            "label": {
+              "fr": "Conforme fragile",
+              "en": "Fragile compliance"
+            },
+            "desc": {
+              "fr": "Conforme, mais dépendant des corrections",
+              "en": "Compliant, but dependent on fixes"
+            }
+          },
+          "act2Profile": {
+            "id": "survivor",
+            "label": {
+              "fr": "Survivor",
+              "en": "Survivor"
+            },
+            "desc": {
+              "fr": "Gestion court terme · vulnérabilité élevée · risque fiscal latent",
+              "en": "Short-term management · high vulnerability · latent tax risk"
+            }
+          },
+          "rank": 1
+        }
+      ],
+      "teams": [
+        {
+          "name": "Table 1",
+          "headcount": 1,
+          "roster": [
+            {
+              "name": "TJ",
+              "role": {
+                "fr": "Direction générale / Communication",
+                "en": "CEO / Communications"
+              }
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "eventId": "act1-card1",
+          "title": {
+            "fr": "Factures rejetées",
+            "en": "Rejected invoices"
+          },
+          "ref": {
+            "fr": "Carte 1",
+            "en": "Card 1"
+          },
+          "act": 1,
+          "winners": [
+            "Table 1"
+          ],
+          "results": [
+            {
+              "team": "Table 1",
+              "rank": 1,
+              "choice": "C",
+              "decidedBy": "majority",
+              "tally": {
+                "A": 0,
+                "B": 0,
+                "C": 1
+              },
+              "total": 4,
+              "points": 4,
+              "seconds": 4.1
+            }
+          ]
+        },
+        {
+          "eventId": "act1-card2",
+          "title": {
+            "fr": "DGFIP — incohérences",
+            "en": "Tax authority — inconsistencies"
+          },
+          "ref": {
+            "fr": "Carte 2",
+            "en": "Card 2"
+          },
+          "act": 1,
+          "winners": [
+            "Table 1"
+          ],
+          "results": [
+            {
+              "team": "Table 1",
+              "rank": 1,
+              "choice": "C",
+              "decidedBy": "majority",
+              "tally": {
+                "A": 0,
+                "B": 0,
+                "C": 1
+              },
+              "total": 4,
+              "points": 4,
+              "seconds": 21.4
+            }
+          ]
+        },
+        {
+          "eventId": "act1-card3",
+          "title": {
+            "fr": "Alerte sur les contrôles",
+            "en": "Controls alert"
+          },
+          "ref": {
+            "fr": "Carte 3",
+            "en": "Card 3"
+          },
+          "act": 1,
+          "winners": [
+            "Table 1"
+          ],
+          "results": [
+            {
+              "team": "Table 1",
+              "rank": 1,
+              "choice": "A",
+              "decidedBy": "majority",
+              "tally": {
+                "A": 1,
+                "B": 0,
+                "C": 0
+              },
+              "total": 0,
+              "points": 0,
+              "seconds": 6.2
+            }
+          ]
+        },
+        {
+          "eventId": "act1-card4",
+          "title": {
+            "fr": "Article de presse",
+            "en": "Press article"
+          },
+          "ref": {
+            "fr": "Carte 4",
+            "en": "Card 4"
+          },
+          "act": 1,
+          "winners": [
+            "Table 1"
+          ],
+          "results": [
+            {
+              "team": "Table 1",
+              "rank": 1,
+              "choice": null,
+              "decidedBy": "none",
+              "tally": {
+                "A": 0,
+                "B": 0,
+                "C": 0
+              },
+              "total": 0,
+              "points": 0,
+              "seconds": 359.9
+            }
+          ]
+        },
+        {
+          "eventId": "act2-step1",
+          "title": {
+            "fr": "Stabiliser ou investir ?",
+            "en": "Stabilise or invest?"
+          },
+          "ref": {
+            "fr": "Étape 1/4",
+            "en": "Step 1/4"
+          },
+          "act": 2,
+          "winners": [
+            "Table 1"
+          ],
+          "results": [
+            {
+              "team": "Table 1",
+              "rank": 1,
+              "choice": null,
+              "decidedBy": "none",
+              "tally": {
+                "A": 0,
+                "B": 0,
+                "C": 0
+              },
+              "total": 0,
+              "points": 0,
+              "seconds": 360
+            }
+          ]
+        }
+      ],
+      "adjustments": [],
+      "log": [
+        {
+          "id": "log_6bd9941970e8b154",
+          "ts": 1790694830702,
+          "type": "session_created",
+          "params": {
+            "name": "Facturation électronique",
+            "teams": 1
+          }
+        },
+        {
+          "id": "log_ac4f4b539f5630c2",
+          "ts": 1790694841964,
+          "type": "player_joined",
+          "params": {
+            "player": "TJ",
+            "team": "Table 1"
+          }
+        },
+        {
+          "id": "log_feffb06083ad347c",
+          "ts": 1790694849038,
+          "type": "table_claimed",
+          "params": {
+            "team": "Table 1"
+          }
+        },
+        {
+          "id": "log_24862d361d087710",
+          "ts": 1790694852507,
+          "type": "roles_assigned",
+          "params": {
+            "team": "Table 1",
+            "players": 1
+          }
+        },
+        {
+          "id": "log_7f35004cd6ad955f",
+          "ts": 1790694856415,
+          "type": "round_started",
+          "params": {
+            "team": "Table 1",
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices",
+            "seconds": 360
+          }
+        },
+        {
+          "id": "log_73810f56d0ef91d5",
+          "ts": 1790694860548,
+          "type": "round_decided",
+          "params": {
+            "team": "Table 1",
+            "event": "Factures rejetées",
+            "eventEn": "Rejected invoices",
+            "choice": "C",
+            "by": "majority"
+          }
+        },
+        {
+          "id": "log_5b84f8711320b000",
+          "ts": 1790694862973,
+          "type": "round_started",
+          "params": {
+            "team": "Table 1",
+            "event": "DGFIP — incohérences",
+            "eventEn": "Tax authority — inconsistencies",
+            "seconds": 360
+          }
+        },
+        {
+          "id": "log_8bf53b5ecdce040b",
+          "ts": 1790694884327,
+          "type": "round_decided",
+          "params": {
+            "team": "Table 1",
+            "event": "DGFIP — incohérences",
+            "eventEn": "Tax authority — inconsistencies",
+            "choice": "C",
+            "by": "majority"
+          }
+        },
+        {
+          "id": "log_272cfa7c0d132d4c",
+          "ts": 1790694887714,
+          "type": "round_started",
+          "params": {
+            "team": "Table 1",
+            "event": "Alerte sur les contrôles",
+            "eventEn": "Controls alert",
+            "seconds": 360
+          }
+        },
+        {
+          "id": "log_5f7584c1cbe524fc",
+          "ts": 1790694893935,
+          "type": "round_decided",
+          "params": {
+            "team": "Table 1",
+            "event": "Alerte sur les contrôles",
+            "eventEn": "Controls alert",
+            "choice": "A",
+            "by": "majority"
+          }
+        },
+        {
+          "id": "log_6fa64e61d5bf5fb2",
+          "ts": 1790694897031,
+          "type": "round_started",
+          "params": {
+            "team": "Table 1",
+            "event": "Article de presse",
+            "eventEn": "Press article",
+            "seconds": 360
+          }
+        },
+        {
+          "id": "log_20fb9ce613cff441",
+          "ts": 1790695256912,
+          "type": "round_decided",
+          "params": {
+            "team": "Table 1",
+            "event": "Article de presse",
+            "eventEn": "Press article",
+            "choice": "—",
+            "by": "none"
+          }
+        },
+        {
+          "id": "log_ddafcf3a8bca4fdb",
+          "ts": 1790695367498,
+          "type": "round_started",
+          "params": {
+            "team": "Table 1",
+            "event": "Stabiliser ou investir ?",
+            "eventEn": "Stabilise or invest?",
+            "seconds": 360
+          }
+        },
+        {
+          "id": "log_e6d771b40b7469e5",
+          "ts": 1790695727523,
+          "type": "round_decided",
+          "params": {
+            "team": "Table 1",
+            "event": "Stabiliser ou investir ?",
+            "eventEn": "Stabilise or invest?",
+            "choice": "—",
+            "by": "none"
+          }
+        },
+        {
+          "id": "log_a4c10b015f987649",
+          "ts": 1790697354123,
+          "type": "session_ended",
+          "params": {}
+        }
+      ]
+    },
     {
       "id": "rec_4fe9a10c26442090",
       "sessionId": "sess_21ea12eceb0044a3",
